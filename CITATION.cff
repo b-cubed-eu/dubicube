@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using these metadata.
+title: "dubicube: Calculation And Interpretation Of Data Cube Indicator Uncertainty"
+authors:
+- given-names: Ward
+  family-names: Langeraert
+  affiliation: Research Institute for Nature and Forest (INBO)
+  orcid: 0000-0002-5900-8109
+- given-names: Toon
+  family-names: Van Daele
+  affiliation: Research Institute for Nature and Forest (INBO)
+  orcid: 0000-0002-1362-853X
+keywords:
+- uncertainty quantification
+- uncertainty visualisation
+- biodiversity indicators
+- data cubes
+contact:
+- given-names: Ward
+  family-names: Langeraert
+  affiliation: Research Institute for Nature and Forest (INBO)
+  orcid: 0000-0002-5900-8109
+doi: ~
+license: MIT
+repository-code: /
+type: software
+abstract: "An R package to explore calculation, interpretation and visualisation of
+  uncertainty related to indicators based on biodiversity data cubes."
+version: 0.0.1

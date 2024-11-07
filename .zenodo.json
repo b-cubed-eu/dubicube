@@ -1,0 +1,47 @@
+{
+  "title": "dubicube: Calculation And Interpretation Of Data Cube Indicator Uncertainty",
+  "version": "0.0.1",
+  "license": "MIT",
+  "upload_type": "software",
+  "description": "<p>An R package to explore calculation, interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.<\/p>",
+  "keywords": [
+    "uncertainty quantification",
+    "uncertainty visualisation",
+    "biodiversity indicators",
+    "data cubes"
+  ],
+  "access_right": "open",
+  "language": "eng",
+  "contributors": [
+    {
+      "name": "Langeraert, Ward",
+      "affiliation": "Research Institute for Nature and Forest (INBO)",
+      "orcid": "0000-0002-5900-8109",
+      "type": "contactperson"
+    },
+    {
+      "name": "Research Institute for Nature and Forest (INBO)",
+      "type": "rightsholder"
+    }
+  ],
+  "creators": [
+    {
+      "name": "Langeraert, Ward",
+      "affiliation": "Research Institute for Nature and Forest (INBO)",
+      "orcid": "0000-0002-5900-8109"
+    },
+    {
+      "name": "Van Daele, Toon",
+      "affiliation": "Research Institute for Nature and Forest (INBO)",
+      "orcid": "0000-0002-1362-853X"
+    }
+  ],
+  "communities": [
+    {
+      "identifier": "b3"
+    },
+    {
+      "identifier": "inbo"
+    }
+  ]
+}

@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -71,7 +71,7 @@
   "softwareRequirements": {
     "SystemRequirements": null
   },
-  "fileSize": "96.489KB",
+  "fileSize": "96.96KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -88,7 +88,7 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.1",
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.2",
       "url": "https://b-cubed-eu.github.io/dubicube/"
     }
   ],

@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",

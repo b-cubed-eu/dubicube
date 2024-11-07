@@ -1,5 +1,5 @@
 Package: dubicube
-Title: Calculation And Interpretation Of Data Cube Indicator Uncertainty
+Title: Calculation and Interpretation of Data Cube Indicator Uncertainty
 Version: 0.0.1
 Authors@R: c(
     person("Ward", "Langeraert", , "ward.langeraert@inbo.be", role = c("aut", "cre"),
@@ -13,8 +13,8 @@ Description: An R package to explore calculation, interpretation and
     visualisation of uncertainty related to indicators based on
     biodiversity data cubes.
 License: MIT + file LICENSE
-URL: https://github.com/inbo/dubicube
-BugReports: https://github.com/inbo/dubicube/issues
+URL: https://github.com/b-cubed-eu/dubicube
+BugReports: https://github.com/b-cubed-eu/dubicube/issues
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty
     visualisation; biodiversity indicators; data cubes

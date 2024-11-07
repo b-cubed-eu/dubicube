@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using these metadata.
-title: "dubicube: Calculation And Interpretation Of Data Cube Indicator Uncertainty"
+title: "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty"
 authors:
 - given-names: Ward
   family-names: Langeraert

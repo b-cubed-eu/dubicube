@@ -15,7 +15,14 @@ status](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repos
 
 <!-- badges: end -->
 
-The goal of **dubicube** is to …
+The **dubicube** package aims to deliver robustness measures for
+assessing the applicability of biodiversity data cubes, whether for
+general use or specific biodiversity indicators. These measures
+facilitate data exploration by providing insights into data quality and
+reliability. Additionally, the package includes functions for
+calculating indicator uncertainty using bootstrapping, as well as tools
+for interpreting and visualising uncertainty in biodiversity indicators
+derived from data cubes.
 
 ## Installation
 

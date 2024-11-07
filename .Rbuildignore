@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^CITATION\.cff$
 ^LICENSE.md$
+^LICENSE\.md$
 ^README\.Rmd$
 ^\.Rproj\.user$
 ^\.github$
@@ -10,8 +11,10 @@
 ^_pkgdown\.yml$
 ^checklist.yml$
 ^codecov\.yml$
+^codemeta\.json$
 ^data-raw$
 ^docs$
 ^man-roxygen$
 ^organisation.yml$
 ^pkgdown$
+^vignettes/articles$

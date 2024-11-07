@@ -14,6 +14,11 @@ allowed:
       Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
 
       New submission
+  - motivation: no problem
+    value: |-
+      checking top-level files ... NOTE
+      Non-standard file/directory found at top level:
+        'codemeta.json'
 required:
 - CITATION
 - DESCRIPTION

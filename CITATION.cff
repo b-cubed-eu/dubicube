@@ -26,4 +26,7 @@ repository-code: /
 type: software
 abstract: "An R package to explore calculation, interpretation and visualisation of
   uncertainty related to indicators based on biodiversity data cubes."
+identifiers:
+- type: url
+  value: https://b-cubed-eu.github.io/dubicube/
 version: 0.0.1

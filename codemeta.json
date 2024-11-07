@@ -4,6 +4,7 @@
   "identifier": "dubicube",
   "description": "An R package to explore calculation, interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
   "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty",
+  "relatedLink": "https://b-cubed-eu.github.io/dubicube/",
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
@@ -55,7 +56,7 @@
   "softwareRequirements": {
     "SystemRequirements": null
   },
-  "fileSize": "110.382KB",
+  "fileSize": "113.093KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -72,11 +73,12 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.1",
-      "url": "/"
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.0",
+      "url": "https://b-cubed-eu.github.io/dubicube/"
     }
   ],
   "releaseNotes": "https://github.com/b-cubed-eu/dubicube/blob/master/NEWS.md",
+  "readme": "https://github.com/b-cubed-eu/dubicube/blob/main/README.md",
   "contIntegration": ["https://github.com/b-cubed-eu/dubicube/actions/workflows/check_on_different_r_os.yml", "https://app.codecov.io/gh/b-cubed-eu/dubicube/"],
   "developmentStatus": "https://www.repostatus.org/#concept"
 }

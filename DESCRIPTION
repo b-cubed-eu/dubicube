@@ -13,8 +13,7 @@ Description: An R package to explore calculation, interpretation and
     visualisation of uncertainty related to indicators based on
     biodiversity data cubes.
 License: MIT + file LICENSE
-URL: https://github.com/b-cubed-eu/dubicube,
-    https://b-cubed-eu.github.io/dubicube/
+URL: https://github.com/b-cubed-eu/dubicube
 BugReports: https://github.com/b-cubed-eu/dubicube/issues
 Suggests: 
     testthat (>= 3.0.0)

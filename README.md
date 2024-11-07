@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# dubicube <a href="https://b-cubed-eu.github.io/dubicube/"><img src="man/figures/logo.png" align="right" height="139" alt="dubicube website" /></a>
+# dubicube <a><img src="man/figures/logo.png" align="right" height="139" alt="dubicube website" /></a>
 
 <!-- badges: start -->
 

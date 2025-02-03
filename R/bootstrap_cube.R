@@ -25,23 +25,45 @@
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
 #' @returns A dataframe summarizing the bootstrap results. The returned
-#' dataframe contains the original statistic (`est_original`), the bootstrapped
-#' estimate (`est_boot`), the standard error of the bootstrap estimates
-#' (`se_boot`), and the bias of the bootstrapped estimates (`bias_boot`). Each
-#' row corresponds to a bootstrap replicate.
+#' dataframe contains a row for each bootstrap replicate `rep_boot`. It contains
+#' the original statistic (`est_original`), the bootstrap estimate (mean of
+#' bootstrap replicates, `est_boot`), the standard error of the bootstrap
+#' replicates (`se_boot`), and the bias of the bootstrap estimate (`bias_boot`).
 #'
 #' @export
 #'
+#' @import dplyr
+#' @import rlang
+#'
 #' @examples
-#' # Example usage
-#' data_cube <- b3gbi::process_cube(insect_data_new)
-#' bootstrap_results <- bootstrap_cube(
-#'   data_cube = data_cube,
-#'   fun = my_statistic_function,
-#'   grouping_var = "time_point",
+#' # Get example data
+#' library(b3gbi)
+#' cube_path <- system.file(
+#'   "extdata", "denmark_mammals_cube_eqdgc.csv",
+#'   package = "b3gbi")
+#' denmark_cube <- process_cube(
+#'   cube_path,
+#'   first_year = 2014,
+#'   last_year = 2024)
+#'
+#' # Function to calculate statistic of interest
+#' # Mean observerations per year
+#' mean_obs <- function(data) {
+#'   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+#'   names(out_df) <- c("year", "diversity_val") # Rename columns
+#'   return(out_df)
+#' }
+#' mean_obs(denmark_cube$data)
+#'
+#' # Perform bootstrapping
+#' bootstrap_mean_obs <- bootstrap_cube(
+#'   data_cube = denmark_cube$data,
+#'   fun = mean_obs,
+#'   grouping_var = "year",
 #'   samples = 1000,
-#'   ref_group = "baseline"
-#' )
+#'   seed = 123,
+#'   progress = TRUE)
+#' head(bootstrap_mean_obs)
 
 bootstrap_cube <- function(
     data_cube,
@@ -51,9 +73,6 @@ bootstrap_cube <- function(
     ref_group = NA,
     seed = NA,
     progress = FALSE) {
-  require("dplyr")
-  require("rlang")
-
   # Check if seed is NA or a number
   stopifnot("`seed` must be a numeric vector of length 1 or NA." =
               (is.numeric(seed) | is.na(seed)) &

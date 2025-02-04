@@ -42,7 +42,7 @@ Default is \code{0.95} (95 \% confidence level).}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to
-the original bootrap dataframe \code{bootstrap_samples_df}.}
+the original bootstrap dataframe \code{bootstrap_samples_df}.}
 
 \item{data_cube}{Only used when \code{type = "bca"}. A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
@@ -62,8 +62,8 @@ As used by \code{bootstrap_cube()}.}
 \item{jackknife}{Only used when \code{type = "bca"}. A string specifying the
 jackknife resampling method for BCa intervals.
 \itemize{
-\item "usual": Negative jackknife (default if BCa is selected).
-\item "pos": Positive jackknife
+\item \code{"usual"}: Negative jackknife (default if BCa is selected).
+\item \code{"pos"}: Positive jackknife
 }}
 
 \item{progress}{Logical. Whether to show a progress bar for jackknifing. Set
@@ -78,7 +78,7 @@ columns:
 \item \code{est_boot}: The bootstrap estimate (mean of bootstrap replicates per
 group)
 \item \code{se_boot}: The standard error of the bootstrap estimate (standard
-deviation of the boostrap repicates per group)
+deviation of the bootstrap replicates per group)
 \item \code{bias_boot}: The bias of the bootstrap estimate per group
 \item \code{int_type}: The interval type
 \item \code{ll}: The lower limit of the confidence interval

@@ -121,7 +121,7 @@ bootstrap_mean_obs <- bootstrap_cube(
   grouping_var = "year",
   samples = 1000,
   seed = 123,
-  progress = TRUE)
+  progress = FALSE)
 head(bootstrap_mean_obs)
 
 # Calculate confidence limits

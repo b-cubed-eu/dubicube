@@ -22,8 +22,8 @@ Imports:
     dplyr,
     modelr,
     purrr,
-    tidyr,
-    rlang
+    rlang,
+    tidyr
 Suggests:
     b3gbi,
     rnaturalearthdata,

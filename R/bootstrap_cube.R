@@ -24,11 +24,17 @@
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe summarizing the bootstrap results. The returned
-#' dataframe contains a row for each bootstrap replicate `rep_boot`. It contains
-#' the original statistic (`est_original`), the bootstrap estimate (mean of
-#' bootstrap replicates, `est_boot`), the standard error of the bootstrap
-#' replicates (`se_boot`), and the bias of the bootstrap estimate (`bias_boot`).
+#' @returns A dataframe containing the bootstrap results with the following
+#' columns:
+#'   - `sample`: Sample ID of the bootstrap replicate
+#'   - `est_original`: The statistic based on the full dataset per group
+#'   - `rep_boot`: The statistic based on a bootstrapped dataset (boostrap
+#'   replicate)
+#'   - `est_boot`: The bootstrap estimate (mean of bootstrap replicates per
+#'   group)
+#'   - `se_boot`: The standard error of the bootstrap estimate (standard
+#'   deviation of the boostrap repicates per group)
+#'   - `bias_boot`: The bias of the bootstrap estimate per group
 #'
 #' @export
 #'
@@ -48,7 +54,7 @@
 #' denmark_cube <- process_cube(
 #'   cube_path,
 #'   first_year = 2014,
-#'   last_year = 2024)
+#'   last_year = 2020)
 #'
 #' # Function to calculate statistic of interest
 #' # Mean observerations per year

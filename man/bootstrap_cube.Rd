@@ -62,7 +62,10 @@ each bootstrap replicate, optionally comparing the results to a reference
 group (\code{ref_group}).
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Get example data
+# install.packages("devtools")
+# devtools::install_github("b-cubed-eu/b3gbi")
 library(b3gbi)
 cube_path <- system.file(
   "extdata", "denmark_mammals_cube_eqdgc.csv",
@@ -90,4 +93,5 @@ bootstrap_mean_obs <- bootstrap_cube(
   seed = 123,
   progress = FALSE)
 head(bootstrap_mean_obs)
+\dontshow{\}) # examplesIf}
 }

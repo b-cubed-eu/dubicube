@@ -45,8 +45,10 @@
 #' @importFrom purrr map
 #' @importFrom stats sd setNames
 #'
-#' @examples
+#' @examplesIf FALSE
 #' # Get example data
+#' # install.packages("devtools")
+#' # devtools::install_github("b-cubed-eu/b3gbi")
 #' library(b3gbi)
 #' cube_path <- system.file(
 #'   "extdata", "denmark_mammals_cube_eqdgc.csv",

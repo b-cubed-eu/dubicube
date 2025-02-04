@@ -68,8 +68,10 @@
 #' @importFrom stats pnorm qnorm
 #' @importFrom purrr map
 #'
-#' @examples
+#' @examplesIf FALSE
 #' # Get example data
+#' # install.packages("devtools")
+#' # devtools::install_github("b-cubed-eu/b3gbi")
 #' library(b3gbi)
 #' cube_path <- system.file(
 #'   "extdata", "denmark_mammals_cube_eqdgc.csv",
@@ -109,7 +111,6 @@
 #' ci_mean_obs1
 #'
 #' # All intervals
-#' \dontrun{
 #' ci_mean_obs2 <- calculate_bootstrap_ci(
 #'   bootstrap_samples_df = bootstrap_mean_obs,
 #'   grouping_var = "year",
@@ -118,8 +119,8 @@
 #'   aggregate = TRUE,
 #'   data_cube = denmark_cube$data, # Required for BCa
 #'   fun = mean_obs,                # Required for BCa
-#'   progress = TRUE)
-#' }
+#'   progress = FALSE)
+#' ci_mean_obs2
 
 calculate_bootstrap_ci <- function(
     bootstrap_samples_df,
@@ -194,7 +195,7 @@ calculate_bootstrap_ci <- function(
 
         jackknife_df <- data_cube$data %>%
           dplyr::mutate(jack_rep = jackknife_estimates) %>%
-          dplyr::select(c(dplyr::all_of(grouping_var), "jack_rep"))
+          dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
       } else {
         jackknife_estimates <- purrr::map(
           seq_len(nrow(data_cube)),
@@ -212,7 +213,7 @@ calculate_bootstrap_ci <- function(
 
         jackknife_df <- data_cube %>%
           dplyr::mutate(jack_rep = jackknife_estimates) %>%
-          dplyr::select(all_of(c(grouping_var, "jack_rep")))
+          dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
       }
 
       # Calculate differences in presence of reference group

@@ -95,7 +95,10 @@ bootstrap replicates based on different methods, including percentile
 (\code{basic}).
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Get example data
+# install.packages("devtools")
+# devtools::install_github("b-cubed-eu/b3gbi")
 library(b3gbi)
 cube_path <- system.file(
   "extdata", "denmark_mammals_cube_eqdgc.csv",
@@ -135,7 +138,6 @@ ci_mean_obs1 <- calculate_bootstrap_ci(
 ci_mean_obs1
 
 # All intervals
-\dontrun{
 ci_mean_obs2 <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_obs,
   grouping_var = "year",
@@ -144,6 +146,7 @@ ci_mean_obs2 <- calculate_bootstrap_ci(
   aggregate = TRUE,
   data_cube = denmark_cube$data, # Required for BCa
   fun = mean_obs,                # Required for BCa
-  progress = TRUE)
-}
+  progress = FALSE)
+ci_mean_obs2
+\dontshow{\}) # examplesIf}
 }

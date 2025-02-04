@@ -136,7 +136,7 @@ bootstrap_cube <- function(
       data_cube_copy$data <- data
 
       fun(data_cube_copy)$data %>%
-        mutate(sample = as.integer(x$id))
+        dplyr::mutate(sample = as.integer(x$id))
     }
   } else {
     # Generate bootstrap replicates
@@ -149,7 +149,7 @@ bootstrap_cube <- function(
       data <- resample_obj$data[indices, ]
 
       fun(data) %>%
-        mutate(sample = as.integer(x$id))
+        dplyr::mutate(sample = as.integer(x$id))
     }
   }
 
@@ -170,22 +170,22 @@ bootstrap_cube <- function(
     }
 
     ref_val <- t0_full %>%
-      filter(.data[[grouping_var]] == !!ref_group) %>%
-      pull(.data$diversity_val)
+      dplyr::filter(.data[[grouping_var]] == !!ref_group) %>%
+      dplyr::pull(.data$diversity_val)
 
     t0 <- t0_full %>%
-      filter(.data[[grouping_var]] != !!ref_group) %>%
-      mutate(diversity_val = .data$diversity_val - ref_val)
+      dplyr::filter(.data[[grouping_var]] != !!ref_group) %>%
+      dplyr::mutate(diversity_val = .data$diversity_val - ref_val)
 
     # Get bootstrap samples as a list
     bootstrap_samples_list <- lapply(bootstrap_samples_list_raw, function(df) {
       ref_val <- df %>%
-        filter(.data[[grouping_var]] == !!ref_group) %>%
-        pull(.data$diversity_val)
+        dplyr::filter(.data[[grouping_var]] == !!ref_group) %>%
+        dplyr::pull(.data$diversity_val)
 
       df %>%
-        filter(.data[[grouping_var]] != !!ref_group) %>%
-        mutate(diversity_val = .data$diversity_val - ref_val)
+        dplyr::filter(.data[[grouping_var]] != !!ref_group) %>%
+        dplyr::mutate(diversity_val = .data$diversity_val - ref_val)
     })
   } else {
     # Calculate true statistic
@@ -201,18 +201,18 @@ bootstrap_cube <- function(
 
   # Summarise in dataframe
   bootstrap_samples_df <- bootstrap_samples_list %>%
-    bind_rows() %>%
-    rename("rep_boot" = "diversity_val") %>%
-    left_join(t0, by = grouping_var) %>%
-    rename("est_original" = "diversity_val") %>%
-    mutate(
+    dplyr::bind_rows() %>%
+    dplyr::rename("rep_boot" = "diversity_val") %>%
+    dplyr::left_join(t0, by = grouping_var) %>%
+    dplyr::rename("est_original" = "diversity_val") %>%
+    dplyr::mutate(
       est_boot = mean(.data$rep_boot),
       se_boot = stats::sd(.data$rep_boot),
-      .by = all_of(grouping_var)) %>%
-    mutate(bias_boot = .data$est_boot - .data$est_original) %>%
-    arrange(.data[[grouping_var]]) %>%
-    select("sample", all_of(grouping_var), "est_original",
-                  everything())
+      .by = dplyr::all_of(grouping_var)) %>%
+    dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
+    dplyr::arrange(.data[[grouping_var]]) %>%
+    dplyr::select("sample", dplyr::all_of(grouping_var), "est_original",
+                  dplyr::everything())
 
   return(bootstrap_samples_df)
 }

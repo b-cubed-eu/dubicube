@@ -1,11 +1,7 @@
 description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
-  warnings:
-  - motivation: No functions yet in package
-    value: |-
-      checking for unstated dependencies in examples ... WARNING
-      no parsed files found
+  warnings: []
   notes:
   - motivation: This is just a note that reminds CRAN maintainers to check that the
       submission comes actually from his maintainer and not anybody else.

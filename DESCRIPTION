@@ -1,6 +1,6 @@
 Package: dubicube
 Title: Calculation and Interpretation of Data Cube Indicator Uncertainty
-Version: 0.0.3
+Version: 0.1.0
 Authors@R: c(
     person("Ward", "Langeraert", , "ward.langeraert@inbo.be", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5900-8109", affiliation = "Research Institute for Nature and Forest (INBO)")),
@@ -16,7 +16,15 @@ License: MIT + file LICENSE
 URL: https://github.com/b-cubed-eu/dubicube,
     https://b-cubed-eu.github.io/dubicube/
 BugReports: https://github.com/b-cubed-eu/dubicube/issues
-Suggests: 
+Imports:
+    assertthat,
+    dplyr,
+    modelr,
+    purrr,
+    rlang
+Suggests:
+    b3gbi,
+    rnaturalearthdata,
     testthat (>= 3.0.0)
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty

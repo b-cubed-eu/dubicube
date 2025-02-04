@@ -33,10 +33,11 @@
 #' @export
 #'
 #' @import dplyr
-#' @import rlang
+#' @import assertthat
+#' @importFrom rlang .data inherits_any
 #' @importFrom modelr bootstrap
 #' @importFrom purrr map
-#' @importFrom stats sd
+#' @importFrom stats sd setNames
 #'
 #' @examples
 #' # Get example data
@@ -76,15 +77,41 @@ bootstrap_cube <- function(
     ref_group = NA,
     seed = NA,
     progress = FALSE) {
-  ## Checks start
+  ### Start checks
+  # Check data_cube input
+  cube_message <- paste("`data_cube` must be a data cube object (class",
+                        "'processed_cube' or 'sim_cube') or a dataframe.")
+  do.call(stopifnot,
+          stats::setNames(list(
+            rlang::inherits_any(data_cube,
+                                c("processed_cube", "sim_cube", "data.frame"))),
+            cube_message)
+          )
 
+  # Check if grouping_var is a character vector of length 1
+  stopifnot("`grouping_var` must be a character vector of length 1." =
+              assertthat::is.string(grouping_var))
 
+  # Check if samples is a positive integer
+  stopifnot(
+    "`samples` must be a single positive integer." =
+      assertthat::is.count(samples))
+
+  # Check if ref_group is NA or a number or a string
+  stopifnot(
+    "`ref_group` must be a numeric/character vector of length 1 or NA." =
+      (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
+         is.na(ref_group)) &
+      length(ref_group) == 1)
 
   # Check if seed is NA or a number
   stopifnot("`seed` must be a numeric vector of length 1 or NA." =
               (is.numeric(seed) | is.na(seed)) & length(seed) == 1)
 
-  ## Checks stop
+  # Check if progress is a logical vector of length 1
+  stopifnot("`progress` must be a logical vector of length 1." =
+              assertthat::is.flag(progress))
+  ### End checks
 
   # Set seed if provided
   if (!is.na(seed)) {

@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -71,11 +71,11 @@
   "softwareRequirements": {
     "SystemRequirements": null
   },
-  "fileSize": "96.96KB",
+  "fileSize": "109.742KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
-      "datePublished": "2024",
+      "datePublished": "2025",
       "author": {
         "author1": {
           "@type": "Person",
@@ -88,12 +88,13 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.2",
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.3",
       "url": "https://b-cubed-eu.github.io/dubicube/"
     }
   ],
   "releaseNotes": "https://github.com/b-cubed-eu/dubicube/blob/master/NEWS.md",
   "readme": "https://github.com/b-cubed-eu/dubicube/blob/main/README.md",
   "contIntegration": ["https://github.com/b-cubed-eu/dubicube/actions/workflows/check_on_different_r_os.yml", "https://app.codecov.io/gh/b-cubed-eu/dubicube/"],
-  "developmentStatus": "https://www.repostatus.org/#concept"
+  "developmentStatus": "https://www.repostatus.org/#concept",
+  "keywords": ["biodiversity-indicators", "data-cubes", "r", "rpackage", "uncertainty-quantification", "uncertainty-visualisation"]
 }

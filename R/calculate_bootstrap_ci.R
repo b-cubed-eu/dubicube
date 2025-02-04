@@ -23,7 +23,7 @@
 #' Default is `0.95` (95 % confidence level).
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
-#' the original bootrap dataframe `bootstrap_samples_df`.
+#' the original bootstrap dataframe `bootstrap_samples_df`.
 #' @param data_cube Only used when `type = "bca"`. A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
@@ -38,8 +38,8 @@
 #' As used by `bootstrap_cube()`.
 #' @param jackknife Only used when `type = "bca"`. A string specifying the
 #' jackknife resampling method for BCa intervals.
-#'   - "usual": Negative jackknife (default if BCa is selected).
-#'   - "pos": Positive jackknife
+#'   - `"usual"`: Negative jackknife (default if BCa is selected).
+#'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
 #'
@@ -50,7 +50,7 @@
 #'   - `est_boot`: The bootstrap estimate (mean of bootstrap replicates per
 #'   group)
 #'   - `se_boot`: The standard error of the bootstrap estimate (standard
-#'   deviation of the boostrap repicates per group)
+#'   deviation of the bootstrap replicates per group)
 #'   - `bias_boot`: The bias of the bootstrap estimate per group
 #'   - `int_type`: The interval type
 #'   - `ll`: The lower limit of the confidence interval

@@ -28,12 +28,12 @@
 #' columns:
 #'   - `sample`: Sample ID of the bootstrap replicate
 #'   - `est_original`: The statistic based on the full dataset per group
-#'   - `rep_boot`: The statistic based on a bootstrapped dataset (boostrap
+#'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
 #'   replicate)
 #'   - `est_boot`: The bootstrap estimate (mean of bootstrap replicates per
 #'   group)
 #'   - `se_boot`: The standard error of the bootstrap estimate (standard
-#'   deviation of the boostrap repicates per group)
+#'   deviation of the bootstrap replicates per group)
 #'   - `bias_boot`: The bias of the bootstrap estimate per group
 #'
 #' @export

@@ -31,7 +31,7 @@ You can install the development version from
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("inbo/dubicube")
+remotes::install_github("b-cubed-eu/dubicube")
 ```
 
 ## Example

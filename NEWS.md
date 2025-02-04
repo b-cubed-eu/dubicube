@@ -1,3 +1,7 @@
+# dubicube 0.0.3
+
+* Add bootstrapping functions
+
 # dubicube 0.0.2
 
 * Add pkgdown website.

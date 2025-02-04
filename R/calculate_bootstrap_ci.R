@@ -65,6 +65,7 @@
 #' @import boot
 #' @importFrom rlang .data
 #' @importFrom tidyr expand_grid
+#' @importFrom stats pnorm qnorm
 #' @importFrom purrr map
 #'
 #' @examples
@@ -241,7 +242,7 @@ calculate_bootstrap_ci <- function(
           group_estimates %>%
             dplyr::filter(.data[[grouping_var]] != ref_group),
           jack_rep = jackknife_df %>%
-            fdplyr::ilter(.data[[grouping_var]] == ref_group) %>%
+            dplyr::filter(.data[[grouping_var]] == ref_group) %>%
             dplyr::pull(.data$jack_rep)
         ) %>%
           dplyr::rename("theta1" = "diversity_val") %>%
@@ -295,16 +296,17 @@ calculate_bootstrap_ci <- function(
 
           # Calculate the BCa critical values
           alpha <- (1 + c(-conf, conf)) / 2
-          zalpha <- qnorm(alpha)
+          zalpha <- stats::qnorm(alpha)
 
-          z0 <- qnorm(sum(t < t0) / length(t))
+          z0 <- stats::qnorm(sum(t < t0) / length(t))
           if (!is.finite(z0)) {
             warning("Estimated adjustment 'z0' is infinite.")
             return(cbind(conf, NA, NA))
           }
 
           # Adjust for acceleration
-          adj_alpha <- pnorm(z0 + (z0 + zalpha) / (1 - a * (z0 + zalpha)))
+          adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
+                                      (1 - a * (z0 + zalpha)))
           qq <- boot:::norm.inter(t, adj_alpha)
 
           return(cbind(conf, matrix(qq[, 2L], ncol = 2L)))
@@ -329,7 +331,7 @@ calculate_bootstrap_ci <- function(
         lapply(function(df) {
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
-          boot:::norm.ci(t0 = estimate, t = replicates, conf = conf)
+          boot::norm.ci(t0 = estimate, t = replicates, conf = conf)
         })
 
       # Combine confidence levels in dataframe

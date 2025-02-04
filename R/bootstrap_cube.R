@@ -128,7 +128,7 @@ bootstrap_cube <- function(
     set.seed(seed)
   }
 
-  if (inherits(data_cube, "processed_cube")) {
+  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube$data, samples, id = "id")
 
@@ -169,7 +169,7 @@ bootstrap_cube <- function(
 
   if (!is.na(ref_group)) {
     # Calculate true statistic
-    if (inherits(data_cube, "processed_cube")) {
+    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
       t0_full <- fun(data_cube)$data
     } else {
       t0_full <- fun(data_cube)
@@ -195,7 +195,7 @@ bootstrap_cube <- function(
     })
   } else {
     # Calculate true statistic
-    if (inherits(data_cube, "processed_cube")) {
+    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
       t0 <- fun(data_cube)$data
     } else {
       t0 <- fun(data_cube)

@@ -1,4 +1,4 @@
-# dubicube 0.0.3
+# dubicube 0.1.0
 
 * Add bootstrapping functions
 

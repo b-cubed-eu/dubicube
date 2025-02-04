@@ -2,7 +2,7 @@ citHeader("To cite `dubicube` in publications please use:")
 # begin checklist entry
 bibentry(
   bibtype = "Manual",
-  title = "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.0.3",
+  title = "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.1.0",
   author = c( author = c(person(given = "Ward", family = "Langeraert"), person(given = "Toon", family = "Van Daele"))),
   year = 2025,
   url = "https://b-cubed-eu.github.io/dubicube/",

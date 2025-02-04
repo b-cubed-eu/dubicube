@@ -34,6 +34,9 @@
 #'
 #' @import dplyr
 #' @import rlang
+#' @importFrom modelr bootstrap
+#' @importFrom purrr map
+#' @importFrom stats sd
 #'
 #' @examples
 #' # Get example data
@@ -73,10 +76,15 @@ bootstrap_cube <- function(
     ref_group = NA,
     seed = NA,
     progress = FALSE) {
+  ## Checks start
+
+
+
   # Check if seed is NA or a number
   stopifnot("`seed` must be a numeric vector of length 1 or NA." =
-              (is.numeric(seed) | is.na(seed)) &
-              length(seed) == 1)
+              (is.numeric(seed) | is.na(seed)) & length(seed) == 1)
+
+  ## Checks stop
 
   # Set seed if provided
   if (!is.na(seed)) {
@@ -166,18 +174,18 @@ bootstrap_cube <- function(
 
   # Summarise in dataframe
   bootstrap_samples_df <- bootstrap_samples_list %>%
-    dplyr::bind_rows() %>%
-    dplyr::rename("rep_boot" = "diversity_val") %>%
-    dplyr::left_join(t0, by = grouping_var) %>%
-    dplyr::rename("est_original" = "diversity_val") %>%
-    dplyr::mutate(
+    bind_rows() %>%
+    rename("rep_boot" = "diversity_val") %>%
+    left_join(t0, by = grouping_var) %>%
+    rename("est_original" = "diversity_val") %>%
+    mutate(
       est_boot = mean(.data$rep_boot),
       se_boot = stats::sd(.data$rep_boot),
       .by = all_of(grouping_var)) %>%
-    dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
-    dplyr::arrange(.data[[grouping_var]]) %>%
-    dplyr::select("sample", all_of(grouping_var), "est_original",
-                  dplyr::everything())
+    mutate(bias_boot = .data$est_boot - .data$est_original) %>%
+    arrange(.data[[grouping_var]]) %>%
+    select("sample", all_of(grouping_var), "est_original",
+                  everything())
 
   return(bootstrap_samples_df)
 }

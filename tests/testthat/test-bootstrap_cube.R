@@ -1,25 +1,65 @@
 # Create example data
-library(b3gbi)
-cube_path <- system.file(
-  "extdata", "denmark_mammals_cube_eqdgc.csv",
-  package = "b3gbi")
-denmark_cube <- process_cube(
-  cube_path,
-  first_year = 2014,
-  last_year = 2020)
+years <- 2014:2020
 ref_year <- 2020
+grid_cells <- c("E003N55BA", "E003N55BB", "E003N55BC")
+species <- paste0("spec", 1:3)
+
+# Simulate observations
+get_obs <- function(x, int, slope) {
+  sapply(seq_along(x), function(i) {
+    rpois(1, int + slope * i)
+  })
+}
+
+set.seed(123)
+obs1 <- as.vector(
+  sapply(seq_along(grid_cells), function(i) get_obs(years, 30, 3))
+  )
+obs2 <- as.vector(
+  sapply(seq_along(grid_cells), function(i) get_obs(years, 50, 0))
+)
+obs3 <- as.vector(
+  sapply(seq_along(grid_cells), function(i) get_obs(years, 60, -2))
+)
+
+# Create data cube as data.frame
+cube_df <- expand.grid(
+  year = years,
+  cellCode = grid_cells,
+  taxonKey = species)
+cube_df$obs <- c(obs1, obs2, obs3)
+
+# Create data cube as 'processed_cube'
+processed_cube <- NULL
+processed_cube$meta <- "This is a processed occurrence cube"
+processed_cube$data <- cube_df
+class(processed_cube) <- "processed_cube"
 
 # Function to calculate statistic of interest
-# Mean observerations per year
+# Mean observations per year
 mean_obs <- function(data) {
+  if (inherits(data, "processed_cube")){
+    data <- data$data
+  }
   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }
 
+mean_obs_processed <- function(data) {
+  out_df <- NULL
+  out_df$meta <- "Mean number of observations per year"
+
+  # Calculate mean obs per year
+  out_df$data <- aggregate(obs ~ year, data$data, mean)
+  names(out_df$data) <- c("year", "diversity_val") # Rename columns
+
+  return(out_df)
+}
+
 # Perform bootsrapping dataframe
 result1 <- bootstrap_cube(
-  data_cube = denmark_cube$data,
+  data_cube = cube_df,
   fun = mean_obs,
   grouping_var = "year",
   samples = 10,
@@ -28,8 +68,8 @@ result1 <- bootstrap_cube(
 
 # Perform bootsrapping 'processed_cube'
 result2 <- bootstrap_cube(
-  data_cube = denmark_cube,
-  fun = b3gbi::pielou_evenness_ts,
+  data_cube = processed_cube,
+  fun = mean_obs_processed,
   grouping_var = "year",
   samples = 10,
   seed = 123
@@ -37,7 +77,7 @@ result2 <- bootstrap_cube(
 
 # Perform bootsrapping dataframe with reference group
 result3 <- bootstrap_cube(
-  data_cube = denmark_cube$data,
+  data_cube = cube_df,
   fun = mean_obs,
   grouping_var = "year",
   samples = 10,
@@ -47,8 +87,8 @@ result3 <- bootstrap_cube(
 
 # Perform bootsrapping 'processed_cube' with reference group
 result4 <- bootstrap_cube(
-  data_cube = denmark_cube,
-  fun = b3gbi::pielou_evenness_ts,
+  data_cube = processed_cube,
+  fun = mean_obs_processed,
   grouping_var = "year",
   samples = 10,
   seed = 123,
@@ -76,7 +116,7 @@ test_that("bootstrap_cube returns a dataframe with expected structure", {
 
 # Test that bootstrapping produces reasonable values
 test_that("bootstrap_cube computes bootstrap statistics correctly", {
-  years <- unique(denmark_cube$data$year)
+  years <- unique(cube_df$year)
 
   expect_true(all(result1$sample > 0))
   expect_true(all(result1$se_boot >= 0))
@@ -100,7 +140,7 @@ test_that("bootstrap_cube computes bootstrap statistics correctly", {
 # Test reproducibility with seed
 test_that("bootstrap_cube is reproducible with set seed", {
   result5 <- bootstrap_cube(
-    data_cube = denmark_cube$data,
+    data_cube = cube_df,
     fun = mean_obs,
     grouping_var = "year",
     samples = 10,
@@ -111,14 +151,14 @@ test_that("bootstrap_cube is reproducible with set seed", {
 
   # without seed not identical
   result6 <- bootstrap_cube(
-    data_cube = denmark_cube$data,
+    data_cube = cube_df,
     fun = mean_obs,
     grouping_var = "year",
     samples = 10
   )
 
   result7 <- bootstrap_cube(
-    data_cube = denmark_cube$data,
+    data_cube = cube_df,
     fun = mean_obs,
     grouping_var = "year",
     samples = 10
@@ -140,7 +180,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
     fixed = TRUE)
   expect_error(
     bootstrap_cube(
-      data_cube = denmark_cube$data,
+      data_cube = cube_df,
       fun = mean_obs,
       grouping_var = 2,
       samples = 10),
@@ -148,7 +188,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
     fixed = TRUE)
   expect_error(
     bootstrap_cube(
-      data_cube = denmark_cube$data,
+      data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
       samples = -10),
@@ -156,7 +196,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
     fixed = TRUE)
   expect_error(
     bootstrap_cube(
-      data_cube = denmark_cube$data,
+      data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
       samples = 10,
@@ -165,7 +205,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
     fixed = TRUE)
   expect_error(
     bootstrap_cube(
-      data_cube = denmark_cube$data,
+      data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
       samples = 10,

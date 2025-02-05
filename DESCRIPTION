@@ -25,8 +25,6 @@ Imports:
     rlang,
     tidyr
 Suggests:
-    b3gbi,
-    rnaturalearthdata,
     testthat (>= 3.0.0)
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty

@@ -76,7 +76,7 @@ denmark_cube <- process_cube(
   last_year = 2020)
 
 # Function to calculate statistic of interest
-# Mean observerations per year
+# Mean observations per year
 mean_obs <- function(data) {
   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns

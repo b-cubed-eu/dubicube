@@ -20,7 +20,13 @@ calculate_bootstrap_ci(
 \arguments{
 \item{bootstrap_samples_df}{A dataframe containing the bootstrap replicates,
 where each row represents a bootstrap sample. As returned by
-\code{bootstrap_cube()}.}
+\code{bootstrap_cube()}. Apart from the \code{grouping_var} column, the following
+columns should be present:
+\itemize{
+\item \code{est_original}: The statistic based on the full dataset per group
+\item \code{rep_boot}: The statistic based on a bootstrapped dataset (bootstrap
+replicate)
+}}
 
 \item{grouping_var}{A string specifying the grouping variable(s) used for the
 bootstrap analysis.

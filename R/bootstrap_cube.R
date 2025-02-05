@@ -167,10 +167,6 @@ bootstrap_cube <- function(
   stopifnot("`grouping_var` must be a character vector of length 1." =
               assertthat::is.string(grouping_var))
 
-  # Check if grouping_var column is present in data cube
-  stopifnot( "`data_cube` should contain column `grouping_var`" =
-               grouping_var %in% names(data_cube))
-
   # Check if samples is a positive integer
   stopifnot(
     "`samples` must be a single positive integer." =
@@ -202,6 +198,10 @@ bootstrap_cube <- function(
   }
 
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+    # Check if grouping_var column is present in data cube
+    stopifnot("`data_cube` should contain column `grouping_var`" =
+                grouping_var %in% names(data_cube$data))
+
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube$data, samples, id = "id")
 
@@ -218,6 +218,10 @@ bootstrap_cube <- function(
         dplyr::mutate(sample = as.integer(x$id))
     }
   } else {
+    # Check if grouping_var column is present in data cube
+    stopifnot("`data_cube` should contain column `grouping_var`" =
+                grouping_var %in% names(data_cube))
+
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube, samples, id = "id")
 

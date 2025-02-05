@@ -192,8 +192,8 @@ percentiles of the bootstrap distribution, respectively.
 \examples{
 \dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Get example data
-# install.packages("devtools")
-# devtools::install_github("b-cubed-eu/b3gbi")
+# install.packages("remotes")
+# remotes::install_github("b-cubed-eu/b3gbi")
 library(b3gbi)
 cube_path <- system.file(
   "extdata", "denmark_mammals_cube_eqdgc.csv",

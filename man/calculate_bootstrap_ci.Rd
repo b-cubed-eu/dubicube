@@ -94,6 +94,9 @@ bootstrap replicates based on different methods, including percentile
 (\code{perc}), bias-corrected and accelerated (\code{bca}), normal (\code{norm}), and basic
 (\code{basic}).
 }
+\details{
+...
+}
 \examples{
 \dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Get example data
@@ -149,4 +152,27 @@ ci_mean_obs2 <- calculate_bootstrap_ci(
   progress = FALSE)
 ci_mean_obs2
 \dontshow{\}) # examplesIf}
+}
+\references{
+Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
+Angelo Canty for S) [Computer software].
+\url{https://CRAN.R-project.org/package=boot}
+
+Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their
+Application (1st ed.). Cambridge University Press.
+\url{https://doi.org/10.1017/CBO9780511802843}
+
+DiCiccio, T. J., & Efron, B. (1996). Bootstrap confidence intervals.
+Statistical Science, 11(3). \url{https://doi.org/10.1214/ss/1032280214}
+
+Efron, B. (1987). Better Bootstrap Confidence Intervals. Journal of the
+American Statistical Association, 82(397), 171–185.
+\url{https://doi.org/10.1080/01621459.1987.10478410}
+
+Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
+(1st ed.). Chapman and Hall/CRC. \url{https://doi.org/10.1201/9780429246593}
+
+Frangos, C. C., & Schucany, W. R. (1990). Jackknife estimation of the
+bootstrap acceleration constant. Computational Statistics & Data Analysis,
+9(3), 271–281. \url{https://doi.org/10.1016/0167-9473(90)90109-U}
 }

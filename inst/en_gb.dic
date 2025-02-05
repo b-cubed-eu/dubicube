@@ -1,4 +1,5 @@
 BCa
+CBO
 CMD
 Canty
 Centers
@@ -10,11 +11,13 @@ bca
 center
 codecov
 deqn
+doi
 ed
 eqn
 frac
 perc
 pkg
 sim
+ss
 st
 th

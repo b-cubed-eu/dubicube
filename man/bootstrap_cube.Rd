@@ -166,8 +166,8 @@ head(bootstrap_mean_obs)
 \references{
 Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their
 Application (1st ed.). Cambridge University Press.
-\url{https://doi.org/10.1017/CBO9780511802843}
+\doi{10.1017/CBO9780511802843}
 
 Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
-(1st ed.). Chapman and Hall/CRC. \url{https://doi.org/10.1201/9780429246593}
+(1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 }

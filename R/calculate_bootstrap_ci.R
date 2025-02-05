@@ -162,21 +162,21 @@
 #'
 #' Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their
 #' Application (1st ed.). Cambridge University Press.
-#' \url{https://doi.org/10.1017/CBO9780511802843}
+#' \doi{10.1017/CBO9780511802843}
 #'
 #' DiCiccio, T. J., & Efron, B. (1996). Bootstrap confidence intervals.
-#' Statistical Science, 11(3). \url{https://doi.org/10.1214/ss/1032280214}
+#' Statistical Science, 11(3). \doi{10.1214/ss/1032280214}
 #'
 #' Efron, B. (1987). Better Bootstrap Confidence Intervals. Journal of the
 #' American Statistical Association, 82(397), 171–185.
-#' \url{https://doi.org/10.1080/01621459.1987.10478410}
+#' \doi{10.1080/01621459.1987.10478410}
 #'
 #' Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
-#' (1st ed.). Chapman and Hall/CRC. \url{https://doi.org/10.1201/9780429246593}
+#' (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 #'
 #' Frangos, C. C., & Schucany, W. R. (1990). Jackknife estimation of the
 #' bootstrap acceleration constant. Computational Statistics & Data Analysis,
-#' 9(3), 271–281. \url{https://doi.org/10.1016/0167-9473(90)90109-U}
+#' 9(3), 271–281. \doi{10.1016/0167-9473(90)90109-U}
 #'
 #' @export
 #'

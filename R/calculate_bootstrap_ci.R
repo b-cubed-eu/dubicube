@@ -82,9 +82,9 @@
 #' 2. **Bias-Corrected and Accelerated (BCa)**: Adjusts for bias and
 #' acceleration
 #'
-#'    Bias refers to the systematic difference between the observed statistic from
-#'    the original dataset and the center of the bootstrap distribution of the
-#'    statistic. The bias correction term is calculated as follows:
+#'    Bias refers to the systematic difference between the observed statistic
+#'    from the original dataset and the center of the bootstrap distribution of
+#'    the statistic. The bias correction term is calculated as follows:
 #'
 #'    \deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b <
 #'    \hat{\theta})}{B}\right)}
@@ -92,13 +92,13 @@
 #'    where \eqn{\#} is the counting operator and \eqn{\Phi^{-1}} the inverse
 #'    cumulative density function of the standard normal distribution.
 #'
-#'    Acceleration quantifies how sensitive the variability of the statistic is to
-#'    changes in the data.
+#'    Acceleration quantifies how sensitive the variability of the statistic is
+#'    to changes in the data.
 #'
 #'    - \eqn{a=0}: The statistic's variability does not depend on the data
 #'    (e.g., symmetric distribution)
-#'    - \eqn{a>0}: Small changes in the data have a large effect on the statistic's
-#'    variability (e.g., positive skew)
+#'    - \eqn{a>0}: Small changes in the data have a large effect on the
+#'    statistic's variability (e.g., positive skew)
 #'    - \eqn{a<0}: Small changes in the data have a smaller effect on the
 #'    statistic's variability (e.g., negative skew).
 #'

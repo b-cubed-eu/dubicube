@@ -331,8 +331,9 @@ calculate_bootstrap_ci <- function(
                             "'processed_cube' or 'sim_cube') or a dataframe.")
       do.call(stopifnot,
               stats::setNames(list(
-                rlang::inherits_any(data_cube,
-                                    c("processed_cube", "sim_cube", "data.frame"))),
+                rlang::inherits_any(
+                  data_cube,
+                  c("processed_cube", "sim_cube", "data.frame"))),
                 cube_message)
       )
 

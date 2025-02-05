@@ -160,9 +160,16 @@ bootstrap_cube <- function(
             cube_message)
           )
 
+  # Check fun input
+  stopifnot("`fun` must be a function." = is.function(fun))
+
   # Check if grouping_var is a character vector of length 1
   stopifnot("`grouping_var` must be a character vector of length 1." =
               assertthat::is.string(grouping_var))
+
+  # Check if grouping_var column is present in data cube
+  stopifnot( "`data_cube` should contain column `grouping_var`" =
+               grouping_var %in% names(data_cube))
 
   # Check if samples is a positive integer
   stopifnot(

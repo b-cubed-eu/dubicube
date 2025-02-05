@@ -59,7 +59,7 @@ mean_obs_processed <- function(data) {
 
 ## Perform bootstrapping
 # Perform bootstrapping dataframe
-result1 <- bootstrap_cube(
+boot_df1 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = "year",
@@ -68,7 +68,7 @@ result1 <- bootstrap_cube(
 )
 
 # Perform bootstrapping 'processed_cube'
-result2 <- bootstrap_cube(
+boot_df2 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   grouping_var = "year",
@@ -77,7 +77,7 @@ result2 <- bootstrap_cube(
 )
 
 # Perform bootstrapping dataframe with reference group
-result3 <- bootstrap_cube(
+boot_df3 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = "year",
@@ -87,7 +87,7 @@ result3 <- bootstrap_cube(
 )
 
 # Perform bootstrapping 'processed_cube' with reference group
-result4 <- bootstrap_cube(
+boot_df4 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   grouping_var = "year",
@@ -95,5 +95,90 @@ result4 <- bootstrap_cube(
   seed = 123,
   ref_group = ref_year
 )
+
+## Calculate confidence intervals
+# Percentile
+result_perc1 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df1,
+  grouping_var = "year",
+  type = "perc",
+  conf = 0.95,
+  aggregate = TRUE)
+
+# BCa with dataframe without reference group
+result_bca1 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df1,
+  grouping_var = "year",
+  type = "bca",
+  conf = 0.95,
+  aggregate = TRUE,
+  data_cube = cube_df,
+  fun = mean_obs,
+  ref_group = NA,
+  jackknife = "pos")
+
+# BCa with dataframe with reference group
+result_bca2 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df3,
+  grouping_var = "year",
+  type = "bca",
+  conf = 0.95,
+  aggregate = TRUE,
+  data_cube = cube_df,
+  fun = mean_obs,
+  ref_group = ref_year,
+  jackknife = "usual")
+
+# BCa with 'processed_cube' without reference group
+result_bca3 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df2,
+  grouping_var = "year",
+  type = "bca",
+  conf = 0.95,
+  aggregate = TRUE,
+  data_cube = processed_cube,
+  fun = mean_obs_processed,
+  ref_group = NA,
+  jackknife = "usual")
+
+# BCa with 'processed_cube' with reference group
+result_bca4 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df4,
+  grouping_var = "year",
+  type = "bca",
+  conf = 0.95,
+  aggregate = TRUE,
+  data_cube = processed_cube,
+  fun = mean_obs_processed,
+  ref_group = ref_year,
+  jackknife = "usual")
+
+# Normal
+result_norm1 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df1,
+  grouping_var = "year",
+  type = "norm",
+  conf = 0.95,
+  aggregate = TRUE)
+
+# Basic
+result_basic1 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df1,
+  grouping_var = "year",
+  type = "basic",
+  conf = 0.95,
+  aggregate = TRUE)
+
+# All with dataframe without reference group
+result_all1 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df1,
+  grouping_var = "year",
+  type = "all",
+  conf = 0.95,
+  aggregate = TRUE,
+  data_cube = cube_df,
+  fun = mean_obs,
+  ref_group = NA,
+  jackknife = "pos")
 
 ## Perform tests

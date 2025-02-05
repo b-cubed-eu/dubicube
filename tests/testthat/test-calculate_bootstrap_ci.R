@@ -181,4 +181,142 @@ result_all1 <- calculate_bootstrap_ci(
   ref_group = NA,
   jackknife = "pos")
 
+example_ci_results_noref <- list(
+  result_perc1, result_bca1, result_bca3,
+  result_norm1, result_basic1, result_all1)
+
+example_ci_results_ref <- list(result_bca2, result_bca4)
+
+example_ci_results <- c(example_ci_results_noref, example_ci_results_ref)
+
+# Without aggregation
+result_perc2 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_df1,
+  grouping_var = "year",
+  type = "perc",
+  conf = 0.95,
+  aggregate = FALSE)
+
 ## Perform tests
+# Test calculate_bootstrap_ci output
+test_that("calculate_bootstrap_ci returns a df with expected structure", {
+  # Data frame
+  lapply(c(example_ci_results, list(result_perc2)), function(df) {
+    expect_s3_class(df, "data.frame")
+  })
+
+  # Correct column names
+  # Total
+  lapply(c(example_ci_results, list(result_perc2)), function(df) {
+    expect_true(all(
+      c("year", "est_original", "est_boot", "se_boot", "bias_boot",
+        "int_type", "ll", "ul", "conf") %in% names(df)
+      ))
+  })
+  # Not aggregated
+  expect_true(all(
+    c("sample", "year", "est_original", "rep_boot", "est_boot", "se_boot",
+      "bias_boot", "int_type", "ll", "ul", "conf") %in% names(result_perc2)
+  ))
+})
+
+# Test whether calculate_bootstrap_ci produces reasonable values
+test_that("calculate_bootstrap_ci computes values correctly", {
+  # Check values
+  years <- unique(cube_df$year)
+  years_ref <- setdiff(years, ref_year)
+
+  lapply(c(example_ci_results, list(result_perc2)), function(df) {
+    expect_true(all(df$se_boot >= 0))
+  })
+  lapply(c(example_ci_results, list(result_perc2)), function(df) {
+    expect_true(all(df$conf == 0.95))
+  })
+  lapply(example_ci_results_noref, function(df) {
+    expect_true(all(df$year %in% years))
+  })
+  lapply(example_ci_results_ref, function(df) {
+    expect_true(all(df$year %in% years_ref))
+  })
+
+  # Check int_type
+  expect_true(all(result_perc1$int_type == "perc"))
+  expect_true(all(result_perc2$int_type == "perc"))
+  expect_true(all(result_bca1$int_type == "bca"))
+  expect_true(all(result_bca2$int_type == "bca"))
+  expect_true(all(result_bca3$int_type == "bca"))
+  expect_true(all(result_bca4$int_type == "bca"))
+  expect_true(all(result_norm1$int_type == "norm"))
+  expect_true(all(result_basic1$int_type == "basic"))
+
+  result_test <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_df1,
+    grouping_var = "year",
+    type = c("perc", "norm"),
+    conf = 0.95,
+    aggregate = TRUE)
+
+  expect_identical(sort(unique(result_test$int_type)), sort(c("perc", "norm")))
+  expect_identical(sort(unique(result_all1$int_type)),
+                   sort(c("perc", "bca", "norm", "basic")))
+
+})
+
+# Test whether processed cube and dataframe result in the same
+test_that("Identical results for processed cube and dataframe", {
+  result_bca12 <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_df1,
+    grouping_var = "year",
+    type = "bca",
+    conf = 0.95,
+    aggregate = TRUE,
+    data_cube = cube_df,
+    fun = mean_obs,
+    ref_group = NA,
+    jackknife = "usual")
+
+  result_bca32 <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_df2,
+    grouping_var = "year",
+    type = "bca",
+    conf = 0.95,
+    aggregate = TRUE,
+    data_cube = processed_cube,
+    fun = mean_obs_processed,
+    ref_group = NA,
+    jackknife = "pos")
+
+  expect_identical(result_bca12, result_bca3)
+  expect_identical(result_bca1, result_bca32)
+  expect_identical(result_bca2, result_bca4)
+
+  result_all2 <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_df2,
+    grouping_var = "year",
+    type = "all",
+    conf = 0.95,
+    aggregate = TRUE,
+    data_cube = processed_cube,
+    fun = mean_obs_processed,
+    ref_group = NA,
+    jackknife = "pos")
+
+  expect_identical(result_all1, result_all2)
+})
+
+# Smaller confidence intervals
+test_that("Confidence intervals are smaller with smaller conf argument", {
+  result_all3 <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_df1,
+    grouping_var = "year",
+    type = "all",
+    conf = 0.9,
+    aggregate = TRUE,
+    data_cube = cube_df,
+    fun = mean_obs,
+    ref_group = NA,
+    jackknife = "pos")
+
+  expect_true(all(result_all1$ll < result_all3$ll))
+  expect_true(all(result_all1$ul > result_all3$ul))
+})

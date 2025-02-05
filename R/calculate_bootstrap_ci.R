@@ -7,7 +7,11 @@
 #'
 #' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
 #' where each row represents a bootstrap sample. As returned by
-#' `bootstrap_cube()`.
+#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
+#' columns should be present:
+#'   - `est_original`: The statistic based on the full dataset per group
+#'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
+#'   replicate)
 #' @param grouping_var A string specifying the grouping variable(s) used for the
 #' bootstrap analysis.
 #' This variable is used to split the dataset into groups for separate
@@ -254,11 +258,44 @@ calculate_bootstrap_ci <- function(
     jackknife = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
   ### Start checks
+  # Arguments data_cube, fun, ref_group, and jackknife arguments are checked
+  # further on in code
+
+  # Check dataframe input
+  stopifnot("`bootstrap_samples_df` must be a dataframe." =
+              inherits(bootstrap_samples_df, "data.frame"))
+
+  # Check if grouping_var is a character vector of length 1
+  stopifnot("`grouping_var` must be a character vector of length 1." =
+              assertthat::is.string(grouping_var))
+
+  # Check if "rep_boot", "est_original" and grouping_var columns are present
+  colname_message <- paste(
+    "`bootstrap_samples_df` should contain columns: 'rep_boot', 'est_original'",
+    "and `grouping_var`.")
+  do.call(stopifnot,
+          stats::setNames(list(
+            all(c(grouping_var, "rep_boot", "est_original") %in%
+                  names(bootstrap_samples_df))),
+            colname_message)
+  )
 
   # Check if interval type is correct
   stopifnot("`type` must be one of 'perc', 'bca', 'norm', 'basic'." =
               all(is.element(type, c("perc", "bca", "norm", "basic", "all"))))
 
+  # conf should be numeric between 0 and 1
+  stopifnot("`conf` must be a numeric value between 0 and 1." =
+              assertthat::is.number(conf) &
+              (conf > 0 & conf < 1))
+
+  # Check if aggregate is a logical vector of length 1
+  stopifnot("`aggregate` must be a logical vector of length 1." =
+              assertthat::is.flag(aggregate))
+
+  # Check if progress is a logical vector of length 1
+  stopifnot("`progress` must be a logical vector of length 1." =
+              assertthat::is.flag(progress))
   ### End checks
 
   # Calculate intervals
@@ -289,7 +326,27 @@ calculate_bootstrap_ci <- function(
                          by = dplyr::join_by(!!grouping_var == "group"))
     }
     if (t == "bca") {
-      # Check if jackknife is usual or pos
+      # Check data_cube input
+      cube_message <- paste("`data_cube` must be a data cube object (class",
+                            "'processed_cube' or 'sim_cube') or a dataframe.")
+      do.call(stopifnot,
+              stats::setNames(list(
+                rlang::inherits_any(data_cube,
+                                    c("processed_cube", "sim_cube", "data.frame"))),
+                cube_message)
+      )
+
+      # Check fun input
+      stopifnot("`fun` must be a function." = is.function(fun))
+
+      # Check if ref_group is NA or a number or a string
+      stopifnot(
+        "`ref_group` must be a numeric/character vector of length 1 or NA." =
+          (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
+             is.na(ref_group)) &
+          length(ref_group) == 1)
+
+      # Check if jackknife is 'usual' or 'pos'
       jackknife <- tryCatch({
         match.arg(jackknife, c("usual", "pos"))
       }, error = function(e) {

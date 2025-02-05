@@ -61,18 +61,6 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "rnaturalearthdata",
-      "name": "rnaturalearthdata",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=rnaturalearthdata"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "testthat",
       "name": "testthat",
       "version": ">= 3.0.0",
@@ -172,7 +160,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "131.134KB",
+  "fileSize": "132.032KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

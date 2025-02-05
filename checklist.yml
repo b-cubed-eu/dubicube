@@ -18,15 +18,6 @@ allowed:
       Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
 
       New submission
-  - motivation: b3gbi is part of the b3verse
-    value: |-
-      checking CRAN incoming feasibility ... NOTE
-      Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
-
-      New submission
-
-      Suggests or Enhances not in mainstream repositories:
-        b3gbi
 required:
 - CITATION
 - DESCRIPTION

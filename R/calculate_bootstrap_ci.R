@@ -184,9 +184,7 @@
 #' @import dplyr
 #' @import boot
 #' @importFrom rlang .data
-#' @importFrom tidyr expand_grid
 #' @importFrom stats pnorm qnorm
-#' @importFrom purrr map
 #'
 #' @examplesIf FALSE
 #' # Get example data
@@ -297,93 +295,16 @@ calculate_bootstrap_ci <- function(
              call. = FALSE)
       })
 
-      # Perform jackknifing
-      if (inherits(data_cube, "processed_cube")) {
-        jackknife_estimates <- purrr::map(
-          seq_len(nrow(data_cube$data)),
-          function(i) {
-            # Identify group
-            group <- data_cube$data[[i, grouping_var]]
-
-            # Remove i'th observation
-            data <- data_cube$data[-i, ]
-            data_cube_copy <- data_cube
-            data_cube_copy$data <- data
-
-            # Calculate indicator value without i'th observation
-            fun(data_cube_copy)$data %>%
-              dplyr::filter(!!sym(grouping_var) == group) %>%
-              dplyr::pull(.data$diversity_val)
-          },
-          .progress = ifelse(progress, "Jackknife estimation", progress)) %>%
-          unlist()
-
-        jackknife_df <- data_cube$data %>%
-          dplyr::mutate(jack_rep = jackknife_estimates) %>%
-          dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
-      } else {
-        jackknife_estimates <- purrr::map(
-          seq_len(nrow(data_cube)),
-          function(i) {
-            # Identify group
-            group <- data_cube[[i, grouping_var]]
-
-            # Calculate indicator value without i'th observation
-            fun(data_cube[-i, ]) %>%
-              dplyr::filter(!!sym(grouping_var) == group) %>%
-              dplyr::pull(.data$diversity_val)
-          },
-          .progress = ifelse(progress, "Jackknife estimation", progress)) %>%
-          unlist()
-
-        jackknife_df <- data_cube %>%
-          dplyr::mutate(jack_rep = jackknife_estimates) %>%
-          dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
-      }
-
-      # Calculate differences in presence of reference group
-      if (!is.na(ref_group)) {
-        # Get group-specific estimates
-        if (inherits(data_cube, "processed_cube")) {
-          group_estimates <- fun(data_cube)$data
-        } else {
-          group_estimates <- fun(data_cube)
-        }
-
-        # Get estimate for reference group
-        ref_estimate <- group_estimates %>%
-          dplyr::filter(.data[[grouping_var]] == ref_group) %>%
-          dplyr::pull(.data$diversity_val)
-
-        # Calculate jackknife estimates for difference for non-reference groups
-        thetai_nonref <- jackknife_df %>%
-          dplyr::filter(.data[[grouping_var]] != ref_group) %>%
-          dplyr::mutate(theta2 = ref_estimate) %>%
-          dplyr::rowwise() %>%
-          dplyr::mutate(jack_rep = .data$jack_rep - .data$theta2) %>%
-          dplyr::ungroup()
-
-        # Calculate jackknife estimates for difference for reference group
-        thetai_ref <- tidyr::expand_grid(
-          group_estimates %>%
-            dplyr::filter(.data[[grouping_var]] != ref_group),
-          jack_rep = jackknife_df %>%
-            dplyr::filter(.data[[grouping_var]] == ref_group) %>%
-            dplyr::pull(.data$jack_rep)
-        ) %>%
-          dplyr::rename("theta1" = "diversity_val") %>%
-          dplyr::rowwise() %>%
-          dplyr::mutate(jack_rep = .data$theta1 - .data$jack_rep) %>%
-          dplyr::ungroup()
-
-        # Combine all jackknife estimates
-        jackknife_df <- dplyr::bind_rows(thetai_nonref, thetai_ref) %>%
-          dplyr::select(-starts_with("theta"))
-      }
+      jackknife_df <- perform_jackknifing(
+        data_cube = data_cube,
+        fun = fun,
+        grouping_var = grouping_var,
+        ref_group = ref_group,
+        progress = progress)
 
       acceleration_df <- jackknife_df %>%
         dplyr::left_join(bootstrap_samples_df %>%
-                           dplyr::distinct(!!sym(grouping_var),
+                           dplyr::distinct(!!dplyr::sym(grouping_var),
                                            .data$est_original),
                          by = dplyr::join_by(!!grouping_var)) %>%
         dplyr::mutate(n = dplyr::n(),
@@ -391,8 +312,8 @@ calculate_bootstrap_ci <- function(
         dplyr::rowwise() %>%
         dplyr::mutate(intensity = ifelse(
           jackknife == "usual",
-          (n - 1) * (.data$est_original - .data$jack_rep),
-          (n + 1) * (.data$jack_rep - .data$est_original)
+          (.data$n - 1) * (.data$est_original - .data$jack_rep),
+          (.data$n + 1) * (.data$jack_rep - .data$est_original)
         )
         ) %>%
         dplyr::ungroup() %>%

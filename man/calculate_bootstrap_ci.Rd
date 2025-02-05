@@ -95,7 +95,91 @@ bootstrap replicates based on different methods, including percentile
 (\code{basic}).
 }
 \details{
-...
+We consider four different types of intervals (with confidence level
+\eqn{\alpha}). The choice for confidence interval types and their calculation
+is in line with the \pkg{boot} package in R (Canty & Ripley, 1999) to ensure
+ease of implementation. They are based on the definitions provided by
+Davison & Hinkley (1997, Chapter 5)
+(see also DiCiccio & Efron, 1996; Efron, 1987).
+\enumerate{
+\item \strong{Percentile}: Uses the percentiles of the bootstrap distribution.
+
+\deqn{CI_{perc} = \left[ \hat{\theta}^*_{(\alpha/2)},
+   \hat{\theta}^*_{(1-\alpha/2)} \right]}
+
+where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+\eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+\eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
+\item \strong{Bias-Corrected and Accelerated (BCa)}: Adjusts for bias and
+acceleration
+
+Bias refers to the systematic difference between the observed statistic from
+the original dataset and the center of the bootstrap distribution of the
+statistic. The bias correction term is calculated as follows:
+
+\deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b <
+   \hat{\theta})}{B}\right)}
+
+where \eqn{\#} is the counting operator and \eqn{\Phi^{-1}} the inverse
+cumulative density function of the standard normal distribution.
+
+Acceleration quantifies how sensitive the variability of the statistic is to
+changes in the data.
+\itemize{
+\item \eqn{a=0}: The statistic's variability does not depend on the data
+(e.g., symmetric distribution)
+\item \eqn{a>0}: Small changes in the data have a large effect on the statistic's
+variability (e.g., positive skew)
+\item \eqn{a<0}: Small changes in the data have a smaller effect on the
+statistic's variability (e.g., negative skew).
+}
+
+The acceleration term is calculated as follows:
+
+\deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left(
+   \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
+
+where \eqn{I_i} denotes the influence of data point \eqn{x_i} on the
+estimation of \eqn{\theta}. \eqn{I_i} can be estimated using jackknifing.
+Examples are (1) the negative jackknife:
+\eqn{I_i = (n-1)(\hat{\theta} - \hat{\theta}_{-i})}, and (2) the positive
+jackknife \eqn{I_i = (n+1)(\hat{\theta}_{-i} - \hat{\theta})}
+(Frangos & Schucany, 1990). Here, \eqn{\hat{\theta}_{-i}} is the estimated
+value leaving out the \eqn{i}’th datapoint \eqn{x_i}. The \pkg{boot}
+package also offers infinitesimal jackknife and regression estimation.
+The different jackknife options can be explored in the future.
+
+The bias and acceleration estimates are then used to calculate adjusted
+percentiles.
+
+\eqn{\alpha_1 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{\alpha/2}}{1 -
+   \hat{a}(\hat{z}_0 + z_{\alpha/2})} \right)},
+\eqn{\alpha_2 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{1 -
+   \alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{1 - \alpha/2})} \right)}
+
+So, we get
+
+\deqn{CI_{bca} = \left[ \hat{\theta}^*_{(\alpha_1)},
+   \hat{\theta}^*_{(\alpha_2)} \right]}
+\item \strong{Normal}: Assumes the bootstrap distribution of the statistic is
+approximately normal
+
+\deqn{CI_{norm} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} -
+   \text{SE}_{\text{boot}} \times z_{1-\alpha/2}, \hat{\theta} -
+   \text{Bias}_{\text{boot}} + \text{SE}_{\text{boot}} \times z_{1-\alpha/2}
+   \right]}
+
+where \eqn{z_{1-\alpha/2}} is the \eqn{1-\alpha/2} quantile of the
+standard normal distribution.
+\item \strong{Basic}: Centers the interval using percentiles
+
+\deqn{CI_{basic} = \left[ 2\hat{\theta} - \hat{\theta}^*_{(1-\alpha/2)},
+   2\hat{\theta} - \hat{\theta}^*_{(\alpha/2)} \right]}
+
+where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+\eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+\eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
+}
 }
 \examples{
 \dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

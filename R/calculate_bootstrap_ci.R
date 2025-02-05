@@ -186,7 +186,7 @@
 #' @importFrom rlang .data
 #' @importFrom stats pnorm qnorm
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Get example data
 #' # install.packages("remotes")
 #' # remotes::install_github("b-cubed-eu/b3gbi")
@@ -209,6 +209,7 @@
 #' mean_obs(denmark_cube$data)
 #'
 #' # Perform bootstrapping
+#' \donttest{
 #' bootstrap_mean_obs <- bootstrap_cube(
 #'   data_cube = denmark_cube$data,
 #'   fun = mean_obs,
@@ -239,6 +240,7 @@
 #'   fun = mean_obs,                # Required for BCa
 #'   progress = FALSE)
 #' ci_mean_obs2
+#' }
 
 calculate_bootstrap_ci <- function(
     bootstrap_samples_df,

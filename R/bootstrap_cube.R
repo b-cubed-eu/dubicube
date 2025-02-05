@@ -107,7 +107,7 @@
 #' @importFrom purrr map
 #' @importFrom stats sd setNames
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Get example data
 #' # install.packages("remotes")
 #' # remotes::install_github("b-cubed-eu/b3gbi")
@@ -130,6 +130,7 @@
 #' mean_obs(denmark_cube$data)
 #'
 #' # Perform bootstrapping
+#' \donttest{
 #' bootstrap_mean_obs <- bootstrap_cube(
 #'   data_cube = denmark_cube$data,
 #'   fun = mean_obs,
@@ -138,6 +139,7 @@
 #'   seed = 123,
 #'   progress = FALSE)
 #' head(bootstrap_mean_obs)
+#' }
 
 bootstrap_cube <- function(
     data_cube,

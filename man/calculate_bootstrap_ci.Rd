@@ -191,7 +191,6 @@ percentiles of the bootstrap distribution, respectively.
 }
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Get example data
 # install.packages("remotes")
 # remotes::install_github("b-cubed-eu/b3gbi")
@@ -214,6 +213,7 @@ mean_obs <- function(data) {
 mean_obs(denmark_cube$data)
 
 # Perform bootstrapping
+\donttest{
 bootstrap_mean_obs <- bootstrap_cube(
   data_cube = denmark_cube$data,
   fun = mean_obs,
@@ -244,7 +244,7 @@ ci_mean_obs2 <- calculate_bootstrap_ci(
   fun = mean_obs,                # Required for BCa
   progress = FALSE)
 ci_mean_obs2
-\dontshow{\}) # examplesIf}
+}
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

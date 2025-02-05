@@ -130,7 +130,6 @@ the variability of the statistic.
 }
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Get example data
 # install.packages("remotes")
 # remotes::install_github("b-cubed-eu/b3gbi")
@@ -153,6 +152,7 @@ mean_obs <- function(data) {
 mean_obs(denmark_cube$data)
 
 # Perform bootstrapping
+\donttest{
 bootstrap_mean_obs <- bootstrap_cube(
   data_cube = denmark_cube$data,
   fun = mean_obs,
@@ -161,7 +161,7 @@ bootstrap_mean_obs <- bootstrap_cube(
   seed = 123,
   progress = FALSE)
 head(bootstrap_mean_obs)
-\dontshow{\}) # examplesIf}
+}
 }
 \references{
 Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their

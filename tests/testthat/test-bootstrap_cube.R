@@ -1,4 +1,4 @@
-# Create example data
+## Create example data
 years <- 2014:2020
 ref_year <- 2020
 grid_cells <- c("E003N55BA", "E003N55BB", "E003N55BC")
@@ -35,7 +35,7 @@ processed_cube$meta <- "This is a processed occurrence cube"
 processed_cube$data <- cube_df
 class(processed_cube) <- "processed_cube"
 
-# Function to calculate statistic of interest
+## Function to calculate statistic of interest
 # Mean observations per year
 mean_obs <- function(data) {
   if (inherits(data, "processed_cube")) {
@@ -57,7 +57,8 @@ mean_obs_processed <- function(data) {
   return(out_df)
 }
 
-# Perform bootsrapping dataframe
+## Perform bootstrapping
+# Perform bootstrapping dataframe
 result1 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
@@ -66,7 +67,7 @@ result1 <- bootstrap_cube(
   seed = 123
 )
 
-# Perform bootsrapping 'processed_cube'
+# Perform bootstrapping 'processed_cube'
 result2 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
@@ -75,7 +76,7 @@ result2 <- bootstrap_cube(
   seed = 123
 )
 
-# Perform bootsrapping dataframe with reference group
+# Perform bootstrapping dataframe with reference group
 result3 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
@@ -85,7 +86,7 @@ result3 <- bootstrap_cube(
   ref_group = ref_year
 )
 
-# Perform bootsrapping 'processed_cube' with reference group
+# Perform bootstrapping 'processed_cube' with reference group
 result4 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
@@ -95,6 +96,7 @@ result4 <- bootstrap_cube(
   ref_group = ref_year
 )
 
+## Perform tests
 # Test bootstrap_cube output
 test_that("bootstrap_cube returns a dataframe with expected structure", {
   expect_s3_class(result1, "data.frame")

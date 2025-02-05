@@ -116,7 +116,8 @@
 #'    (Frangos & Schucany, 1990). Here, \eqn{\hat{\theta}_{-i}} is the estimated
 #'    value leaving out the \eqn{i}’th data point \eqn{x_i}. The \pkg{boot}
 #'    package also offers infinitesimal jackknife and regression estimation.
-#'    The different jackknife options can be explored in the future.
+#'    Implementation of these jackknife algorithms can be explored in the
+#'    future.
 #'
 #'    The bias and acceleration estimates are then used to calculate adjusted
 #'    percentiles.
@@ -252,16 +253,21 @@ calculate_bootstrap_ci <- function(
     ref_group = NA,
     jackknife = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
-  # Check if type is correct
+  ### Start checks
+
+  # Check if interval type is correct
   stopifnot("`type` must be one of 'perc', 'bca', 'norm', 'basic'." =
               all(is.element(type, c("perc", "bca", "norm", "basic", "all"))))
 
+  ### End checks
+
   # Calculate intervals
+  if (any(type == "all")) type <- c("perc", "bca", "norm", "basic")
   out_list <- vector(mode = "list", length = length(type))
   for (i in seq_along(type)) {
     t <- type[i]
 
-    if (any(t == "all" | t == "perc")) {
+    if (t == "perc") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df[[grouping_var]]) %>%
@@ -274,7 +280,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -282,7 +288,7 @@ calculate_bootstrap_ci <- function(
         dplyr::left_join(intervals_df,
                          by = dplyr::join_by(!!grouping_var == "group"))
     }
-    if (any(t == "all" | t == "bca")) {
+    if (t == "bca") {
       # Check if jackknife is usual or pos
       jackknife <- tryCatch({
         match.arg(jackknife, c("usual", "pos"))
@@ -436,7 +442,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -444,7 +450,7 @@ calculate_bootstrap_ci <- function(
         dplyr::left_join(intervals_df,
                          by = dplyr::join_by(!!grouping_var == "group"))
     }
-    if (any(t == "all" | t == "norm")) {
+    if (t == "norm") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df[[grouping_var]]) %>%
@@ -458,7 +464,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -466,7 +472,7 @@ calculate_bootstrap_ci <- function(
         dplyr::left_join(intervals_df,
                          by = dplyr::join_by(!!grouping_var == "group"))
     }
-    if (any(t == "all" | t == "basic")) {
+    if (t == "basic") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df[[grouping_var]]) %>%
@@ -480,7 +486,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -498,7 +504,7 @@ calculate_bootstrap_ci <- function(
   # Aggregate if requested
   if (aggregate) {
     conf_df_out <- conf_df_full %>%
-      dplyr::select(-c("sample", "rep_boot")) %>%
+      dplyr::select(-all_of(c("sample", "rep_boot"))) %>%
       dplyr::distinct()
   } else {
     conf_df_out <- conf_df_full

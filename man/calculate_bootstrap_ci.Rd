@@ -151,7 +151,8 @@ jackknife \eqn{I_i = (n+1)(\hat{\theta}_{-i} - \hat{\theta})}
 (Frangos & Schucany, 1990). Here, \eqn{\hat{\theta}_{-i}} is the estimated
 value leaving out the \eqn{i}’th data point \eqn{x_i}. The \pkg{boot}
 package also offers infinitesimal jackknife and regression estimation.
-The different jackknife options can be explored in the future.
+Implementation of these jackknife algorithms can be explored in the
+future.
 
 The bias and acceleration estimates are then used to calculate adjusted
 percentiles.

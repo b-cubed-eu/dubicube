@@ -38,7 +38,7 @@ class(processed_cube) <- "processed_cube"
 # Function to calculate statistic of interest
 # Mean observations per year
 mean_obs <- function(data) {
-  if (inherits(data, "processed_cube")){
+  if (inherits(data, "processed_cube")) {
     data <- data$data
   }
   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year

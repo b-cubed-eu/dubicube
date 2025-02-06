@@ -11,7 +11,7 @@ status](https://www.r-pkg.org/badges/version/dubicube)](https://CRAN.R-project.o
 [![R-CMD-check](https://github.com/b-cubed-eu/dubicube/actions/workflows/check_on_different_r_os.yml/badge.svg)](https://github.com/b-cubed-eu/dubicube/actions/workflows/check_on_different_r_os.yml)
 [![codecov](https://codecov.io/gh/b-cubed-eu/dubicube/branch/main/graph/badge.svg)](https://app.codecov.io/gh/b-cubed-eu/dubicube/)
 [![repo
-status](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
+status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
 <!-- badges: end -->
 
@@ -31,9 +31,9 @@ You can install the development version from
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("inbo/dubicube")
+remotes::install_github("b-cubed-eu/dubicube")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem.
+Basic example coming soon.

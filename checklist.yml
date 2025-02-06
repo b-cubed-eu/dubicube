@@ -2,10 +2,14 @@ description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
   warnings:
-  - motivation: No functions yet in package
+  - motivation: Use boot package for stability
     value: |-
-      checking for unstated dependencies in examples ... WARNING
-      no parsed files found
+      checking dependencies in R code ... WARNING
+      Unexported objects imported by ':::' calls:
+        'boot:::basic.ci' 'boot:::norm.inter' 'boot:::perc.ci'
+        See the note in ?`:::` about the use of this operator.
+        Including base/recommended package(s):
+        'boot'
   notes:
   - motivation: This is just a note that reminds CRAN maintainers to check that the
       submission comes actually from his maintainer and not anybody else.
@@ -14,6 +18,18 @@ allowed:
       Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
 
       New submission
+  - motivation: b3gbi is part of the b3verse
+    value: |-
+      checking CRAN incoming feasibility ... NOTE
+      Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
+
+      New submission
+
+      Unknown, possibly misspelled, fields in DESCRIPTION:
+        'Remotes'
+
+      Suggests or Enhances not in mainstream repositories:
+        b3gbi
 required:
 - CITATION
 - DESCRIPTION

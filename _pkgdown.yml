@@ -2,6 +2,7 @@ url: https://b-cubed-eu.github.io/dubicube/
 
 template:
   bootstrap: 5
+  math-rendering: mathjax
   bslib:
     bg: "#ffffff"
     fg: "#2f2f2f"

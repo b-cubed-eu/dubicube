@@ -328,8 +328,9 @@ calculate_bootstrap_ci <- function(
     if (t == "bca") {
       # Check whether data_cube and fun are provided
       stopifnot(
-        "`data_cube` and `fun` must be provided to calculate BCa interval" =
-          assertthat::noNA(data_cube) && assertthat::noNA(fun))
+        "`data_cube` and `fun` must be provided to calculate BCa interval." =
+          assertthat::noNA(data_cube) &
+          suppressWarnings(assertthat::noNA(fun)))
 
       # Check data_cube input
       cube_message <- paste("`data_cube` must be a data cube object (class",

@@ -1,3 +1,7 @@
+# dubicube 0.2.0
+
+* Add effect classification function
+
 # dubicube 0.1.0
 
 * Add bootstrapping functions

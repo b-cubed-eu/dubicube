@@ -320,3 +320,85 @@ test_that("Confidence intervals are smaller with smaller conf argument", {
   expect_true(all(result_all1$ll < result_all3$ll))
   expect_true(all(result_all1$ul > result_all3$ul))
 })
+
+# Test handling of invalid input
+test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df1,
+      grouping_var = "year",
+      type = c("perc", "normal"),
+      conf = 0.95,
+      aggregate = TRUE),
+    "`type` must be one of 'perc', 'bca', 'norm', 'basic'.",
+    fixed = TRUE)
+
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df1,
+      grouping_var = "year",
+      type = c("perc", "norm"),
+      conf = 0.95,
+      aggregate = "TRUE"),
+    "`aggregate` must be a logical vector of length 1.",
+    fixed = TRUE)
+
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df1,
+      grouping_var = "year",
+      type = c("perc", "norm"),
+      conf = 1.5,
+      aggregate = TRUE),
+    "`conf` must be a numeric value between 0 and 1.",
+    fixed = TRUE)
+
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df1,
+      grouping_var = "year",
+      type = c("perc", "bca"),
+      conf = 0.95,
+      aggregate = TRUE),
+    "`data_cube` and `fun` must be provided to calculate BCa interval.",
+    fixed = TRUE)
+
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df1,
+      grouping_var = "month",
+      type = "perc",
+      conf = 0.95,
+      aggregate = TRUE),
+    paste("`bootstrap_samples_df` should contain columns: 'rep_boot',",
+          "'est_original' and `grouping_var`."),
+    fixed = TRUE)
+
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df3,
+      grouping_var = "year",
+      type = "bca",
+      conf = 0.95,
+      aggregate = TRUE,
+      data_cube = cube_df,
+      fun = mean_obs,
+      ref_group = "2020",
+      jackknife = "usual"),
+    "`ref_group` is not present in `grouping_var` column of `data_cube`.",
+    fixed = TRUE)
+
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_df3,
+      grouping_var = "year",
+      type = "bca",
+      conf = 0.95,
+      aggregate = TRUE,
+      data_cube = cube_df,
+      fun = mean_obs,
+      ref_group = "2020",
+      jackknife = "negative"),
+    "`jackknife` must be one of 'usual', 'pos'.",
+    fixed = TRUE)
+})

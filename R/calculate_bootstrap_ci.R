@@ -317,7 +317,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -429,7 +429,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -451,7 +451,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -473,7 +473,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -491,7 +491,7 @@ calculate_bootstrap_ci <- function(
   # Aggregate if requested
   if (aggregate) {
     conf_df_out <- conf_df_full %>%
-      dplyr::select(-all_of(c("sample", "rep_boot"))) %>%
+      dplyr::select(-c("sample", "rep_boot")) %>%
       dplyr::distinct()
   } else {
     conf_df_out <- conf_df_full

@@ -68,7 +68,7 @@ perform_jackknifing <- function(
 
     jackknife_df <- data_cube$data %>%
       dplyr::mutate(jack_rep = jackknife_estimates) %>%
-      dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
+      dplyr::select(dplyr::all_of(grouping_var), "jack_rep")
   } else {
     # Check if ref_group is present in grouping_var
     stopifnot(
@@ -94,7 +94,7 @@ perform_jackknifing <- function(
 
     jackknife_df <- data_cube %>%
       dplyr::mutate(jack_rep = jackknife_estimates) %>%
-      dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
+      dplyr::select(dplyr::all_of(grouping_var), "jack_rep")
   }
 
   # Calculate differences in presence of reference group

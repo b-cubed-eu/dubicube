@@ -374,7 +374,7 @@ calculate_bootstrap_ci <- function(
                                            .data$est_original),
                          by = dplyr::join_by(!!grouping_var)) %>%
         dplyr::mutate(n = dplyr::n(),
-                      .by = grouping_var) %>%
+                      .by = dplyr::all_of(grouping_var)) %>%
         dplyr::rowwise() %>%
         dplyr::mutate(intensity = ifelse(
           jackknife == "usual",
@@ -387,7 +387,7 @@ calculate_bootstrap_ci <- function(
           numerator = sum(.data$intensity^3),
           denominator = 6 * sum(.data$intensity^2)^1.5,
           acceleration = .data$numerator / .data$denominator,
-          .by = grouping_var
+          .by = dplyr::all_of(grouping_var)
         )
 
       # Calculate confidence limits per group

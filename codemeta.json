@@ -57,7 +57,8 @@
     {
       "@type": "SoftwareApplication",
       "identifier": "b3gbi",
-      "name": "b3gbi"
+      "name": "b3gbi",
+      "sameAs": "https://github.com/b-cubed-eu/b3gbi"
     },
     {
       "@type": "SoftwareApplication",
@@ -160,7 +161,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "147.951KB",
+  "fileSize": "164.807KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -184,6 +185,6 @@
   "releaseNotes": "https://github.com/b-cubed-eu/dubicube/blob/master/NEWS.md",
   "readme": "https://github.com/b-cubed-eu/dubicube/blob/main/README.md",
   "contIntegration": ["https://github.com/b-cubed-eu/dubicube/actions/workflows/check_on_different_r_os.yml", "https://app.codecov.io/gh/b-cubed-eu/dubicube/"],
-  "developmentStatus": "https://www.repostatus.org/#concept",
+  "developmentStatus": "https://www.repostatus.org/#wip",
   "keywords": ["biodiversity-indicators", "data-cubes", "r", "rpackage", "uncertainty-quantification", "uncertainty-visualisation"]
 }

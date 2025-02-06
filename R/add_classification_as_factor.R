@@ -5,28 +5,30 @@
 #' variables by comparing the confidence intervals with a reference and
 #' thresholds.
 #'
-#' @param df A dataframe containing summary data of confidence limits.
+#' @param df A dataframe containing summary data of confidence limits. Two
+#' columns are required containing lower and upper limits indicated by the
+#' `cl_columns` argument. Any other columns are optional.
 #' @param cl_columns A vector of 2 column names in `df` indicating respectively
-#' the lower and upper confidence limits.
+#' the lower and upper confidence limits (e.g. `c("lcl", "ucl")`).
 #' @param threshold A vector of either 1 or 2 thresholds. A single threshold
 #' will be transformed into `reference + c(-abs(threshold), abs(threshold))`.
-#' See `effectclass::classify()`.
-#' @param reference The null hypothesis. Defaults to 0.
-#' See `effectclass::classify()`.
+#' @param reference The null hypothesis value to compare confidence intervals
+#' against. Defaults to 0.
 #' @param coarse Logical, defaults to `TRUE`. If `TRUE`, add a coarse
 #' classification to the dataframe.
-#' See `effectclass::coarse_classification()`.
 #'
-#' @returns The returned value is the original dataframe with added columns
-#' `effect_code` and `effect` containing respectively the effect symbols and
-#' descriptions as ordered factor variables. In case or `coarse = TRUE` (by
-#' default) also `effect_code_coarse` and `effect_coarse` containing the coarse
-#' classification effects.
+#' @returns The returned value is a modified version of the original input
+#' dataframe `df` with additional columns `effect_code` and `effect` containing
+#' respectively the effect symbols and descriptions as ordered factor variables.
+#' In case of `coarse = TRUE` (by default) also `effect_code_coarse` and
+#' `effect_coarse` containing the coarse classification effects.
 #'
 #' @details
 #' This function is a wrapper around `effectclass::classify()` and
 #' `effectclass::coarse_classification()` from the \pkg{effectclass} package
 #' (Onkelinx, 2023).
+#'
+#' ...
 #'
 #' @references
 #' Onkelinx, T. (2023). effectclass: Classification and visualisation of effects
@@ -42,20 +44,22 @@
 #' # example code
 #'
 
-add_classification_as_factor <- function(
+add_effect_classification <- function(
     df,
     cl_columns,
     threshold,
     reference = 0,
     coarse = TRUE) {
-  require("dplyr")
-  require("rlang")
+  ### Start checks
+  # Check dataframe input
+
+  ### End checks
 
   # Classify effects with effectclass
   classified_df <- df %>%
-    mutate(effect_code = effectclass::classification(
-      lcl = !!sym(cl_columns[1]),
-      ucl = !!sym(cl_columns[2]),
+    dplyr::mutate(effect_code = effectclass::classification(
+      lcl = !!dplyr::sym(cl_columns[1]),
+      ucl = !!dplyr::sym(cl_columns[2]),
       threshold = threshold,
       reference = reference)
     )
@@ -68,7 +72,7 @@ add_classification_as_factor <- function(
 
   # Create ordered factors of effects
   out_df <- classified_df %>%
-    mutate(
+    dplyr::mutate(
       effect_code = factor(.data$effect_code,
                            levels = c(
                              "++",
@@ -82,7 +86,7 @@ add_classification_as_factor <- function(
                              "?-",
                              "?"),
                            ordered = TRUE),
-      effect = case_when(
+      effect = dplyr::case_when(
         effect_code == "++" ~ "strong increase",
         effect_code == "+"  ~ "increase",
         effect_code == "+~" ~ "moderate increase",
@@ -111,7 +115,7 @@ add_classification_as_factor <- function(
 
   if (coarse) {
     out_df <- out_df %>%
-      mutate(
+      dplyr::mutate(
         effect_code_coarse = factor(.data$effect_code_coarse,
                                     levels = c(
                                       "+",
@@ -119,7 +123,7 @@ add_classification_as_factor <- function(
                                       "-",
                                       "?"),
                                     ordered = TRUE),
-        effect_coarse = case_when(
+        effect_coarse = dplyr::case_when(
           effect_code_coarse == "+" ~ "increase",
           effect_code_coarse == "-" ~ "decrease",
           effect_code_coarse == "~" ~ "stable",

@@ -25,7 +25,7 @@
 #' @returns A dataframe containing the jackknife estimates.
 #'
 #' @import dplyr
-#' @importFrom rlang .data
+#' @importFrom rlang .data inherits_any
 #' @importFrom tidyr expand_grid
 #' @importFrom purrr map
 #'
@@ -38,7 +38,15 @@ perform_jackknifing <- function(
     ref_group = NA,
     progress = FALSE) {
   # Perform jackknifing
-  if (inherits(data_cube, "processed_cube")) {
+  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+    # Check if ref_group is present in grouping_var
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube$data[[grouping_var]] &
+           mode(ref_group) == mode(data_cube$data[[grouping_var]]))
+    )
+
     jackknife_estimates <- purrr::map(
       seq_len(nrow(data_cube$data)),
       function(i) {
@@ -62,6 +70,14 @@ perform_jackknifing <- function(
       dplyr::mutate(jack_rep = jackknife_estimates) %>%
       dplyr::select(dplyr::all_of(c(grouping_var, "jack_rep")))
   } else {
+    # Check if ref_group is present in grouping_var
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube[[grouping_var]] &
+           mode(ref_group) == mode(data_cube[[grouping_var]]))
+    )
+
     jackknife_estimates <- purrr::map(
       seq_len(nrow(data_cube)),
       function(i) {

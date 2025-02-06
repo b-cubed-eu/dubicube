@@ -202,6 +202,14 @@ bootstrap_cube <- function(
     stopifnot("`data_cube` should contain column `grouping_var`" =
                 grouping_var %in% names(data_cube$data))
 
+    # Check if ref_group is present in grouping_var
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube$data[[grouping_var]] &
+           mode(ref_group) == mode(data_cube$data[[grouping_var]]))
+    )
+
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube$data, samples, id = "id")
 
@@ -221,6 +229,14 @@ bootstrap_cube <- function(
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`" =
                 grouping_var %in% names(data_cube))
+
+    # Check if ref_group is present in grouping_var
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube[[grouping_var]] &
+           mode(ref_group) == mode(data_cube[[grouping_var]]))
+    )
 
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube, samples, id = "id")

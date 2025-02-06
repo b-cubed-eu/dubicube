@@ -180,6 +180,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
     paste("`data_cube` must be a data cube object (class 'processed_cube' or",
           "'sim_cube') or a dataframe."),
     fixed = TRUE)
+
   expect_error(
     bootstrap_cube(
       data_cube = cube_df,
@@ -188,6 +189,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       samples = 10),
     "`grouping_var` must be a character vector of length 1.",
     fixed = TRUE)
+
   expect_error(
     bootstrap_cube(
       data_cube = cube_df,
@@ -196,6 +198,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       samples = -10),
     "`samples` must be a single positive integer.",
     fixed = TRUE)
+
   expect_error(
     bootstrap_cube(
       data_cube = cube_df,
@@ -205,6 +208,17 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       ref_group = 1:2),
     "`ref_group` must be a numeric/character vector of length 1 or NA.",
     fixed = TRUE)
+
+  expect_error(
+    bootstrap_cube(
+      data_cube = cube_df,
+      fun = mean_obs,
+      grouping_var = "year",
+      samples = 10,
+      ref_group = "2020"),
+    "`ref_group` is not present in `grouping_var` column of `data_cube`.",
+    fixed = TRUE)
+
   expect_error(
     bootstrap_cube(
       data_cube = cube_df,

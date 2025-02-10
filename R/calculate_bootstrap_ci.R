@@ -186,6 +186,8 @@
 #'
 #' @export
 #'
+#' @family uncertainty
+#'
 #' @import dplyr
 #' @import boot
 #' @import assertthat

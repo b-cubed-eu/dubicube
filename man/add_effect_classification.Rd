@@ -67,3 +67,9 @@ This function is a wrapper around \code{effectclass::classify()} and
 Onkelinx, T. (2023). effectclass: Classification and visualisation of effects
 [Computer software]. \url{https://inbo.github.io/effectclass/}
 }
+\seealso{
+Other uncertainty: 
+\code{\link{bootstrap_cube}()},
+\code{\link{calculate_bootstrap_ci}()}
+}
+\concept{uncertainty}

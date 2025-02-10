@@ -47,6 +47,8 @@
 #'
 #' @export
 #'
+#' @family uncertainty
+#'
 #' @import dplyr
 #' @importFrom rlang .data
 #' @importFrom effectclass coarse_classification classification

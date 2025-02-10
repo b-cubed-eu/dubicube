@@ -101,6 +101,8 @@
 #'
 #' @export
 #'
+#' @family uncertainty
+#'
 #' @import dplyr
 #' @import assertthat
 #' @importFrom rlang .data inherits_any

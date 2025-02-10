@@ -278,3 +278,9 @@ Frangos, C. C., & Schucany, W. R. (1990). Jackknife estimation of the
 bootstrap acceleration constant. Computational Statistics & Data Analysis,
 9(3), 271–281. \doi{10.1016/0167-9473(90)90109-U}
 }
+\seealso{
+Other uncertainty: 
+\code{\link{add_effect_classification}()},
+\code{\link{bootstrap_cube}()}
+}
+\concept{uncertainty}

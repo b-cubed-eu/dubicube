@@ -45,9 +45,19 @@ thresholds.
 \details{
 This function is a wrapper around \code{effectclass::classify()} and
 \code{effectclass::coarse_classification()} from the \pkg{effectclass} package
-(Onkelinx, 2023).
-
-...
+(Onkelinx, 2023). They classify effects in a stable and transparent manner.\tabular{clll}{
+   Symbol \tab Fine effect / trend \tab Coarse effect / trend \tab Rule \cr
+   \verb{++} \tab strong positive effect / strong increase \tab positive effect / increase \tab confidence interval above the upper threshold \cr
+   \code{+} \tab positive effect / increase \tab positive effect / increase \tab confidence interval above reference and contains the upper threshold \cr
+   \verb{+~} \tab moderate positive effect / moderate increase \tab positive effect / increase \tab confidence interval between reference and the upper threshold \cr
+   \code{~} \tab no effect / stable \tab no effect / stable \tab confidence interval between thresholds and contains reference \cr
+   \verb{-~} \tab moderate negative effect / moderate decrease \tab negative effect / decrease \tab confidence interval between reference and the lower threshold \cr
+   \code{-} \tab negative effect / decrease \tab negative effect / decrease \tab confidence interval below reference and contains the lower threshold \cr
+   \verb{--} \tab strong negative effect / strong decrease \tab negative effect / decrease \tab confidence interval below the lower threshold \cr
+   \verb{?+} \tab potential positive effect / potential increase \tab unknown effect / unknown \tab confidence interval contains reference and the upper threshold \cr
+   \verb{?-} \tab potential negative effect / potential decrease \tab unknown effect / unknown \tab confidence interval contains reference and the lower threshold \cr
+   \verb{?} \tab unknown effect / unknown \tab unknown effect / unknown \tab confidence interval contains the lower and upper threshold \cr
+}
 }
 \examples{
 # example code

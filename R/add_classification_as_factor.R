@@ -26,9 +26,20 @@
 #' @details
 #' This function is a wrapper around `effectclass::classify()` and
 #' `effectclass::coarse_classification()` from the \pkg{effectclass} package
-#' (Onkelinx, 2023).
+#' (Onkelinx, 2023). They classify effects in a stable and transparent manner.
 #'
-#' ...
+#' | Symbol | Fine effect / trend | Coarse effect / trend | Rule |
+#' | :---: | --- | --- | --- |
+#' | `++` | strong positive effect / strong increase | positive effect / increase | confidence interval above the upper threshold |
+#' | `+`  | positive effect / increase | positive effect / increase | confidence interval above reference and contains the upper threshold |
+#' | `+~` | moderate positive effect / moderate increase | positive effect / increase | confidence interval between reference and the upper threshold |
+#' | `~`  | no effect / stable | no effect / stable | confidence interval between thresholds and contains reference |
+#' | `-~` | moderate negative effect / moderate decrease | negative effect / decrease | confidence interval between reference and the lower threshold |
+#' | `-`  | negative effect / decrease | negative effect / decrease | confidence interval below reference and contains the lower threshold |
+#' | `--` | strong negative effect / strong decrease | negative effect / decrease | confidence interval below the lower threshold |
+#' | `?+` | potential positive effect / potential increase | unknown effect / unknown | confidence interval contains reference and the upper threshold |
+#' | `?-` | potential negative effect / potential decrease | unknown effect / unknown | confidence interval contains reference and the lower threshold |
+#' | `?`  | unknown effect / unknown | unknown effect / unknown | confidence interval contains the lower and upper threshold |
 #'
 #' @references
 #' Onkelinx, T. (2023). effectclass: Classification and visualisation of effects

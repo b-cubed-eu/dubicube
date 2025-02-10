@@ -38,7 +38,7 @@
 #'
 #' @import dplyr
 #' @importFrom rlang .data
-#' @importFrom effectclass coarse_classification classify
+#' @importFrom effectclass coarse_classification classification
 #'
 #' @examples
 #' # example code

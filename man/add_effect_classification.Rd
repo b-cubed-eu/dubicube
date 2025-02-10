@@ -55,5 +55,5 @@ This function is a wrapper around \code{effectclass::classify()} and
 }
 \references{
 Onkelinx, T. (2023). effectclass: Classification and visualisation of effects
-[Computer software]. \url{https://effectclass.netlify.com}
+[Computer software]. \url{https://inbo.github.io/effectclass/}
 }

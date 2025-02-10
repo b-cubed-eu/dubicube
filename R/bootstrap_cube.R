@@ -145,6 +145,7 @@
 bootstrap_cube <- function(
     data_cube,
     fun,
+    ...,
     grouping_var,
     samples = 1000,
     ref_group = NA,
@@ -291,9 +292,9 @@ bootstrap_cube <- function(
   } else {
     # Calculate true statistic
     if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      t0 <- fun(data_cube, ...)$data # nolint: object_usage_linter
+      t0 <- fun(data_cube, ...)$data
     } else {
-      t0 <- fun(data_cube, ...)      # nolint: object_usage_linter
+      t0 <- fun(data_cube, ...)
     }
 
     # Get bootstrap samples as a list

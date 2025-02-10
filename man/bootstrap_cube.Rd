@@ -7,6 +7,7 @@
 bootstrap_cube(
   data_cube,
   fun,
+  ...,
   grouping_var,
   samples = 1000,
   ref_group = NA,
@@ -22,6 +23,8 @@ see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
 \item{fun}{A function which, when applied to \code{data_cube} returns the
 statistic(s) of interest. This function must return a dataframe with a column
 \code{diversity_val} containing the statistic of interest.}
+
+\item{...}{Additional arguments passed on to \code{fun}.}
 
 \item{grouping_var}{A string specifying the grouping variable(s) for the
 bootstrap analysis. The output of \code{fun(data_cube)} returns a row per group.}
@@ -39,8 +42,6 @@ reset (to the state before calling this function) upon exiting this function.}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
-
-\item{...}{Additional arguments passed on to \code{fun}.}
 }
 \value{
 A dataframe containing the bootstrap results with the following

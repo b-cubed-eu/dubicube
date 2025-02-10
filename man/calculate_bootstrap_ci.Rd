@@ -12,6 +12,7 @@ calculate_bootstrap_ci(
   aggregate = TRUE,
   data_cube = NA,
   fun = NA,
+  ...,
   ref_group = NA,
   jackknife = ifelse(is.element("bca", type), "usual", NA),
   progress = FALSE
@@ -59,6 +60,8 @@ the original bootstrap dataframe \code{bootstrap_samples_df}.}
 \code{data_cube} returns the statistic(s) of interest. This function must return a
 dataframe with a column \code{diversity_val} containing the statistic of interest.
 As used by \code{bootstrap_cube()}.}
+
+\item{...}{Additional arguments passed on to \code{fun}.}
 
 \item{ref_group}{Only used when \code{type = "bca"}. A string indicating the
 reference group to compare the statistic with. Default is \code{NA}, meaning no

@@ -39,6 +39,8 @@ reset (to the state before calling this function) upon exiting this function.}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
+
+\item{...}{Additional arguments passed on to \code{fun}.}
 }
 \value{
 A dataframe containing the bootstrap results with the following

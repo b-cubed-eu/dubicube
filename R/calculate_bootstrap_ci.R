@@ -36,6 +36,7 @@
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.
 #'  As used by `bootstrap_cube()`.
+#' @param ... Additional arguments passed on to `fun`.
 #' @param ref_group Only used when `type = "bca"`. A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
@@ -254,6 +255,7 @@ calculate_bootstrap_ci <- function(
     aggregate = TRUE,
     data_cube = NA,
     fun = NA,
+    ...,
     ref_group = NA,
     jackknife = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
@@ -364,6 +366,7 @@ calculate_bootstrap_ci <- function(
       jackknife_df <- perform_jackknifing(
         data_cube = data_cube,
         fun = fun,
+        ...,
         grouping_var = grouping_var,
         ref_group = ref_group,
         progress = progress)

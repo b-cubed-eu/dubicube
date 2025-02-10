@@ -16,6 +16,7 @@
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.
 #'  As used by `bootstrap_cube()`.
+#' @param ... Additional arguments passed on to `fun`.
 #' @param ref_group A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used. As used by `bootstrap_cube()`.
@@ -34,6 +35,7 @@
 perform_jackknifing <- function(
     data_cube,
     fun,
+    ...,
     grouping_var,
     ref_group = NA,
     progress = FALSE) {
@@ -59,7 +61,7 @@ perform_jackknifing <- function(
         data_cube_copy$data <- data
 
         # Calculate indicator value without i'th observation
-        fun(data_cube_copy)$data %>%
+        fun(data_cube_copy, ...)$data %>%
           dplyr::filter(!!rlang::sym(grouping_var) == group) %>%
           dplyr::pull(.data$diversity_val)
       },
@@ -85,7 +87,7 @@ perform_jackknifing <- function(
         group <- data_cube[[i, grouping_var]]
 
         # Calculate indicator value without i'th observation
-        fun(data_cube[-i, ]) %>%
+        fun(data_cube[-i, ], ...) %>%
           dplyr::filter(!!sym(grouping_var) == group) %>%
           dplyr::pull(.data$diversity_val)
       },
@@ -101,9 +103,9 @@ perform_jackknifing <- function(
   if (!is.na(ref_group)) {
     # Get group-specific estimates
     if (inherits(data_cube, "processed_cube")) {
-      group_estimates <- fun(data_cube)$data
+      group_estimates <- fun(data_cube, ...)$data
     } else {
-      group_estimates <- fun(data_cube)
+      group_estimates <- fun(data_cube, ...)
     }
 
     # Get estimate for reference group

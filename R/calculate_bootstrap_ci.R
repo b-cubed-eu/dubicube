@@ -188,6 +188,7 @@
 #'
 #' @import dplyr
 #' @import boot
+#' @import assertthat
 #' @importFrom rlang .data
 #' @importFrom stats pnorm qnorm
 #'

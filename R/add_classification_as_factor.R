@@ -142,6 +142,7 @@ add_effect_classification <- function(
                       ordered = TRUE)
     )
 
+  # Create ordered factors of effects if coarse is specified
   if (coarse) {
     out_df <- out_df %>%
       dplyr::mutate(

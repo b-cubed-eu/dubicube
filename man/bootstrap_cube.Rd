@@ -7,6 +7,7 @@
 bootstrap_cube(
   data_cube,
   fun,
+  ...,
   grouping_var,
   samples = 1000,
   ref_group = NA,
@@ -22,6 +23,8 @@ see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
 \item{fun}{A function which, when applied to \code{data_cube} returns the
 statistic(s) of interest. This function must return a dataframe with a column
 \code{diversity_val} containing the statistic of interest.}
+
+\item{...}{Additional arguments passed on to \code{fun}.}
 
 \item{grouping_var}{A string specifying the grouping variable(s) for the
 bootstrap analysis. The output of \code{fun(data_cube)} returns a row per group.}
@@ -171,3 +174,9 @@ Application (1st ed.). Cambridge University Press.
 Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 }
+\seealso{
+Other uncertainty: 
+\code{\link{add_effect_classification}()},
+\code{\link{calculate_bootstrap_ci}()}
+}
+\concept{uncertainty}

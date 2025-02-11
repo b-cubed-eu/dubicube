@@ -36,6 +36,7 @@
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.
 #'  As used by `bootstrap_cube()`.
+#' @param ... Additional arguments passed on to `fun`.
 #' @param ref_group Only used when `type = "bca"`. A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
@@ -185,8 +186,11 @@
 #'
 #' @export
 #'
+#' @family uncertainty
+#'
 #' @import dplyr
 #' @import boot
+#' @import assertthat
 #' @importFrom rlang .data
 #' @importFrom stats pnorm qnorm
 #'
@@ -254,6 +258,7 @@ calculate_bootstrap_ci <- function(
     aggregate = TRUE,
     data_cube = NA,
     fun = NA,
+    ...,
     ref_group = NA,
     jackknife = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
@@ -317,7 +322,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -364,6 +369,7 @@ calculate_bootstrap_ci <- function(
       jackknife_df <- perform_jackknifing(
         data_cube = data_cube,
         fun = fun,
+        ...,
         grouping_var = grouping_var,
         ref_group = ref_group,
         progress = progress)
@@ -374,7 +380,7 @@ calculate_bootstrap_ci <- function(
                                            .data$est_original),
                          by = dplyr::join_by(!!grouping_var)) %>%
         dplyr::mutate(n = dplyr::n(),
-                      .by = grouping_var) %>%
+                      .by = dplyr::all_of(grouping_var)) %>%
         dplyr::rowwise() %>%
         dplyr::mutate(intensity = ifelse(
           jackknife == "usual",
@@ -387,7 +393,7 @@ calculate_bootstrap_ci <- function(
           numerator = sum(.data$intensity^3),
           denominator = 6 * sum(.data$intensity^2)^1.5,
           acceleration = .data$numerator / .data$denominator,
-          .by = grouping_var
+          .by = dplyr::all_of(grouping_var)
         )
 
       # Calculate confidence limits per group
@@ -429,7 +435,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -451,7 +457,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -473,7 +479,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
         dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
         dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select(dplyr::all_of(c("group", "ll", "ul", "conf")))
+        dplyr::select("group", "ll", "ul", "conf")
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
@@ -491,7 +497,7 @@ calculate_bootstrap_ci <- function(
   # Aggregate if requested
   if (aggregate) {
     conf_df_out <- conf_df_full %>%
-      dplyr::select(-all_of(c("sample", "rep_boot"))) %>%
+      dplyr::select(-c("sample", "rep_boot")) %>%
       dplyr::distinct()
   } else {
     conf_df_out <- conf_df_full

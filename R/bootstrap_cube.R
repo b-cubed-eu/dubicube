@@ -11,6 +11,7 @@
 #' @param fun A function which, when applied to `data_cube` returns the
 #' statistic(s) of interest. This function must return a dataframe with a column
 #' `diversity_val` containing the statistic of interest.
+#' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A string specifying the grouping variable(s) for the
 #' bootstrap analysis. The output of `fun(data_cube)` returns a row per group.
 #' @param samples The number of bootstrap replicates. A single positive integer.
@@ -100,6 +101,8 @@
 #'
 #' @export
 #'
+#' @family uncertainty
+#'
 #' @import dplyr
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
@@ -144,6 +147,7 @@
 bootstrap_cube <- function(
     data_cube,
     fun,
+    ...,
     grouping_var,
     samples = 1000,
     ref_group = NA,
@@ -199,7 +203,7 @@ bootstrap_cube <- function(
 
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`" =
+    stopifnot("`data_cube` should contain column `grouping_var`." =
                 grouping_var %in% names(data_cube$data))
 
     # Check if ref_group is present in grouping_var
@@ -214,7 +218,7 @@ bootstrap_cube <- function(
     resample_df <- modelr::bootstrap(data_cube$data, samples, id = "id")
 
     # Function for bootstrapping
-    bootstrap_resample <- function(x, fun) {
+    bootstrap_resample <- function(x, fun, ...) {
       resample_obj <- x$strap[[1]]
       indices <- as.integer(resample_obj)
       data <- resample_obj$data[indices, ]
@@ -222,7 +226,7 @@ bootstrap_cube <- function(
       data_cube_copy <- data_cube
       data_cube_copy$data <- data
 
-      fun(data_cube_copy)$data %>%
+      fun(data_cube_copy, ...)$data %>%
         dplyr::mutate(sample = as.integer(x$id))
     }
   } else {
@@ -242,12 +246,12 @@ bootstrap_cube <- function(
     resample_df <- modelr::bootstrap(data_cube, samples, id = "id")
 
     # Function for bootstrapping
-    bootstrap_resample <- function(x, fun) {
+    bootstrap_resample <- function(x, fun, ...) {
       resample_obj <- x$strap[[1]]
       indices <- as.integer(resample_obj)
       data <- resample_obj$data[indices, ]
 
-      fun(data) %>%
+      fun(data, ...) %>%
         dplyr::mutate(sample = as.integer(x$id))
     }
   }
@@ -258,6 +262,7 @@ bootstrap_cube <- function(
     purrr::map(
       bootstrap_resample,
       fun = fun,
+      ...,
       .progress = ifelse(progress, "Bootstrapping", progress))
 
   if (!is.na(ref_group)) {
@@ -289,9 +294,9 @@ bootstrap_cube <- function(
   } else {
     # Calculate true statistic
     if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      t0 <- fun(data_cube)$data
+      t0 <- fun(data_cube, ...)$data
     } else {
-      t0 <- fun(data_cube)
+      t0 <- fun(data_cube, ...)
     }
 
     # Get bootstrap samples as a list

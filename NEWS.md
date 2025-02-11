@@ -1,3 +1,8 @@
+# dubicube 0.2.0
+
+* Add effect classification function
+* Add `...` argument to `bootstrap_cube()` and `calculate_bootstrap_ci()`
+
 # dubicube 0.1.0
 
 * Add bootstrapping functions

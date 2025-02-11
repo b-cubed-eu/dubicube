@@ -5,6 +5,7 @@ Canty
 Centers
 DiCiccio
 Frangos
+Onkelinx
 Schucany
 Tibshirani
 bca
@@ -15,6 +16,8 @@ doi
 ed
 eqn
 frac
+linter
+nolint
 perc
 pkg
 sim

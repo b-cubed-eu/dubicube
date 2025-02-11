@@ -28,3 +28,11 @@ navbar:
       icon: fa-cube
       href: https://b-cubed.eu/
       aria-label: B-Cubed website
+
+reference:
+  - title: "Data variability and robustness"
+    contents:
+      - has_concept("robustness")
+  - title: "Indicator uncertainty and interpretation"
+    contents:
+      - has_concept("uncertainty")

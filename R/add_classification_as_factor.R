@@ -56,8 +56,20 @@
 #' @importFrom effectclass coarse_classification classification
 #'
 #' @examples
-#' # example code
+#' # Example dataset
+#' ds <- data.frame(
+#'   mean = c(0, 0.5, -0.5, 1, -1, 1.5, -1.5, 0.5, -0.5, 0),
+#'   sd = c(1, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5)
+#' )
+#' ds$lcl <- qnorm(0.05, ds$mean, ds$sd)
+#' ds$ucl <- qnorm(0.95, ds$mean, ds$sd)
 #'
+#' add_effect_classification(
+#'  df = ds,
+#'  cl_columns = c("lcl", "ucl"),
+#'  threshold = 1,
+#'  reference = 0,
+#'  coarse = TRUE)
 
 add_effect_classification <- function(
     df,
@@ -73,6 +85,10 @@ add_effect_classification <- function(
   # Check if cl_columns is a character vector
   stopifnot("`cl_columns` must be a character vector of length 2." =
               is.character(cl_columns) & length(cl_columns) == 2)
+
+  # Check if cl_columns columns are present in dataframe
+  stopifnot("`cl_columns` columns are not present in `df`." =
+              all(cl_columns %in% names(df)))
 
   # Check if reference is a numeric vector
   stopifnot("`threshold` must be a numeric vector of length 1 or 2." =

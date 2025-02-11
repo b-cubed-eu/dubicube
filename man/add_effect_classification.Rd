@@ -43,36 +43,24 @@ variables by comparing the confidence intervals with a reference and
 thresholds.
 }
 \details{
-This function is a wrapper around \code{effectclass::classify()} and
-\code{effectclass::coarse_classification()} from the \pkg{effectclass} package
-(Onkelinx, 2023). They classify effects in a stable and transparent manner.\tabular{clll}{
-   Symbol \tab Fine effect / trend \tab Coarse effect / trend \tab Rule \cr
-   \verb{++} \tab strong positive effect / strong increase \tab  \tab  \cr
-   positive effect / increase \tab confidence interval above the upper threshold \tab  \tab  \cr
-   \code{+} \tab positive effect / increase \tab positive effect / increase \tab  \cr
-   confidence interval above reference and contains the upper threshold \tab  \tab  \tab  \cr
-   \verb{+~} \tab moderate positive effect / moderate increase \tab  \tab  \cr
-   positive effect / increase \tab confidence interval between reference and \tab  \tab  \cr
-   the upper threshold \tab  \tab  \tab  \cr
-   \code{~} \tab no effect / stable \tab no effect / stable \tab confidence interval \cr
-   between thresholds and contains reference \tab  \tab  \tab  \cr
-   \verb{-~} \tab moderate negative effect / moderate decrease \tab  \tab  \cr
-   negative effect / decrease \tab confidence interval between reference and the \tab  \tab  \cr
-   lower threshold \tab  \tab  \tab  \cr
-   \code{-} \tab negative effect / decrease \tab negative effect / decrease \tab  \cr
-   confidence interval below reference and contains the lower threshold \tab  \tab  \tab  \cr
-   \verb{--} \tab strong negative effect / strong decrease \tab  \tab  \cr
-   negative effect / decrease \tab confidence interval below the lower \tab  \tab  \cr
-   threshold \tab  \tab  \tab  \cr
-   \verb{?+} \tab potential positive effect / potential increase \tab  \tab  \cr
-   unknown effect / unknown \tab confidence interval contains reference and \tab  \tab  \cr
-   the upper threshold \tab  \tab  \tab  \cr
-   \verb{?-} \tab potential negative effect / potential decrease \tab  \tab  \cr
-   unknown effect / unknown \tab confidence interval contains reference and the \tab  \tab  \cr
-   lower threshold \tab  \tab  \tab  \cr
-   \verb{?} \tab unknown effect / unknown \tab unknown effect / unknown \tab  \cr
-   confidence interval contains the lower and upper threshold \tab  \tab  \tab  \cr
-}
+This function is a wrapper around `effectclass::classify()` and
+`effectclass::coarse_classification()` from the \pkg{effectclass} package
+(Onkelinx, 2023). They classify effects in a stable and transparent manner.
+
+# nolint start: line_length_linter.
+| Symbol | Fine effect / trend | Coarse effect / trend | Rule |
+| :---: | --- | --- | --- |
+| `++` | strong positive effect / strong increase | positive effect / increase | confidence interval above the upper threshold |
+| `+`  | positive effect / increase | positive effect / increase | confidence interval above reference and contains the upper threshold |
+| `+~` | moderate positive effect / moderate increase | positive effect / increase | confidence interval between reference and the upper threshold |
+| `~`  | no effect / stable | no effect / stable | confidence interval between thresholds and contains reference |
+| `-~` | moderate negative effect / moderate decrease | negative effect / decrease | confidence interval between reference and the lower threshold |
+| `-`  | negative effect / decrease | negative effect / decrease | confidence interval below reference and contains the lower threshold |
+| `--` | strong negative effect / strong decrease | negative effect / decrease | confidence interval below the lower threshold |
+| `?+` | potential positive effect / potential increase | unknown effect / unknown | confidence interval contains reference and the upper threshold |
+| `?-` | potential negative effect / potential decrease | unknown effect / unknown | confidence interval contains reference and the lower threshold |
+| `?`  | unknown effect / unknown | unknown effect / unknown | confidence interval contains the lower and upper threshold |
+# nolint end
 }
 \examples{
 # Example dataset

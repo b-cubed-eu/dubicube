@@ -31,6 +31,12 @@ derived from data cubes.
 
 ## Installation
 
+Install **dubicube** in R:
+
+``` r
+install.packages("dubicube", repos = "https://b-cubed-eu.r-universe.dev")
+```
+
 You can install the development version from
 [GitHub](https://github.com/) with:
 

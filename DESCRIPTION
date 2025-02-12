@@ -28,9 +28,8 @@ Imports:
 Suggests:
     b3gbi,
     testthat (>= 3.0.0)
-Remotes: 
-    b-cubed-eu/b3gbi
-Additional_repositories: https://inbo.r-universe.dev
+Additional_repositories: https://b-cubed-eu.r-universe.dev/,
+    https://inbo.r-universe.dev
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty
     visualisation; biodiversity indicators; data cubes

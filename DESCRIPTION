@@ -14,7 +14,8 @@ Description: An R package to explore calculation, interpretation and
     biodiversity data cubes.
 License: MIT + file LICENSE
 URL: https://github.com/b-cubed-eu/dubicube,
-    https://b-cubed-eu.github.io/dubicube/
+    https://b-cubed-eu.github.io/dubicube/,
+    https://doi.org/10.5281/zenodo.14850237
 BugReports: https://github.com/b-cubed-eu/dubicube/issues
 Imports:
     assertthat,

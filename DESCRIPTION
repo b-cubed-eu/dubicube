@@ -31,6 +31,9 @@ Suggests:
     testthat (>= 3.0.0)
 Additional_repositories: https://b-cubed-eu.r-universe.dev/,
     https://inbo.r-universe.dev
+Remotes:  
+    github::b-cubed-eu/b3gbi,
+    github::inbo/effectclass
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty
     visualisation; biodiversity indicators; data cubes

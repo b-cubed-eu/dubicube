@@ -9,7 +9,12 @@ Authors@R: c(
     person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = "cph"),
     person("European Union's Horizon Europe Research and Innovation Programme (ID No 101059592)", role = "fnd")
   )
-Description: This R package provides functions to explore data cubes using robustness measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.
+Description: This R package provides functions to explore data cubes using
+    robustness measures and cross-validation techniques. It can also be
+    used for uncertainty calculation using the bootstrap resampling
+    method, and functionality is provided for efficient interpretation and
+    visualisation of uncertainty related to indicators based on
+    biodiversity data cubes.
 License: MIT + file LICENSE
 URL: https://github.com/b-cubed-eu/dubicube,
     https://b-cubed-eu.github.io/dubicube/,
@@ -27,11 +32,11 @@ Imports:
 Suggests:
     b3gbi,
     testthat (>= 3.0.0)
-Additional_repositories: https://b-cubed-eu.r-universe.dev/,
-    https://inbo.r-universe.dev
-Remotes:  
+Remotes: 
     github::b-cubed-eu/b3gbi,
     github::inbo/effectclass
+Additional_repositories: https://b-cubed-eu.r-universe.dev/,
+    https://inbo.r-universe.dev
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty
     visualisation; biodiversity indicators; data cubes

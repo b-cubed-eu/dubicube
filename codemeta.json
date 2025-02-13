@@ -2,7 +2,7 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "dubicube",
-  "description": "An R package to explore calculation, interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
+  "description": "This R package provides functions to explore data cubes using robustness measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
   "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty",
   "relatedLink": ["https://b-cubed-eu.github.io/dubicube/", "https://doi.org/10.5281/zenodo.14850237"],
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
@@ -57,7 +57,8 @@
     {
       "@type": "SoftwareApplication",
       "identifier": "b3gbi",
-      "name": "b3gbi"
+      "name": "b3gbi",
+      "sameAs": "https://github.com/b-cubed-eu/b3gbi"
     },
     {
       "@type": "SoftwareApplication",
@@ -113,7 +114,8 @@
     "4": {
       "@type": "SoftwareApplication",
       "identifier": "effectclass",
-      "name": "effectclass"
+      "name": "effectclass",
+      "sameAs": "https://github.com/inbo/effectclass"
     },
     "5": {
       "@type": "SoftwareApplication",
@@ -165,7 +167,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "185.491KB",
+  "fileSize": "186.135KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

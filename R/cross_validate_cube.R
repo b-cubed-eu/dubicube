@@ -40,7 +40,7 @@
 #'   - Cross-Validation id (`id_cv`)
 #'   - The grouping variable `grouping_var` (e.g., year)
 #'   - The category left out during each cross-validation iteration
-#'   (specified `out_var` with suffix "_out")
+#'   (specified `out_var` with suffix '_out')
 #'   - The computed statistic values for both training (`rep_cv`) and true
 #' datasets (`est_original`)
 #'   - Error metrics: error (`error`), squared error (`sq_error`),
@@ -57,8 +57,8 @@
 #' leave-one-out cross-validation. K-fold CV works in a similar fashion but is
 #' experimental and will not be covered here.
 #'
-#' 1. **Original Sample Data**: \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13},
-#' \ldots, X_{sn}\}}
+#' 1. **Original Sample Data**:
+#' \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}}
 #'    - The initial set of observed data points, where there are \eqn{s}
 #'    different categories in `out_var` and \eqn{n}
 #'    total samples across all

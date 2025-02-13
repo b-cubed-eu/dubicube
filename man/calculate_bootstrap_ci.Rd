@@ -37,11 +37,11 @@ confidence interval calculations.}
 \item{type}{A character vector specifying the type(s) of confidence intervals
 to compute. Options include:
 \itemize{
-\item "perc": Percentile interval
-\item "bca": Bias-corrected and accelerated interval
-\item "norm": Normal interval
-\item "basic": Basic interval
-\item "all": Compute all available interval types (default)
+\item \code{"perc"}: Percentile interval
+\item \code{"bca"}: Bias-corrected and accelerated interval
+\item \code{"norm"}: Normal interval
+\item \code{"basic"}: Basic interval
+\item \code{"all"}: Compute all available interval types (default)
 }}
 
 \item{conf}{A numeric value specifying the confidence level of the intervals.

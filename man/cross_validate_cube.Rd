@@ -60,7 +60,7 @@ following columns:
 \item Cross-Validation id (\code{id_cv})
 \item The grouping variable \code{grouping_var} (e.g., year)
 \item The category left out during each cross-validation iteration
-(specified \code{out_var} with suffix "_out")
+(specified \code{out_var} with suffix '_out')
 \item The computed statistic values for both training (\code{rep_cv}) and true
 datasets (\code{est_original})
 \item Error metrics: error (\code{error}), squared error (\code{sq_error}),
@@ -86,8 +86,8 @@ indicator value by iteratively leaving out one category at a time, similar to
 leave-one-out cross-validation. K-fold CV works in a similar fashion but is
 experimental and will not be covered here.
 \enumerate{
-\item \strong{Original Sample Data}: \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13},
-\ldots, X_{sn}\}}
+\item \strong{Original Sample Data}:
+\eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}}
 \itemize{
 \item The initial set of observed data points, where there are \eqn{s}
 different categories in \code{out_var} and \eqn{n}

@@ -18,11 +18,11 @@
 #' confidence interval calculations.
 #' @param type A character vector specifying the type(s) of confidence intervals
 #' to compute. Options include:
-#'   - "perc": Percentile interval
-#'   - "bca": Bias-corrected and accelerated interval
-#'   - "norm": Normal interval
-#'   - "basic": Basic interval
-#'   - "all": Compute all available interval types (default)
+#'   - `"perc"`: Percentile interval
+#'   - `"bca"`: Bias-corrected and accelerated interval
+#'   - `"norm"`: Normal interval
+#'   - `"basic"`: Basic interval
+#'   - `"all"`: Compute all available interval types (default)
 #' @param conf A numeric value specifying the confidence level of the intervals.
 #' Default is `0.95` (95 % confidence level).
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct

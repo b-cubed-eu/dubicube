@@ -6,7 +6,7 @@ bibentry(
   author = c( author = c(person(given = "Ward", family = "Langeraert"), person(given = "Toon", family = "Van Daele"))),
   year = 2025,
   url = "https://b-cubed-eu.github.io/dubicube/",
-  abstract = "An R package to explore calculation, interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
+  abstract = "This R package provides functions to explore data cubes using robustness measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
   textVersion = "Langeraert, Ward; Van Daele, Toon (2025) dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.2.1. https://b-cubed-eu.github.io/dubicube/",
   keywords = "uncertainty quantification; uncertainty visualisation; biodiversity indicators; data cubes",
   doi = "10.5281/zenodo.14850237",

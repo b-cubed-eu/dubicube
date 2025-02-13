@@ -9,9 +9,7 @@ Authors@R: c(
     person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = "cph"),
     person("European Union's Horizon Europe Research and Innovation Programme (ID No 101059592)", role = "fnd")
   )
-Description: An R package to explore calculation, interpretation and
-    visualisation of uncertainty related to indicators based on
-    biodiversity data cubes.
+Description: This R package provides functions to explore data cubes using robustness measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.
 License: MIT + file LICENSE
 URL: https://github.com/b-cubed-eu/dubicube,
     https://b-cubed-eu.github.io/dubicube/,

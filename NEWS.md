@@ -1,3 +1,7 @@
+# dubicube 0.3.0
+
+* Add cross-validation function
+
 # dubicube 0.2.0
 
 * Add effect classification function

@@ -56,7 +56,7 @@
 #'
 #' @export
 #'
-#' @family uncertainty
+#' @family robustness
 #'
 #' @import dplyr
 #' @importFrom rlang .data

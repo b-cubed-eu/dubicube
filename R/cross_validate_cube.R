@@ -44,15 +44,77 @@
 #'   - The computed statistic values for both training (`rep_cv`) and true
 #' datasets (`est_original`)
 #'   - Error metrics: error (`error`), squared error (`sq_error`),
-#'   absolute difference (`abs_diff`), relative difference (`rel_diff`), and
-#'   percent difference (`perc_diff`)
+#'   absolute difference (`abs_error`), relative difference (`rel_error`), and
+#'   percent difference (`perc_error`)
 #'   - Error metrics summarised by `grouping_var`: mean relative difference
 #' (`mre`), mean squared error (`mse`) and root mean squared error (`rmse`)
 #'
 #' See Details section on how these error metrics are calculated.
 #'
 #' @details
-#' Details here
+#' This function assesses the influence of each category in `out_var` on the
+#' indicator value by iteratively leaving out one category at a time, similar to
+#' leave-one-out cross-validation. K-fold CV works in a similar fashion but is
+#' experimental and will not be covered here.
+#'
+#' 1. **Original Sample Data**: \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13},
+#' \ldots, X_{sn}\}}
+#'    - The initial set of observed data points, where there are \eqn{s}
+#'    different categories in `out_var` and \eqn{n} total samples across all
+#'    categories (= the sample size). \eqn{n} corresponds to the number of cells
+#'    in a data cube or the number of rows in tabular format.
+#'
+#' 2. **Statistic of Interest**: \eqn{\theta}
+#'    - The parameter or statistic being estimated, such as the mean
+#'    \eqn{\bar{X}}, variance \eqn{\sigma^2}, or a biodiversity indicator. Let
+#'    \eqn{\hat{\theta}}
+#'    denote the estimated value of \eqn{\theta}
+#'    calculated from the complete dataset \eqn{\mathbf{X}}.
+#'
+#' 3. **Cross-Validation (CV) Sample**: \eqn{\mathbf{X}_{-s_j}}
+#'    - The full dataset \eqn{\mathbf{X}} excluding all samples belonging to
+#'    category \eqn{j}. This subset is used to investigate the influence of
+#'    category \eqn{j} on the estimated statistic \eqn{\hat{\theta}}.
+#'
+#' 4. **CV Estimate for Category** \eqn{\mathbf{j}}: \eqn{\hat{\theta}_{-s_j}}
+#'    - The value of the statistic of interest calculated from
+#'    \eqn{\mathbf{X}_{-s_j}}, which excludes category \eqn{j}.
+#'    For example, if \eqn{\theta} is the sample mean,
+#'    \eqn{\hat{\theta}_{-s_j} = \bar{X}_{-s_j}}.
+#'
+#' 5. **Error Measures**:
+#'
+#'    - The **Error** is the difference between the statistic estimated without
+#'    category \eqn{j} (\eqn{\hat{\theta}_{-s_j}}) and the statistic calculated
+#'    on the complete dataset (\eqn{\hat{\theta}}).
+#'
+#'    \deqn{\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}}
+#'
+#'    - The **Relative Error** is the absolute error, normalised by the true
+#'    estimate \eqn{\hat{\theta}} and a small error term
+#'    \eqn{\epsilon = 10^{-8}} to avoid division by zero.
+#'
+#'    \deqn{\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} -
+#'    \hat{\theta}|}{\hat{\theta} +\epsilon}}
+#'
+#'    - The **Percent Error** is the relative error expressed as a percentage.
+#'
+#'    \deqn{\text{Perc. Error}_{s_j} = \text{Rel. Error}_{s_j} \times 100 \%}
+#'
+#' 6. **Summary Measures**:
+#'
+#'    - The **Mean Relative Error (MRE)** is the average of the relative errors
+#'    over all categories.
+#'
+#'    \deqn{\text{MRE} = \frac{1}{s} \sum_{j=1}^s \text{Rel. Error}_{s_j}}
+#'
+#'    - The **Mean Squared Error (MSE)** is the average of the squared errors.
+#'
+#'    \deqn{\text{MSE} = \frac{1}{s} \sum_{j=1}^s (\text{Error}_{s_j})^2}
+#'
+#'    - The **Root Mean Squared Error (RMSE)** is the square root of the MSE.
+#'
+#'    \deqn{\text{RMSE} = \sqrt{\text{MSE}}}
 #'
 #' @export
 #'
@@ -130,18 +192,18 @@ cross_validate_cube <- function(
       data_cube$data[data_cube$data$taxonKey != taxon, ]
     })
 
-    # Get species left out
-    species_df <- data.frame(
+    # Get category left out
+    category_df <- data.frame(
       id_cv = seq_along(taxon_list),
       cat_left_out = taxon_list
     )
   } else {
-    # Species partitioning
+    # Category partitioning
     taxon_list <- data_cube$data %>%
       distinct(.data$taxonKey) %>%
       modelr::crossv_kfold(id = "id_cv", k = k)
 
-    # Get species left out
+    # Get category left out
     cat_left_out_list <- lapply(lapply(taxon_list$test, as.integer),
                                     function(indices) {
                                       df <- data_cube$data %>%
@@ -153,7 +215,7 @@ cross_validate_cube <- function(
     )
     names(cat_left_out_list) <- NULL
 
-    species_df <- tibble(
+    category_df <- tibble(
       id_cv = as.numeric(taxon_list$id_cv),
       cat_left_out = cat_left_out_list
     )
@@ -175,7 +237,7 @@ cross_validate_cube <- function(
   out_df <- results %>%
     dplyr::bind_rows(.id = "id_cv") %>%
     dplyr::mutate(id_cv = as.numeric(.data$id_cv)) %>%
-    dplyr::full_join(species_df, by = join_by("id_cv")) %>%
+    dplyr::full_join(category_df, by = join_by("id_cv")) %>%
     dplyr::rename("rep_cv" = "diversity_val") %>%
     dplyr::left_join(t0, by = grouping_var) %>%
     dplyr::rename("est_original" = "diversity_val") %>%
@@ -183,13 +245,13 @@ cross_validate_cube <- function(
     dplyr::mutate(
       error =  .data$rep_cv - .data$est_original,
       sq_error = .data$error^2,
-      abs_diff = abs(.data$error),
-      rel_diff = .data$abs_diff / (.data$est_original + 10^-8),
-      perc_diff = .data$rel_diff * 100
+      abs_error = abs(.data$error),
+      rel_error = .data$abs_error / (.data$est_original + 10^-8),
+      perc_error = .data$rel_error * 100
     ) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
-      mre = mean(.data$rel_diff),
+      mre = mean(.data$rel_error),
       mse = mean(.data$sq_error),
       rmse = sqrt(.data$mse),
       .by = all_of(grouping_var)) %>%

@@ -75,6 +75,41 @@ cross_validate_cube <- function(
     k = ifelse(crossv_method == "kfold", 5, NA),
     max_out_cats = 1000,
     progress = FALSE) {
+  ### Start checks
+  # Check data_cube input
+  cube_message <- paste("`data_cube` must be a data cube object (class",
+                        "'processed_cube' or 'sim_cube') or a dataframe.")
+  do.call(stopifnot,
+          stats::setNames(list(
+            rlang::inherits_any(data_cube,
+                                c("processed_cube", "sim_cube", "data.frame"))),
+            cube_message)
+  )
+
+  # Check fun input
+  stopifnot("`fun` must be a function." = is.function(fun))
+
+  # Check if grouping_var is a character vector of length 1
+  stopifnot("`grouping_var` must be a character vector of length 1." =
+              assertthat::is.string(grouping_var))
+
+  # Check if crossv_method is loo or kfold
+  crossv_method <- tryCatch({
+    match.arg(crossv_method, c("loo", "kfold"))
+  }, error = function(e) {
+    stop("`crossv_method` must be one of 'loo', 'kfold'.",
+         call. = FALSE)
+  })
+
+  # Check if max_out_cats is a positive integer
+  stopifnot(
+    "`max_out_cats` must be a single positive integer." =
+      assertthat::is.count(max_out_cats))
+
+  # Check if progress is a logical vector of length 1
+  stopifnot("`progress` must be a logical vector of length 1." =
+              assertthat::is.flag(progress))
+  ### End checks
 
   # Define cross-validation function
   cross_validate_f <- function(x, fun) {
@@ -87,14 +122,7 @@ cross_validate_cube <- function(
   # Calculate true statistic
   t0 <- fun(data_cube)$data
 
-  # Check if crossv_method is loo or kfold
-  crossv_method <- tryCatch({
-    match.arg(crossv_method, c("loo", "kfold"))
-  }, error = function(e) {
-    stop("`crossv_method` must be one of 'loo', 'kfold'.",
-         call. = FALSE)
-  })
-
+  # Perform cross-validation
   if (crossv_method == "loo") {
     # Create cross validation datasets
     taxon_list <- unique(data_cube$data$taxonKey)

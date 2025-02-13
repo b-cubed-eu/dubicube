@@ -2,13 +2,13 @@ description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
   warnings:
-  - motivation: Not present on CRAN
+  - motivation: Packages only available via R-universe repos
     value: "checking CRAN incoming feasibility ... WARNING\nMaintainer: 'Ward Langeraert
       <ward.langeraert@inbo.be>'\n\nNew submission\n\nUnknown, possibly misspelled,
       fields in DESCRIPTION:\n  'Remotes'\n\nStrong dependencies not in mainstream
       repositories:\n  effectclass\nSuggests or Enhances not in mainstream repositories:\n
       \ b3gbi\nAvailability using Additional_repositories specification:\n  effectclass
-      \  yes   https://inbo.r-universe.dev\n  b3gbi          no   ?                          "
+      \  yes   https://inbo.r-universe.dev       \n  b3gbi         yes   https://b-cubed-eu.r-universe.dev/"
   - motivation: Use boot package for stability
     value: |-
       checking dependencies in R code ... WARNING
@@ -25,18 +25,6 @@ allowed:
       Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
 
       New submission
-  - motivation: b3gbi is part of the b3verse
-    value: |-
-      checking CRAN incoming feasibility ... NOTE
-      Maintainer: 'Ward Langeraert <ward.langeraert@inbo.be>'
-
-      New submission
-
-      Unknown, possibly misspelled, fields in DESCRIPTION:
-        'Remotes'
-
-      Suggests or Enhances not in mainstream repositories:
-        b3gbi
 required:
 - CITATION
 - DESCRIPTION

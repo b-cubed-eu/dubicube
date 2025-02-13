@@ -2,13 +2,13 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "dubicube",
-  "description": "An R package to explore calculation, interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
+  "description": "This R package provides functions to explore data cubes using robustness measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
   "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty",
-  "relatedLink": "https://b-cubed-eu.github.io/dubicube/",
+  "relatedLink": ["https://b-cubed-eu.github.io/dubicube/", "https://doi.org/10.5281/zenodo.14850237"],
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -114,7 +114,8 @@
     "4": {
       "@type": "SoftwareApplication",
       "identifier": "effectclass",
-      "name": "effectclass"
+      "name": "effectclass",
+      "sameAs": "https://github.com/inbo/effectclass"
     },
     "5": {
       "@type": "SoftwareApplication",
@@ -166,7 +167,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "183.642KB",
+  "fileSize": "186.135KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -183,8 +184,11 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.2.0",
-      "url": "https://b-cubed-eu.github.io/dubicube/"
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.2.1",
+      "identifier": "10.5281/zenodo.14850237",
+      "url": "https://b-cubed-eu.github.io/dubicube/",
+      "@id": "https://doi.org/10.5281/zenodo.14850237",
+      "sameAs": "https://doi.org/10.5281/zenodo.14850237"
     }
   ],
   "releaseNotes": "https://github.com/b-cubed-eu/dubicube/blob/master/NEWS.md",

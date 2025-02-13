@@ -19,6 +19,7 @@ BugReports: https://github.com/b-cubed-eu/dubicube/issues
 Imports:
     assertthat,
     boot,
+    data.table,
     dplyr,
     effectclass,
     modelr,

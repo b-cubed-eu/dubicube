@@ -126,6 +126,7 @@
 #'
 #' @import dplyr
 #' @importFrom rlang .data
+#' @importFrom data.table :=
 #' @importFrom modelr crossv_kfold
 #' @importFrom purrr map
 #'
@@ -277,7 +278,7 @@ cross_validate_cube <- function(
     )
     names(cat_left_out_list) <- NULL
 
-    category_df <- tibble(
+    category_df <- dplyr::tibble(
       id_cv = as.numeric(cat_list$id_cv),
       cat_left_out = cat_left_out_list
     )
@@ -318,12 +319,13 @@ cross_validate_cube <- function(
       mre = mean(.data$rel_error),
       mse = mean(.data$sq_error),
       rmse = sqrt(.data$mse),
-      .by = all_of(grouping_var)) %>%
+      .by = dplyr::all_of(grouping_var)) %>%
     dplyr::arrange(.data[[grouping_var]]) %>%
     dplyr::select("id_cv", all_of(grouping_var),
                   !!out_col_name := "cat_left_out",
                   "rep_cv", "est_original",
-                  dplyr::everything())
+                  dplyr::everything()) %>%
+    as.data.frame()
 
   return(out_df)
 }

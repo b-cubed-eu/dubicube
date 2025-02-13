@@ -90,8 +90,10 @@ experimental and will not be covered here.
 \ldots, X_{sn}\}}
 \itemize{
 \item The initial set of observed data points, where there are \eqn{s}
-different categories in \code{out_var} and \eqn{n} total samples across all
-categories (= the sample size). \eqn{n} corresponds to the number of cells
+different categories in \code{out_var} and \eqn{n}
+total samples across all
+categories (= the sample size). \eqn{n}
+corresponds to the number of cells
 in a data cube or the number of rows in tabular format.
 }
 \item \strong{Statistic of Interest}: \eqn{\theta}
@@ -104,7 +106,8 @@ calculated from the complete dataset \eqn{\mathbf{X}}.
 }
 \item \strong{Cross-Validation (CV) Sample}: \eqn{\mathbf{X}_{-s_j}}
 \itemize{
-\item The full dataset \eqn{\mathbf{X}} excluding all samples belonging to
+\item The full dataset \eqn{\mathbf{X}}
+excluding all samples belonging to
 category \eqn{j}. This subset is used to investigate the influence of
 category \eqn{j} on the estimated statistic \eqn{\hat{\theta}}.
 }
@@ -125,7 +128,8 @@ on the complete dataset (\eqn{\hat{\theta}}).
 \deqn{\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}}
 \itemize{
 \item The \strong{Relative Error} is the absolute error, normalised by the true
-estimate \eqn{\hat{\theta}} and a small error term
+estimate \eqn{\hat{\theta}}
+and a small error term
 \eqn{\epsilon = 10^{-8}} to avoid division by zero.
 }
 

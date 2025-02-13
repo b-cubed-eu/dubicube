@@ -60,8 +60,10 @@
 #' 1. **Original Sample Data**: \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13},
 #' \ldots, X_{sn}\}}
 #'    - The initial set of observed data points, where there are \eqn{s}
-#'    different categories in `out_var` and \eqn{n} total samples across all
-#'    categories (= the sample size). \eqn{n} corresponds to the number of cells
+#'    different categories in `out_var` and \eqn{n}
+#'    total samples across all
+#'    categories (= the sample size). \eqn{n}
+#'    corresponds to the number of cells
 #'    in a data cube or the number of rows in tabular format.
 #'
 #' 2. **Statistic of Interest**: \eqn{\theta}
@@ -72,7 +74,8 @@
 #'    calculated from the complete dataset \eqn{\mathbf{X}}.
 #'
 #' 3. **Cross-Validation (CV) Sample**: \eqn{\mathbf{X}_{-s_j}}
-#'    - The full dataset \eqn{\mathbf{X}} excluding all samples belonging to
+#'    - The full dataset \eqn{\mathbf{X}}
+#'    excluding all samples belonging to
 #'    category \eqn{j}. This subset is used to investigate the influence of
 #'    category \eqn{j} on the estimated statistic \eqn{\hat{\theta}}.
 #'
@@ -91,7 +94,8 @@
 #'    \deqn{\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}}
 #'
 #'    - The **Relative Error** is the absolute error, normalised by the true
-#'    estimate \eqn{\hat{\theta}} and a small error term
+#'    estimate \eqn{\hat{\theta}}
+#'    and a small error term
 #'    \eqn{\epsilon = 10^{-8}} to avoid division by zero.
 #'
 #'    \deqn{\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} -

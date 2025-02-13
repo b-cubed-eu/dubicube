@@ -7,6 +7,7 @@
 cross_validate_cube(
   data_cube,
   fun,
+  ...,
   grouping_var,
   out_var = "taxonKey",
   crossv_method = c("loo", "kfold"),
@@ -23,6 +24,8 @@ see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
 \item{fun}{A function which, when applied to \code{data_cube} returns the
 statistic(s) of interest. This function must return a dataframe with a column
 \code{diversity_val} containing the statistic of interest.}
+
+\item{...}{Additional arguments passed on to \code{fun}.}
 
 \item{grouping_var}{A string specifying the grouping variable(s) for \code{fun}.
 The output of \code{fun(data_cube)} returns a row per group.}
@@ -49,8 +52,6 @@ runtime.}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
-
-\item{...}{Additional arguments passed on to \code{fun}.}
 }
 \value{
 A dataframe containing the cross-validation results with the
@@ -59,7 +60,7 @@ following columns:
 \item Cross-Validation id (\code{id_cv})
 \item The grouping variable \code{grouping_var} (e.g., year)
 \item The category left out during each cross-validation iteration
-(\code{cat_left_out})
+(specified \code{out_var} with suffix "_out")
 \item The computed statistic values for both training (\code{rep_cv}) and true
 datasets (\code{est_original})
 \item Error metrics: error (\code{error}), squared error (\code{sq_error}),
@@ -155,6 +156,37 @@ over all categories.
 }
 }
 \examples{
-# Example here
+# Get example data
+# install.packages("remotes")
+# remotes::install_github("b-cubed-eu/b3gbi")
+library(b3gbi)
+cube_path <- system.file(
+  "extdata", "denmark_mammals_cube_eqdgc.csv",
+  package = "b3gbi")
+denmark_cube <- process_cube(
+  cube_path,
+  first_year = 2014,
+  last_year = 2020)
+
+# Function to calculate statistic of interest
+# Mean observations per year
+mean_obs <- function(data) {
+  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+  names(out_df) <- c("year", "diversity_val") # Rename columns
+  return(out_df)
+}
+mean_obs(denmark_cube$data)
+
+# Perform leave-one-species-out CV
+\donttest{
+cv_mean_obs <- cross_validate_cube(
+  data_cube = denmark_cube$data,
+  fun = mean_obs,
+  grouping_var = "year",
+  out_var = "taxonKey",
+  crossv_method = "loo",
+  progress = FALSE)
+head(cv_mean_obs)
+}
 }
 \concept{robustness}

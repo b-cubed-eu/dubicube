@@ -40,7 +40,7 @@
 #'   - Cross-Validation id (`id_cv`)
 #'   - The grouping variable `grouping_var` (e.g., year)
 #'   - The category left out during each cross-validation iteration
-#'   (`cat_left_out`)
+#'   (specified `out_var` with suffix "_out")
 #'   - The computed statistic values for both training (`rep_cv`) and true
 #' datasets (`est_original`)
 #'   - Error metrics: error (`error`), squared error (`sq_error`),
@@ -126,11 +126,43 @@
 #' @importFrom purrr map
 #'
 #' @examples
-#' # Example here
+#' # Get example data
+#' # install.packages("remotes")
+#' # remotes::install_github("b-cubed-eu/b3gbi")
+#' library(b3gbi)
+#' cube_path <- system.file(
+#'   "extdata", "denmark_mammals_cube_eqdgc.csv",
+#'   package = "b3gbi")
+#' denmark_cube <- process_cube(
+#'   cube_path,
+#'   first_year = 2014,
+#'   last_year = 2020)
+#'
+#' # Function to calculate statistic of interest
+#' # Mean observations per year
+#' mean_obs <- function(data) {
+#'   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+#'   names(out_df) <- c("year", "diversity_val") # Rename columns
+#'   return(out_df)
+#' }
+#' mean_obs(denmark_cube$data)
+#'
+#' # Perform leave-one-species-out CV
+#' \donttest{
+#' cv_mean_obs <- cross_validate_cube(
+#'   data_cube = denmark_cube$data,
+#'   fun = mean_obs,
+#'   grouping_var = "year",
+#'   out_var = "taxonKey",
+#'   crossv_method = "loo",
+#'   progress = FALSE)
+#' head(cv_mean_obs)
+#' }
 
 cross_validate_cube <- function(
     data_cube,
     fun,
+    ...,
     grouping_var,
     out_var = "taxonKey",
     crossv_method = c("loo", "kfold"),
@@ -168,61 +200,87 @@ cross_validate_cube <- function(
     "`max_out_cats` must be a single positive integer." =
       assertthat::is.count(max_out_cats))
 
+  # Add warning
+
   # Check if progress is a logical vector of length 1
   stopifnot("`progress` must be a logical vector of length 1." =
               assertthat::is.flag(progress))
   ### End checks
 
-  # Define cross-validation function
-  cross_validate_f <- function(x, fun) {
-    data_cube_copy <- data_cube
-    data_cube_copy$data <- x
+  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+    # Check if grouping_var column is present in data cube
+    stopifnot("`data_cube` should contain column `grouping_var`." =
+                grouping_var %in% names(data_cube$data))
 
-    fun(data_cube_copy)$data
+    # Define cross-validation function
+    cross_validate_f <- function(x, fun, ...) {
+      data_cube_copy <- data_cube
+      data_cube_copy$data <- x
+
+      fun(data_cube_copy, ...)$data
+    }
+
+    # Calculate true statistic
+    t0 <- fun(data_cube, ...)$data
+
+    # Save data cube data
+    data_cube_df <- data_cube$data
+  } else {
+    # Check if grouping_var column is present in data cube
+    stopifnot("`data_cube` should contain column `grouping_var`" =
+                grouping_var %in% names(data_cube))
+
+    # Define cross-validation function
+    cross_validate_f <- function(x, fun, ...) {
+      fun(x, ...)
+    }
+
+    # Calculate true statistic
+    t0 <- fun(data_cube, ...)
+
+    # Save data cube data
+    data_cube_df <- data_cube
   }
-
-  # Calculate true statistic
-  t0 <- fun(data_cube)$data
 
   # Perform cross-validation
   if (crossv_method == "loo") {
     # Create cross validation datasets
-    taxon_list <- unique(data_cube$data$taxonKey)
-    cv_datasets <- lapply(taxon_list, function(taxon) {
-      data_cube$data[data_cube$data$taxonKey != taxon, ]
+    cat_list <- unique(data_cube_df[[out_var]])
+    cv_datasets <- lapply(cat_list, function(cat) {
+      data_cube_df[data_cube_df[[out_var]] != cat, ]
     })
 
     # Get category left out
     category_df <- data.frame(
-      id_cv = seq_along(taxon_list),
-      cat_left_out = taxon_list
+      id_cv = seq_along(cat_list),
+      cat_left_out = cat_list
     )
   } else {
     # Category partitioning
-    taxon_list <- data_cube$data %>%
-      distinct(.data$taxonKey) %>%
+    cat_list <- data_cube_df %>%
+      distinct(.data[[out_var]]) %>%
       modelr::crossv_kfold(id = "id_cv", k = k)
 
     # Get category left out
-    cat_left_out_list <- lapply(lapply(taxon_list$test, as.integer),
+    cat_left_out_list <- lapply(lapply(cat_list$test, as.integer),
                                     function(indices) {
-                                      df <- data_cube$data %>%
-                                        distinct(.data$taxonKey)
+                                      df <- data_cube_df %>%
+                                        distinct(.data[[out_var]])
 
                                       df[indices, ] %>%
-                                        pull(.data$taxonKey)
+                                        pull(.data[[out_var]])
                                     }
     )
     names(cat_left_out_list) <- NULL
 
     category_df <- tibble(
-      id_cv = as.numeric(taxon_list$id_cv),
+      id_cv = as.numeric(cat_list$id_cv),
       cat_left_out = cat_left_out_list
     )
 
     # Create cross validation datasets
-    cv_datasets <- lapply(cat_left_out_list, function(taxa) {
-      data_cube$data[!data_cube$data$taxonKey %in% taxa, ]
+    cv_datasets <- lapply(cat_left_out_list, function(cats) {
+      data_cube_df[!data_cube_df[[out_var]] %in% cats, ]
     })
   }
 
@@ -234,6 +292,8 @@ cross_validate_cube <- function(
       .progress = ifelse(progress, "Cross-Validation", progress))
 
   # Summarise CV statistics in dataframe
+  out_col_name <- paste(gsub("[^a-zA-Z0-9]", "_", tolower(out_var)),
+                        "out", sep = "_")
   out_df <- results %>%
     dplyr::bind_rows(.id = "id_cv") %>%
     dplyr::mutate(id_cv = as.numeric(.data$id_cv)) %>%
@@ -256,8 +316,10 @@ cross_validate_cube <- function(
       rmse = sqrt(.data$mse),
       .by = all_of(grouping_var)) %>%
     dplyr::arrange(.data[[grouping_var]]) %>%
-    dplyr::select("id_cv", all_of(grouping_var), "cat_left_out", "rep_cv",
-                  "est_original", dplyr::everything())
+    dplyr::select("id_cv", all_of(grouping_var),
+                  !!out_col_name := "cat_left_out",
+                  "rep_cv", "est_original",
+                  dplyr::everything())
 
   return(out_df)
 }

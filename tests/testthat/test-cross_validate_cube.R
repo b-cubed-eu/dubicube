@@ -181,10 +181,23 @@ test_that("cross_validate_cube computes bootstrap statistics correctly", {
   })
 
   # Check if out_var output is correct
+  # LOO
+  lapply(loo_results, function(df) {
+    test_table <- table(expand.grid(year = years, taxonkey_out = species))
+    df_table <- table(year = df$year, taxonkey_out = df$taxonkey_out)
+
+    expect_identical(test_table, df_table)
+  })
+  #K-fold
+  lapply(kfold_results, function(df) {
+  group_specs <- c("spec1, spec2", "spec3, spec4", "spec5, spec6")
+
+  expect_identical(group_specs, unlist(unique(df$taxonkey_out)))
+  })
 })
 
 # Test handling of out_var argument
-# test_that("out_var argument works correctly", {
+# test_that("Test if out_var argument works correctly", {
   # leave one dataset out cv
 
   # number of categories warning enzo

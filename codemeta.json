@@ -167,6 +167,18 @@
     },
     "9": {
       "@type": "SoftwareApplication",
+      "identifier": "tibble",
+      "name": "tibble",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tibble"
+    },
+    "10": {
+      "@type": "SoftwareApplication",
       "identifier": "tidyr",
       "name": "tidyr",
       "provider": {
@@ -179,7 +191,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "216.481KB",
+  "fileSize": "216.493KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

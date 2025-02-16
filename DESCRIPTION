@@ -29,6 +29,7 @@ Imports:
     modelr,
     purrr,
     rlang,
+    tibble,
     tidyr
 Suggests:
     b3gbi,

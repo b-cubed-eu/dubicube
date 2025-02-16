@@ -128,6 +128,7 @@
 #' @import dplyr
 #' @import assertthat
 #' @importFrom rlang .data
+#' @importFrom tibble as.tibble
 #' @importFrom stats setNames
 #' @importFrom data.table :=
 #' @importFrom modelr crossv_kfold
@@ -243,7 +244,7 @@ cross_validate_cube <- function(
     t0 <- fun(data_cube, ...)$data
 
     # Save data cube data
-    data_cube_df <- data_cube$data
+    data_cube_df <- tibble::as.tibble(data_cube$data)
   } else {
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
@@ -262,7 +263,7 @@ cross_validate_cube <- function(
     t0 <- fun(data_cube, ...)
 
     # Save data cube data
-    data_cube_df <- data_cube
+    data_cube_df <- tibble::as.tibble(data_cube)
   }
 
   # Checks for number of categories in out_var
@@ -301,24 +302,27 @@ cross_validate_cube <- function(
   } else {
     # Category partitioning
     cat_list <- data_cube_df %>%
-      distinct(.data[[out_var]]) %>%
+      dplyr::distinct(.data[[out_var]]) %>%
       modelr::crossv_kfold(id = "id_cv", k = k)
 
     # Get category left out
     cat_left_out_list <- lapply(lapply(cat_list$test, as.integer),
                                     function(indices) {
                                       df <- data_cube_df %>%
-                                        distinct(.data[[out_var]])
+                                        dplyr::distinct(.data[[out_var]])
 
                                       df[indices, ] %>%
-                                        pull(.data[[out_var]])
+                                        dplyr::pull(.data[[out_var]])
                                     }
     )
     names(cat_left_out_list) <- NULL
 
     category_df <- dplyr::tibble(
       id_cv = as.numeric(cat_list$id_cv),
-      cat_left_out = cat_left_out_list
+      cat_left_out = lapply(cat_left_out_list, function(i) {
+        paste(sort(as.vector(i)),
+              collapse = ", ")
+      })
     )
 
     # Create cross validation datasets
@@ -332,7 +336,8 @@ cross_validate_cube <- function(
     purrr::map(
       cross_validate_f,
       fun = fun,
-      .progress = ifelse(progress, "Cross-Validation", progress))
+      .progress = ifelse(progress, "Cross-Validation", progress)) %>%
+    lapply(function(df) tibble::as.tibble(df))
 
   # Summarise CV statistics in dataframe
   out_col_name <- paste(gsub("[^a-zA-Z0-9]", "_", tolower(out_var)),

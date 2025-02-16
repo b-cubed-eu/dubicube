@@ -19,7 +19,8 @@ cross_validate_cube(
 \arguments{
 \item{data_cube}{A data cube object (class 'processed_cube' or 'sim_cube',
 see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
-'processed_cube' or 'sim_cube').}
+'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
+dataframe with custom function as \code{fun}.}
 
 \item{fun}{A function which, when applied to \code{data_cube} returns the
 statistic(s) of interest. This function must return a dataframe with a column
@@ -47,8 +48,8 @@ experimental and results should be interpreted with caution.}
 
 \item{max_out_cats}{An integer specifying the maximum number of unique
 categories in \code{out_var} to leave out iteratively. Default is \code{1000}.
-This can be increased if needed, but higher values may significantly increase
-runtime.}
+This can be increased if needed, but keep in mind that a high number of
+categories in \code{out_var} may significantly increase runtime.}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}

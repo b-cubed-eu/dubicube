@@ -9,7 +9,8 @@
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
-#' 'processed_cube' or 'sim_cube').
+#' 'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
+#' dataframe with custom function as `fun`.
 #' @param fun A function which, when applied to `data_cube` returns the
 #' statistic(s) of interest. This function must return a dataframe with a column
 #' `diversity_val` containing the statistic of interest.
@@ -32,8 +33,8 @@
 #' display a progress bar, `FALSE` (default) to suppress it.
 #' @param max_out_cats An integer specifying the maximum number of unique
 #' categories in `out_var` to leave out iteratively. Default is `1000`.
-#' This can be increased if needed, but higher values may significantly increase
-#' runtime.
+#' This can be increased if needed, but keep in mind that a high number of
+#' categories in `out_var` may significantly increase runtime.
 #'
 #' @returns A dataframe containing the cross-validation results with the
 #' following columns:
@@ -125,7 +126,9 @@
 #' @family robustness
 #'
 #' @import dplyr
+#' @import assertthat
 #' @importFrom rlang .data
+#' @importFrom stats setNames
 #' @importFrom data.table :=
 #' @importFrom modelr crossv_kfold
 #' @importFrom purrr map
@@ -192,6 +195,10 @@ cross_validate_cube <- function(
   stopifnot("`grouping_var` must be a character vector of length 1." =
               assertthat::is.string(grouping_var))
 
+  # Check if out_var is a character vector of length 1
+  stopifnot("`out_var` must be a character vector of length 1." =
+              assertthat::is.string(out_var))
+
   # Check if crossv_method is loo or kfold
   crossv_method <- tryCatch({
     match.arg(crossv_method, c("loo", "kfold"))
@@ -200,12 +207,15 @@ cross_validate_cube <- function(
          call. = FALSE)
   })
 
+  # Check if k is NA or an integer
+  stopifnot(
+    "`k` must be a positive integer of length 1 or NA." =
+      (assertthat::is.count(k) | is.na(k)) & length(k) == 1)
+
   # Check if max_out_cats is a positive integer
   stopifnot(
     "`max_out_cats` must be a single positive integer." =
       assertthat::is.count(max_out_cats))
-
-  # Add warning
 
   # Check if progress is a logical vector of length 1
   stopifnot("`progress` must be a logical vector of length 1." =
@@ -216,6 +226,10 @@ cross_validate_cube <- function(
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
                 grouping_var %in% names(data_cube$data))
+
+    # Check if out_var column is present in data cube
+    stopifnot("`data_cube` should contain column `out_var`." =
+                out_var %in% names(data_cube$data))
 
     # Define cross-validation function
     cross_validate_f <- function(x, fun, ...) {
@@ -232,8 +246,12 @@ cross_validate_cube <- function(
     data_cube_df <- data_cube$data
   } else {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`" =
+    stopifnot("`data_cube` should contain column `grouping_var`." =
                 grouping_var %in% names(data_cube))
+
+    # Check if out_var column is present in data cube
+    stopifnot("`data_cube` should contain column `out_var`." =
+                out_var %in% names(data_cube))
 
     # Define cross-validation function
     cross_validate_f <- function(x, fun, ...) {
@@ -245,6 +263,26 @@ cross_validate_cube <- function(
 
     # Save data cube data
     data_cube_df <- data_cube
+  }
+
+  # Checks for number of categories in out_var
+  num_cats <- length(unique(data_cube_df[[out_var]]))
+
+  # Check if number of categories is not larger than control argument
+  cat_message <- paste(
+    "Number of categories in `out_var` is larger than `max_out_cats`.",
+    "Increase the number of `max_out_cats`.", sep = "\n")
+  do.call(stopifnot,
+          stats::setNames(list(
+            num_cats <= max_out_cats),
+            cat_message)
+  )
+  # Warn for long runtime
+  if (num_cats > 1000) {
+    warning(
+      paste("Number of categories in `out_var` is larger than 1000.",
+            "Runtime of Cross-Validation may be substantial.", sep = "\n")
+    )
   }
 
   # Perform cross-validation

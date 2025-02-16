@@ -128,7 +128,7 @@
 #' @import dplyr
 #' @import assertthat
 #' @importFrom rlang .data
-#' @importFrom tibble as.tibble
+#' @importFrom tibble as_tibble
 #' @importFrom stats setNames
 #' @importFrom data.table :=
 #' @importFrom modelr crossv_kfold
@@ -244,7 +244,7 @@ cross_validate_cube <- function(
     t0 <- fun(data_cube, ...)$data
 
     # Save data cube data
-    data_cube_df <- tibble::as.tibble(data_cube$data)
+    data_cube_df <- tibble::as_tibble(data_cube$data)
   } else {
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
@@ -263,7 +263,7 @@ cross_validate_cube <- function(
     t0 <- fun(data_cube, ...)
 
     # Save data cube data
-    data_cube_df <- tibble::as.tibble(data_cube)
+    data_cube_df <- tibble::as_tibble(data_cube)
   }
 
   # Checks for number of categories in out_var
@@ -337,7 +337,7 @@ cross_validate_cube <- function(
       cross_validate_f,
       fun = fun,
       .progress = ifelse(progress, "Cross-Validation", progress)) %>%
-    lapply(function(df) tibble::as.tibble(df))
+    lapply(function(df) tibble::as_tibble(df))
 
   # Summarise CV statistics in dataframe
   out_col_name <- paste(gsub("[^a-zA-Z0-9]", "_", tolower(out_var)),

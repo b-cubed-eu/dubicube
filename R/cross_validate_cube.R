@@ -267,7 +267,9 @@ cross_validate_cube <- function(
   }
 
   # Checks for number of categories in out_var
-  num_cats <- length(unique(data_cube_df[[out_var]]))
+  num_cats <- ifelse(crossv_method == "loo",
+                     length(unique(data_cube_df[[out_var]])),
+                     k)
 
   # Check if number of categories is not larger than control argument
   cat_message <- paste(

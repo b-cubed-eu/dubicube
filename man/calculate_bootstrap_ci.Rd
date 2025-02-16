@@ -54,7 +54,8 @@ the original bootstrap dataframe \code{bootstrap_samples_df}.}
 \item{data_cube}{Only used when \code{type = "bca"}. A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
 (from \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
-\code{bootstrap_cube()}.}
+\code{bootstrap_cube()}. To limit runtime, we recommend using a
+dataframe with custom function as \code{fun}.}
 
 \item{fun}{Only used when \code{type = "bca"}. A function which, when applied to
 \code{data_cube} returns the statistic(s) of interest. This function must return a

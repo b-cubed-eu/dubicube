@@ -31,7 +31,8 @@
 #' @param data_cube Only used when `type = "bca"`. A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
-#' `bootstrap_cube()`.
+#' `bootstrap_cube()`. To limit runtime, we recommend using a
+#' dataframe with custom function as `fun`.
 #' @param fun Only used when `type = "bca"`. A function which, when applied to
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.

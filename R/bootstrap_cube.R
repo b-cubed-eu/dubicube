@@ -7,7 +7,8 @@
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
-#' 'processed_cube' or 'sim_cube').
+#' 'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
+#' dataframe with custom function as `fun`.
 #' @param fun A function which, when applied to `data_cube` returns the
 #' statistic(s) of interest. This function must return a dataframe with a column
 #' `diversity_val` containing the statistic of interest.
@@ -231,7 +232,7 @@ bootstrap_cube <- function(
     }
   } else {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`" =
+    stopifnot("`data_cube` should contain column `grouping_var`." =
                 grouping_var %in% names(data_cube))
 
     # Check if ref_group is present in grouping_var

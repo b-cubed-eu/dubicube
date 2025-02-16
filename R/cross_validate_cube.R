@@ -326,7 +326,7 @@ cross_validate_cube <- function(
 
     category_df <- dplyr::tibble(
       id_cv = as.numeric(cat_list$id_cv),
-      cat_left_out = lapply(cat_left_out_list, function(i) {
+      cat_left_out = sapply(cat_left_out_list, function(i) {
         paste(sort(as.vector(i)),
               collapse = ", ")
       })

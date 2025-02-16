@@ -196,22 +196,35 @@ test_that("cross_validate_cube computes bootstrap statistics correctly", {
 
 # Test loo vs. k-fold
 test_that("loo and k-fold return same results", {
-  result_kloo <- cross_validate_cube(
-    data_cube = cube_df,
+  # Character vector
+  cube_df_char <- cube_df
+  cube_df_char$taxonKey <- as.character(cube_df_char$taxonKey)
+
+  # Result with character vector
+  result12 <- cross_validate_cube(
+    data_cube = cube_df_char,
+    fun = mean_obs,
+    grouping_var = "year",
+    out_var = "taxonKey",
+    crossv_method = "loo",
+    progress = FALSE)
+
+  # Result with k-fold and k = number of categories
+  result_kloo2 <- cross_validate_cube(
+    data_cube = cube_df_char,
     fun = mean_obs,
     grouping_var = "year",
     out_var = "taxonKey",
     crossv_method = "kfold",
     k = length(species),
     progress = FALSE)
-  result_kloo$taxonkey_out <- unlist(result_kloo$taxonkey_out)
+  # Adjust sorting and rownames
+  result_kloo2 <- result_kloo2[order(result_kloo2[, "year"],
+                                     result_kloo2[, "taxonkey_out"]),
+  ]
+  rownames(result_kloo2) <- seq_len(nrow(result_kloo2))
 
-  result_kloo <- result_kloo[order(result_kloo[, "year"],
-                                   result_kloo[, "taxonkey_out"]),
-                             ]
-  rownames(result_kloo) <- 1:nrow(result_kloo)
-
-  expect_identical(result1[, -1], result_kloo[, -1])
+  expect_identical(result12[, -1], result_kloo2[, -1])
 })
 
 # Test handling of invalid input

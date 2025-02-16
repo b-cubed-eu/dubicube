@@ -136,15 +136,15 @@ test_that("cross_validate_cube returns a dataframe with expected structure", {
   })
 
   # Correct column names
-  # Total
-  lapply(c(example_ci_results, list(result_perc2)), function(df) {
+  # All results
+  lapply(results_ls, function(df) {
     expect_true(all(
       c("id_cv", "year", "taxonKey_out", "rep_cv", "est_original", "error",
         "sq_error", "abs_error", "rel_error", "perc_error",
         "mre", "mse", "rmse") %in% names(df)
     ))
   })
-  # Not aggregated
+  # Naming of out_var column
   cube_df3 <- cube_df
   names(cube_df3) <- c("year", "cellCode", "taxon key", "obs")
   result5 <- cross_validate_cube(
@@ -164,11 +164,18 @@ test_that("cross_validate_cube returns a dataframe with expected structure", {
 
 # Test that Cross-Validation produces reasonable values
 test_that("cross_validate_cube computes bootstrap statistics correctly", {
-  # ...
+  # statistiek collommen correct
+  # taxonkey out correct
+})
+
+# Test handling of out_var argument
+test_that("out_var argument works correctly", {
+  # leave one dataset out cv
+
+  # number of categories warning enzo
 })
 
 # Test handling of invalid input
 test_that("cross_validate_cube handles invalid inputs gracefully", {
   # ...
 })
-

@@ -41,7 +41,7 @@
 #'   - Cross-Validation id (`id_cv`)
 #'   - The grouping variable `grouping_var` (e.g., year)
 #'   - The category left out during each cross-validation iteration
-#'   (specified `out_var` with suffix '_out')
+#'   (specified `out_var` with suffix '_out' in lower case)
 #'   - The computed statistic values for both training (`rep_cv`) and true
 #' datasets (`est_original`)
 #'   - Error metrics: error (`error`), squared error (`sq_error`),

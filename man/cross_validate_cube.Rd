@@ -61,7 +61,7 @@ following columns:
 \item Cross-Validation id (\code{id_cv})
 \item The grouping variable \code{grouping_var} (e.g., year)
 \item The category left out during each cross-validation iteration
-(specified \code{out_var} with suffix '_out')
+(specified \code{out_var} with suffix '_out' in lower case)
 \item The computed statistic values for both training (\code{rep_cv}) and true
 datasets (\code{est_original})
 \item Error metrics: error (\code{error}), squared error (\code{sq_error}),

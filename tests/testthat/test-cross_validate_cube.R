@@ -139,19 +139,19 @@ test_that("cross_validate_cube returns a dataframe with expected structure", {
   # All results
   lapply(results_ls, function(df) {
     expect_true(all(
-      c("id_cv", "year", "taxonKey_out", "rep_cv", "est_original", "error",
+      c("id_cv", "year", "taxonkey_out", "rep_cv", "est_original", "error",
         "sq_error", "abs_error", "rel_error", "perc_error",
         "mre", "mse", "rmse") %in% names(df)
     ))
   })
   # Naming of out_var column
   cube_df3 <- cube_df
-  names(cube_df3) <- c("year", "cellCode", "taxon key", "obs")
+  names(cube_df3) <- c("year", "cellCode", "Taxon key", "obs")
   result5 <- cross_validate_cube(
     data_cube = cube_df3,
     fun = mean_obs,
     grouping_var = "year",
-    out_var = "taxon key",
+    out_var = "Taxon key",
     crossv_method = "loo",
     progress = FALSE)
 
@@ -164,18 +164,33 @@ test_that("cross_validate_cube returns a dataframe with expected structure", {
 
 # Test that Cross-Validation produces reasonable values
 test_that("cross_validate_cube computes bootstrap statistics correctly", {
-  # statistiek collommen correct
-  # taxonkey out correct
+  # Calculated statistics are numeric
+  lapply(results_ls, function(df) {
+    lapply(df[, match("error", names(df)):match("rmse", names(df))],
+           function(column) {
+             expect_true(all(is.numeric(column)))
+           })
+  })
+
+  # Calculated statistics are positive (not error)
+  lapply(results_ls, function(df) {
+    lapply(df[, match("sq_error", names(df)):match("rmse", names(df))],
+           function(column) {
+             expect_true(all(column > 0))
+           })
+  })
+
+  # Check if out_var output is correct
 })
 
 # Test handling of out_var argument
-test_that("out_var argument works correctly", {
+# test_that("out_var argument works correctly", {
   # leave one dataset out cv
 
   # number of categories warning enzo
-})
+# })
 
 # Test handling of invalid input
-test_that("cross_validate_cube handles invalid inputs gracefully", {
-  # ...
-})
+# test_that("cross_validate_cube handles invalid inputs gracefully", {
+
+# })

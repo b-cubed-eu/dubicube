@@ -100,7 +100,7 @@ cube_df2 <- rbind(cube_df, cube_df2)
 # Create data cube as 'processed_cube'
 processed_cube2 <- NULL
 processed_cube2$meta <- "This is a processed occurrence cube"
-processed_cube2$data <- cube_df
+processed_cube2$data <- cube_df2
 class(processed_cube2) <- "processed_cube"
 
 # Perform kfold CV dataframe
@@ -188,22 +188,107 @@ test_that("cross_validate_cube computes bootstrap statistics correctly", {
 
     expect_identical(test_table, df_table)
   })
-  #K-fold
-  lapply(kfold_results, function(df) {
-  group_specs <- c("spec1, spec2", "spec3, spec4", "spec5, spec6")
-
-  expect_identical(group_specs, unlist(unique(df$taxonkey_out)))
+  # K-fold
+  lapply(results_ls, function(df) {
+    expect_true(length(unique(df$taxonkey_out)) == 3)
   })
 })
 
-# Test handling of out_var argument
-# test_that("Test if out_var argument works correctly", {
-  # leave one dataset out cv
-
-  # number of categories warning enzo
-# })
-
 # Test handling of invalid input
-# test_that("cross_validate_cube handles invalid inputs gracefully", {
+test_that("cross_validate_cube handles invalid inputs gracefully", {
+  # Problems with number of categories
+  cat_message <- paste(
+    "Number of categories in `out_var` is larger than `max_out_cats`.",
+    "Increase the number of `max_out_cats`.", sep = "\n")
 
-# })
+  expect_error(
+    cross_validate_cube(
+      data_cube = cube_df,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "loo",
+      progress = FALSE,
+      max_out_cats = 2),
+    cat_message,
+    fixed = TRUE)
+
+  expect_error(
+    cross_validate_cube(
+      data_cube = processed_cube,
+      fun = mean_obs_processed,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "loo",
+      progress = FALSE,
+      max_out_cats = 2),
+    cat_message,
+    fixed = TRUE)
+
+  # Warning message for large number of categories
+  grid <- expand.grid(
+    year = years,
+    cellCode = grid_cells,
+    taxonKey = paste0("spec", 1:1001))
+  grid$obs <- 1
+
+  expect_warning(
+    cross_validate_cube(
+      data_cube = grid,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "loo",
+      progress = FALSE,
+      max_out_cats = 2000),
+    paste("Number of categories in `out_var` is larger than 1000.",
+          "Runtime of Cross-Validation may be substantial.", sep = "\n"),
+    fixed = TRUE)
+
+  # Errors
+  expect_error(
+    cross_validate_cube(
+      data_cube = cube_df,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxon_key",
+      crossv_method = "loo",
+      progress = FALSE),
+    "`data_cube` should contain column `out_var`.",
+    fixed = TRUE)
+
+  expect_error(
+    cross_validate_cube(
+      data_cube = NULL,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "loo",
+      progress = FALSE),
+    paste("`data_cube` must be a data cube object (class 'processed_cube' or",
+          "'sim_cube') or a dataframe."),
+    fixed = TRUE)
+
+  expect_error(
+    cross_validate_cube(
+      data_cube = cube_df,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "LOO",
+      progress = FALSE),
+    "`crossv_method` must be one of 'loo', 'kfold'.",
+    fixed = TRUE)
+
+  expect_error(
+    cross_validate_cube(
+      data_cube = cube_df,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "kfold",
+      k = 7,
+      progress = FALSE),
+    "`k` must be smaller than the number of categories in `out_var`.",
+    fixed = TRUE)
+})

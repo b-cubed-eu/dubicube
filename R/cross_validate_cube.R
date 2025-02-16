@@ -302,6 +302,11 @@ cross_validate_cube <- function(
       cat_left_out = cat_list
     )
   } else {
+    # Check if k is not too large
+    stopifnot(
+      "`k` must be smaller than the number of categories in `out_var`." =
+        k > num_cats)
+
     # Category partitioning
     cat_list <- data_cube_df %>%
       dplyr::distinct(.data[[out_var]]) %>%

@@ -37,8 +37,8 @@ Suggests:
 Remotes: 
     github::b-cubed-eu/b3gbi,
     github::inbo/effectclass
-Additional_repositories: https://b-cubed-eu.r-universe.dev/,
-    https://inbo.r-universe.dev
+Additional_repositories: https://inbo.r-universe.dev,
+    https://b-cubed-eu.r-universe.dev/
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty
     visualisation; biodiversity indicators; data cubes

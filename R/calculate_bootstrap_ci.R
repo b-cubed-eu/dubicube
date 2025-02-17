@@ -18,11 +18,11 @@
 #' confidence interval calculations.
 #' @param type A character vector specifying the type(s) of confidence intervals
 #' to compute. Options include:
-#'   - "perc": Percentile interval
-#'   - "bca": Bias-corrected and accelerated interval
-#'   - "norm": Normal interval
-#'   - "basic": Basic interval
-#'   - "all": Compute all available interval types (default)
+#'   - `"perc"`: Percentile interval
+#'   - `"bca"`: Bias-corrected and accelerated interval
+#'   - `"norm"`: Normal interval
+#'   - `"basic"`: Basic interval
+#'   - `"all"`: Compute all available interval types (default)
 #' @param conf A numeric value specifying the confidence level of the intervals.
 #' Default is `0.95` (95 % confidence level).
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
@@ -31,7 +31,8 @@
 #' @param data_cube Only used when `type = "bca"`. A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
-#' `bootstrap_cube()`.
+#' `bootstrap_cube()`. To limit runtime, we recommend using a
+#' dataframe with custom function as `fun`.
 #' @param fun Only used when `type = "bca"`. A function which, when applied to
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.

@@ -18,7 +18,8 @@ bootstrap_cube(
 \arguments{
 \item{data_cube}{A data cube object (class 'processed_cube' or 'sim_cube',
 see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
-'processed_cube' or 'sim_cube').}
+'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
+dataframe with custom function as \code{fun}.}
 
 \item{fun}{A function which, when applied to \code{data_cube} returns the
 statistic(s) of interest. This function must return a dataframe with a column

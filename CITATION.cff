@@ -34,4 +34,4 @@ identifiers:
   value: 10.5281/zenodo.14850237
 - type: url
   value: https://b-cubed-eu.github.io/dubicube/
-version: 0.3.0
+version: 0.3.1

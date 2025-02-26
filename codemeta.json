@@ -2,13 +2,13 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "dubicube",
-  "description": "This R package provides functions to explore data cubes using robustness measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on biodiversity data cubes.",
+  "description": "This R package provides functions to explore data cubes using simple measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on occurrence cubes.",
   "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty",
   "relatedLink": ["https://b-cubed-eu.github.io/dubicube/", "https://doi.org/10.5281/zenodo.14850237"],
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -191,7 +191,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "216.493KB",
+  "fileSize": "216.72KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -208,7 +208,7 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.3.0",
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.3.1",
       "identifier": "10.5281/zenodo.14850237",
       "url": "https://b-cubed-eu.github.io/dubicube/",
       "@id": "https://doi.org/10.5281/zenodo.14850237",

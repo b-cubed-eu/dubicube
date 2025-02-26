@@ -1,3 +1,4 @@
+# nolint start: line_length_linter.
 #' Perform bootstrapping over a data cube for a calculated statistic
 #'
 #' This function generate `samples` bootstrap replicates of a statistic applied
@@ -140,6 +141,7 @@
 #'   progress = FALSE)
 #' head(bootstrap_mean_obs)
 #' }
+# nolint end
 
 bootstrap_cube <- function(
     data_cube,

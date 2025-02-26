@@ -1,3 +1,4 @@
+# nolint start: line_length_linter.
 #' Calculate confidence intervals for a dataframe with bootstrap replicates
 #'
 #' This function calculates confidence intervals for a dataframe containing
@@ -234,6 +235,7 @@
 #'   progress = FALSE)
 #' ci_mean_obs2
 #' }
+# nolint end
 
 calculate_bootstrap_ci <- function(
     bootstrap_samples_df,

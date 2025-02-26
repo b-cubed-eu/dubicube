@@ -1,3 +1,4 @@
+# nolint start: line_length_linter.
 #' Leave-one-out cross-validation for data cubes
 #'
 #' This function performs leave-one-out (LOO) or k-fold (experimental)
@@ -161,6 +162,7 @@
 #'   progress = FALSE)
 #' head(cv_mean_obs)
 #' }
+# nolint end
 
 cross_validate_cube <- function(
     data_cube,

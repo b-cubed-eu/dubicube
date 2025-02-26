@@ -1,3 +1,7 @@
+# dubicube 0.3.1
+
+* Fix issues: #19, #22, #23
+
 # dubicube 0.3.0
 
 * Add cross-validation function

@@ -91,32 +91,28 @@ experimental and will not be covered here.
 \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}}
 \itemize{
 \item The initial set of observed data points, where there are \eqn{s}
-different categories in \code{out_var} and \eqn{n}
-total samples across all
-categories (= the sample size). \eqn{n}
-corresponds to the number of cells
+different categories in \code{out_var} and \eqn{n} total samples across all
+categories (= the sample size). \eqn{n} corresponds to the number of cells
 in a data cube or the number of rows in tabular format.
 }
 \item \strong{Statistic of Interest}: \eqn{\theta}
 \itemize{
 \item The parameter or statistic being estimated, such as the mean
 \eqn{\bar{X}}, variance \eqn{\sigma^2}, or a biodiversity indicator. Let
-\eqn{\hat{\theta}}
-denote the estimated value of \eqn{\theta}
-calculated from the complete dataset \eqn{\mathbf{X}}.
+\eqn{\hat{\theta}} denote the estimated value of \eqn{\theta} calculated
+from the complete dataset \eqn{\mathbf{X}}.
 }
 \item \strong{Cross-Validation (CV) Sample}: \eqn{\mathbf{X}_{-s_j}}
 \itemize{
-\item The full dataset \eqn{\mathbf{X}}
-excluding all samples belonging to
+\item The full dataset \eqn{\mathbf{X}} excluding all samples belonging to
 category \eqn{j}. This subset is used to investigate the influence of
 category \eqn{j} on the estimated statistic \eqn{\hat{\theta}}.
 }
 \item \strong{CV Estimate for Category} \eqn{\mathbf{j}}: \eqn{\hat{\theta}_{-s_j}}
 \itemize{
 \item The value of the statistic of interest calculated from
-\eqn{\mathbf{X}_{-s_j}}, which excludes category \eqn{j}.
-For example, if \eqn{\theta} is the sample mean,
+\eqn{\mathbf{X}_{-s_j}}, which excludes category \eqn{j}. For example, if
+\eqn{\theta} is the sample mean,
 \eqn{\hat{\theta}_{-s_j} = \bar{X}_{-s_j}}.
 }
 \item \strong{Error Measures}:
@@ -129,13 +125,11 @@ on the complete dataset (\eqn{\hat{\theta}}).
 \deqn{\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}}
 \itemize{
 \item The \strong{Relative Error} is the absolute error, normalised by the true
-estimate \eqn{\hat{\theta}}
-and a small error term
+estimate \eqn{\hat{\theta}} and a small error term
 \eqn{\epsilon = 10^{-8}} to avoid division by zero.
 }
 
-\deqn{\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} -
-   \hat{\theta}|}{\hat{\theta} +\epsilon}}
+\deqn{\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}}
 \itemize{
 \item The \strong{Percent Error} is the relative error expressed as a percentage.
 }
@@ -194,4 +188,4 @@ cv_mean_obs <- cross_validate_cube(
 head(cv_mean_obs)
 }
 }
-\concept{robustness}
+\concept{quality}

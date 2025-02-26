@@ -30,9 +30,9 @@ navbar:
       aria-label: B-Cubed website
 
 reference:
-  - title: "Data variability and robustness"
+  - title: "Data quality and variability"
     contents:
-      - has_concept("robustness")
+      - has_concept("quality")
   - title: "Indicator uncertainty and interpretation"
     contents:
       - has_concept("uncertainty")

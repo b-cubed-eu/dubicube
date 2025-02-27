@@ -118,7 +118,7 @@
 #'
 #' @export
 #'
-#' @family quality
+#' @family data_exploration
 #'
 #' @import dplyr
 #' @import assertthat

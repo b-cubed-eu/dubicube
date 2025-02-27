@@ -264,8 +264,8 @@ bootstrap acceleration constant. Computational Statistics & Data Analysis,
 9(3), 271–281. \doi{10.1016/0167-9473(90)90109-U}
 }
 \seealso{
-Other uncertainty: 
+Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
 \code{\link{bootstrap_cube}()}
 }
-\concept{uncertainty}
+\concept{indicator_uncertainty}

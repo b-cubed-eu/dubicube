@@ -74,7 +74,7 @@ Below are the common notations used in bootstrapping:
 \enumerate{
 \item \strong{Original Sample Data}: \eqn{\mathbf{X} = \{X_1, X_2, \ldots, X_n\}}
 \itemize{
-\item The initial set of observed data points. Here, \eqn{n} is the sample
+\item The initial set of data points. Here, \eqn{n} is the sample
 size. This corresponds to the number of cells in a data cube or the number
 of rows in tabular format.
 }

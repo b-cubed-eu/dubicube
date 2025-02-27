@@ -61,7 +61,7 @@
 #'
 #' 1. **Original Sample Data**:
 #' \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}}
-#'    - The initial set of observed data points, where there are \eqn{s}
+#'    - The initial set of data points, where there are \eqn{s}
 #'    different categories in `out_var` and \eqn{n} total samples across all
 #'    categories (= the sample size). \eqn{n} corresponds to the number of cells
 #'    in a data cube or the number of rows in tabular format.

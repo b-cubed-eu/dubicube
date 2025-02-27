@@ -90,7 +90,7 @@ experimental and will not be covered here.
 \item \strong{Original Sample Data}:
 \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}}
 \itemize{
-\item The initial set of observed data points, where there are \eqn{s}
+\item The initial set of data points, where there are \eqn{s}
 different categories in \code{out_var} and \eqn{n} total samples across all
 categories (= the sample size). \eqn{n} corresponds to the number of cells
 in a data cube or the number of rows in tabular format.

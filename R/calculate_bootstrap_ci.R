@@ -1,3 +1,4 @@
+# nolint start: line_length_linter.
 #' Calculate confidence intervals for a dataframe with bootstrap replicates
 #'
 #' This function calculates confidence intervals for a dataframe containing
@@ -75,15 +76,11 @@
 #'
 #' 1. **Percentile**: Uses the percentiles of the bootstrap distribution.
 #'
-#'    \deqn{CI_{perc} = \left[ \hat{\theta}^*_{(\alpha/2)},
-#'    \hat{\theta}^*_{(1-\alpha/2)} \right]}
+#'    \deqn{CI_{perc} = \left[ \hat{\theta}^*_{(\alpha/2)}, \hat{\theta}^*_{(1-\alpha/2)} \right]}
 #'
-#'    where \eqn{\hat{\theta}^*_{(\alpha/2)}}
-#'    and
-#'    \eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2}
-#'    and
-#'    \eqn{1-\alpha/2}
-#'    percentiles of the bootstrap distribution, respectively.
+#'    where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+#'    \eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+#'    \eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
 #'
 #' 2. **Bias-Corrected and Accelerated (BCa)**: Adjusts for bias and
 #' acceleration
@@ -92,8 +89,7 @@
 #'    from the original dataset and the center of the bootstrap distribution of
 #'    the statistic. The bias correction term is calculated as follows:
 #'
-#'    \deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b <
-#'    \hat{\theta})}{B}\right)}
+#'    \deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)}
 #'
 #'    where \eqn{\#} is the counting operator and \eqn{\Phi^{-1}} the inverse
 #'    cumulative density function of the standard normal distribution.
@@ -110,11 +106,9 @@
 #'
 #'    The acceleration term is calculated as follows:
 #'
-#'    \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left(
-#'    \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
+#'    \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 #'
-#'    where \eqn{I_i}
-#'    denotes the influence of data point \eqn{x_i} on the
+#'    where \eqn{I_i} denotes the influence of data point \eqn{x_i} on the
 #'    estimation of \eqn{\theta}. \eqn{I_i} can be estimated using jackknifing.
 #'    Examples are (1) the negative jackknife:
 #'    \eqn{I_i = (n-1)(\hat{\theta} - \hat{\theta}_{-i})}, and (2) the positive
@@ -128,26 +122,20 @@
 #'    The bias and acceleration estimates are then used to calculate adjusted
 #'    percentiles.
 #'
-#'    \eqn{\alpha_1 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{\alpha/2}}{1 -
-#'    \hat{a}(\hat{z}_0 + z_{\alpha/2})} \right)},
-#'    \eqn{\alpha_2 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{1 -
-#'    \alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{1 - \alpha/2})} \right)}
+#'    \eqn{\alpha_1 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{\alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{\alpha/2})} \right)},
+#'    \eqn{\alpha_2 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{1 - \alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{1 - \alpha/2})} \right)}
 #'
 #'    So, we get
 #'
-#'    \deqn{CI_{bca} = \left[ \hat{\theta}^*_{(\alpha_1)},
-#'    \hat{\theta}^*_{(\alpha_2)} \right]}
+#'    \deqn{CI_{bca} = \left[ \hat{\theta}^*_{(\alpha_1)}, \hat{\theta}^*_{(\alpha_2)} \right]}
 #'
 #' 3. **Normal**: Assumes the bootstrap distribution of the statistic is
 #' approximately normal
 #'
-#'    \deqn{CI_{norm} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} -
-#'    \text{SE}_{\text{boot}} \times z_{1-\alpha/2}, \hat{\theta} -
-#'    \text{Bias}_{\text{boot}} + \text{SE}_{\text{boot}} \times z_{1-\alpha/2}
-#'    \right]}
+#'    \deqn{CI_{norm} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} - \text{SE}_{\text{boot}} \times z_{1-\alpha/2},
+#'    \hat{\theta} - \text{Bias}_{\text{boot}} + \text{SE}_{\text{boot}} \times z_{1-\alpha/2} \right]}
 #'
-#'    where \eqn{z_{1-\alpha/2}} is the \eqn{1-\alpha/2}
-#'    quantile of the
+#'    where \eqn{z_{1-\alpha/2}} is the \eqn{1-\alpha/2} quantile of the
 #'    standard normal distribution.
 #'
 #' 4. **Basic**: Centers the interval using percentiles
@@ -155,12 +143,9 @@
 #'    \deqn{CI_{basic} = \left[ 2\hat{\theta} - \hat{\theta}^*_{(1-\alpha/2)},
 #'    2\hat{\theta} - \hat{\theta}^*_{(\alpha/2)} \right]}
 #'
-#'    where \eqn{\hat{\theta}^*_{(\alpha/2)}}
-#'    and
-#'    \eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2}
-#'    and
-#'    \eqn{1-\alpha/2}
-#'    percentiles of the bootstrap distribution, respectively.
+#'    where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+#'    \eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+#'    \eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
 #'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
@@ -187,7 +172,7 @@
 #'
 #' @export
 #'
-#' @family uncertainty
+#' @family indicator_uncertainty
 #'
 #' @import dplyr
 #' @import boot
@@ -250,6 +235,7 @@
 #'   progress = FALSE)
 #' ci_mean_obs2
 #' }
+# nolint end
 
 calculate_bootstrap_ci <- function(
     bootstrap_samples_df,

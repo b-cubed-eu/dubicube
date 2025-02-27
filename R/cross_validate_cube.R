@@ -1,3 +1,4 @@
+# nolint start: line_length_linter.
 #' Leave-one-out cross-validation for data cubes
 #'
 #' This function performs leave-one-out (LOO) or k-fold (experimental)
@@ -60,30 +61,26 @@
 #'
 #' 1. **Original Sample Data**:
 #' \eqn{\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}}
-#'    - The initial set of observed data points, where there are \eqn{s}
-#'    different categories in `out_var` and \eqn{n}
-#'    total samples across all
-#'    categories (= the sample size). \eqn{n}
-#'    corresponds to the number of cells
+#'    - The initial set of data points, where there are \eqn{s}
+#'    different categories in `out_var` and \eqn{n} total samples across all
+#'    categories (= the sample size). \eqn{n} corresponds to the number of cells
 #'    in a data cube or the number of rows in tabular format.
 #'
 #' 2. **Statistic of Interest**: \eqn{\theta}
 #'    - The parameter or statistic being estimated, such as the mean
 #'    \eqn{\bar{X}}, variance \eqn{\sigma^2}, or a biodiversity indicator. Let
-#'    \eqn{\hat{\theta}}
-#'    denote the estimated value of \eqn{\theta}
-#'    calculated from the complete dataset \eqn{\mathbf{X}}.
+#'    \eqn{\hat{\theta}} denote the estimated value of \eqn{\theta} calculated
+#'    from the complete dataset \eqn{\mathbf{X}}.
 #'
 #' 3. **Cross-Validation (CV) Sample**: \eqn{\mathbf{X}_{-s_j}}
-#'    - The full dataset \eqn{\mathbf{X}}
-#'    excluding all samples belonging to
+#'    - The full dataset \eqn{\mathbf{X}} excluding all samples belonging to
 #'    category \eqn{j}. This subset is used to investigate the influence of
 #'    category \eqn{j} on the estimated statistic \eqn{\hat{\theta}}.
 #'
 #' 4. **CV Estimate for Category** \eqn{\mathbf{j}}: \eqn{\hat{\theta}_{-s_j}}
 #'    - The value of the statistic of interest calculated from
-#'    \eqn{\mathbf{X}_{-s_j}}, which excludes category \eqn{j}.
-#'    For example, if \eqn{\theta} is the sample mean,
+#'    \eqn{\mathbf{X}_{-s_j}}, which excludes category \eqn{j}. For example, if
+#'    \eqn{\theta} is the sample mean,
 #'    \eqn{\hat{\theta}_{-s_j} = \bar{X}_{-s_j}}.
 #'
 #' 5. **Error Measures**:
@@ -95,12 +92,10 @@
 #'    \deqn{\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}}
 #'
 #'    - The **Relative Error** is the absolute error, normalised by the true
-#'    estimate \eqn{\hat{\theta}}
-#'    and a small error term
+#'    estimate \eqn{\hat{\theta}} and a small error term
 #'    \eqn{\epsilon = 10^{-8}} to avoid division by zero.
 #'
-#'    \deqn{\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} -
-#'    \hat{\theta}|}{\hat{\theta} +\epsilon}}
+#'    \deqn{\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}}
 #'
 #'    - The **Percent Error** is the relative error expressed as a percentage.
 #'
@@ -123,7 +118,7 @@
 #'
 #' @export
 #'
-#' @family robustness
+#' @family data_exploration
 #'
 #' @import dplyr
 #' @import assertthat
@@ -167,6 +162,7 @@
 #'   progress = FALSE)
 #' head(cv_mean_obs)
 #' }
+# nolint end
 
 cross_validate_cube <- function(
     data_cube,

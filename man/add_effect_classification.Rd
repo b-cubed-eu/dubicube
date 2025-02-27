@@ -80,8 +80,8 @@ Onkelinx, T. (2023). effectclass: Classification and visualisation of effects
 [Computer software]. \url{https://inbo.github.io/effectclass/}
 }
 \seealso{
-Other uncertainty: 
+Other indicator_uncertainty: 
 \code{\link{bootstrap_cube}()},
 \code{\link{calculate_bootstrap_ci}()}
 }
-\concept{uncertainty}
+\concept{indicator_uncertainty}

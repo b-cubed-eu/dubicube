@@ -74,7 +74,7 @@ Below are the common notations used in bootstrapping:
 \enumerate{
 \item \strong{Original Sample Data}: \eqn{\mathbf{X} = \{X_1, X_2, \ldots, X_n\}}
 \itemize{
-\item The initial set of observed data points. Here, \eqn{n} is the sample
+\item The initial set of data points. Here, \eqn{n} is the sample
 size. This corresponds to the number of cells in a data cube or the number
 of rows in tabular format.
 }
@@ -82,18 +82,15 @@ of rows in tabular format.
 \itemize{
 \item The parameter or statistic being estimated, such as the mean
 \eqn{\bar{X}}, variance \eqn{\sigma^2}, or a biodiversity indicator. Let
-\eqn{\hat{\theta}}
-denote the estimated value of \eqn{\theta}
-calculated from the complete dataset \eqn{\mathbf{X}}.
+\eqn{\hat{\theta}} denote the estimated value of \eqn{\theta} calculated
+from the complete dataset \eqn{\mathbf{X}}.
 }
 \item \strong{Bootstrap Sample}: \eqn{\mathbf{X}^* = \{X_1^*, X_2^*, \ldots, X_n^*\}}
 \itemize{
-\item A sample of size \eqn{n}
-drawn with replacement from the original sample
+\item A sample of size \eqn{n} drawn with replacement from the original sample
 \eqn{\mathbf{X}}. Each \eqn{X_i^*} is drawn independently from
 \eqn{\mathbf{X}}.
-\item A total of \eqn{B}
-bootstrap samples are drawn from the original data.
+\item A total of \eqn{B} bootstrap samples are drawn from the original data.
 Common choices for \eqn{B} are 1000 or 10,000 to ensure a good
 approximation of the distribution of the bootstrap replications (see
 further).
@@ -123,8 +120,7 @@ average bootstrap estimate and the original estimate:
 }
 }
 
-\deqn{\text{Bias}_{\text{boot}} = \frac{1}{B} \sum_{b=1}^B (\hat{\theta}^*_b
-- \hat{\theta}) = \hat{\theta}_{\text{boot}} - \hat{\theta}}
+\deqn{\text{Bias}_{\text{boot}} = \frac{1}{B} \sum_{b=1}^B (\hat{\theta}^*_b - \hat{\theta}) = \hat{\theta}_{\text{boot}} - \hat{\theta}}
 \itemize{
 \item \strong{Bootstrap Standard Error}: \eqn{\text{SE}_{\text{boot}}}
 \itemize{
@@ -176,8 +172,8 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 }
 \seealso{
-Other uncertainty: 
+Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
 \code{\link{calculate_bootstrap_ci}()}
 }
-\concept{uncertainty}
+\concept{indicator_uncertainty}

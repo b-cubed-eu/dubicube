@@ -1,3 +1,7 @@
+# dubicube 0.3.2
+
+* Allow `grouping_var` argument to have length > 1
+
 # dubicube 0.3.1
 
 * Fix issues: #19, #22, #23

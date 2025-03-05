@@ -28,8 +28,8 @@ statistic(s) of interest. This function must return a dataframe with a column
 
 \item{...}{Additional arguments passed on to \code{fun}.}
 
-\item{grouping_var}{A string specifying the grouping variable(s) for \code{fun}.
-The output of \code{fun(data_cube)} returns a row per group.}
+\item{grouping_var}{A character vector specifying the grouping variable(s)
+for \code{fun}. The output of \code{fun(data_cube)} returns a row per group.}
 
 \item{out_var}{A string specifying the column by which the data should be
 left out iteratively. Default is \code{"taxonKey"} which can be used for

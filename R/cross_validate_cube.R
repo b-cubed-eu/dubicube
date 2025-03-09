@@ -339,6 +339,7 @@ cross_validate_cube <- function(
     purrr::map(
       cross_validate_f,
       fun = fun,
+      ...,
       .progress = ifelse(progress, "Cross-Validation", progress)) %>%
     lapply(function(df) tibble::as_tibble(df))
 

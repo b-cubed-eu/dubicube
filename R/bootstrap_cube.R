@@ -202,8 +202,8 @@ bootstrap_cube <- function(
 
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube$data))
+    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
+                all(grouping_var %in% names(data_cube$data)))
 
     # Check if ref_group is present in grouping_var
     stopifnot(
@@ -231,7 +231,7 @@ bootstrap_cube <- function(
   } else {
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube))
+                all(grouping_var %in% names(data_cube)))
 
     # Check if ref_group is present in grouping_var
     stopifnot(

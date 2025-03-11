@@ -221,8 +221,8 @@ cross_validate_cube <- function(
 
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube$data))
+    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
+                all(grouping_var %in% names(data_cube$data)))
 
     # Check if out_var column is present in data cube
     stopifnot("`data_cube` should contain column `out_var`." =
@@ -244,7 +244,7 @@ cross_validate_cube <- function(
   } else {
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube))
+                all(grouping_var %in% names(data_cube)))
 
     # Check if out_var column is present in data cube
     stopifnot("`data_cube` should contain column `out_var`." =

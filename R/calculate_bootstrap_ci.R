@@ -299,7 +299,7 @@ calculate_bootstrap_ci <- function(
     if (t == "perc") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+        split(bootstrap_samples_df %>% dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
           replicates <- df$rep_boot
           boot:::perc.ci(t = replicates, conf = conf)
@@ -424,7 +424,7 @@ calculate_bootstrap_ci <- function(
     if (t == "norm") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+        split(bootstrap_samples_df %>% dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
@@ -446,7 +446,7 @@ calculate_bootstrap_ci <- function(
     if (t == "basic") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+        split(bootstrap_samples_df %>% dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot

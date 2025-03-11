@@ -41,12 +41,31 @@ perform_jackknifing <- function(
     progress = FALSE) {
   # Perform jackknifing
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+    # Check if grouping_var column is present in data cube
+    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
+                all(grouping_var %in% names(data_cube$data)))
+
     # Check if ref_group is present in grouping_var
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube$data[[grouping_var]] &
-           mode(ref_group) == mode(data_cube$data[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube$data[[var]]
+            })
+        )
+    )
+
+    matching_col <- grouping_var[
+      sapply(data_cube$data[, grouping_var],
+             function(col) ref_group %in% col)]
+
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube$data[[matching_col]] &
+           mode(ref_group) == mode(data_cube$data[[matching_col]]))
     )
 
     jackknife_estimates <- purrr::map(
@@ -76,8 +95,23 @@ perform_jackknifing <- function(
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube[[grouping_var]] &
-           mode(ref_group) == mode(data_cube[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube[[var]]
+            })
+        )
+    )
+
+    matching_col <- grouping_var[
+      sapply(data_cube[, grouping_var],
+             function(col) ref_group %in% col)]
+
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube[[matching_col]] &
+           mode(ref_group) == mode(data_cube[[matching_col]]))
     )
 
     jackknife_estimates <- purrr::map(

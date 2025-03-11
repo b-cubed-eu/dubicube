@@ -209,8 +209,23 @@ bootstrap_cube <- function(
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube$data[[grouping_var]] &
-           mode(ref_group) == mode(data_cube$data[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube$data[[var]]
+            })
+        )
+    )
+
+    matching_col <- grouping_var[
+      sapply(data_cube$data[, grouping_var],
+             function(col) ref_group %in% col)]
+
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube$data[[matching_col]] &
+           mode(ref_group) == mode(data_cube$data[[matching_col]]))
     )
 
     # Generate bootstrap replicates
@@ -237,8 +252,23 @@ bootstrap_cube <- function(
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube[[grouping_var]] &
-           mode(ref_group) == mode(data_cube[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube[[var]]
+            })
+        )
+    )
+
+    matching_col <- grouping_var[
+      sapply(data_cube[, grouping_var],
+             function(col) ref_group %in% col)]
+
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) |
+        (ref_group %in% data_cube[[matching_col]] &
+           mode(ref_group) == mode(data_cube[[matching_col]]))
     )
 
     # Generate bootstrap replicates

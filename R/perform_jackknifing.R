@@ -61,7 +61,8 @@ perform_jackknifing <- function(
       seq_len(nrow(data_cube$data)),
       function(i) {
         # Identify group
-        group <- data_cube$data[[i, grouping_var]]
+        group <- data_cube$data[i, ] %>%
+          select(all_of(grouping_var))
 
         # Remove i'th observation
         data <- data_cube$data[-i, ]
@@ -70,7 +71,7 @@ perform_jackknifing <- function(
 
         # Calculate indicator value without i'th observation
         fun(data_cube_copy, ...)$data %>%
-          dplyr::filter(!!rlang::sym(grouping_var) == group) %>%
+          dplyr::inner_join(group, by = grouping_var) %>%
           dplyr::pull(.data$diversity_val)
       },
       .progress = ifelse(progress, "Jackknife estimation", progress)) %>%

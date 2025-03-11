@@ -321,22 +321,10 @@ calculate_bootstrap_ci <- function(
       # Check whether data_cube and fun are provided
       stopifnot(
         "`data_cube` and `fun` must be provided to calculate BCa interval." =
-          assertthat::noNA(data_cube) &
-          suppressWarnings(assertthat::noNA(fun)))
-
-      # Check data_cube input
-      cube_message <- paste("`data_cube` must be a data cube object (class",
-                            "'processed_cube' or 'sim_cube') or a dataframe.")
-      do.call(stopifnot,
-              stats::setNames(list(
-                rlang::inherits_any(
-                  data_cube,
-                  c("processed_cube", "sim_cube", "data.frame"))),
-                cube_message)
-      )
-
-      # Check fun input
-      stopifnot("`fun` must be a function." = is.function(fun))
+          rlang::inherits_any(
+            data_cube,
+            c("processed_cube", "sim_cube", "data.frame")) &
+          is.function(fun))
 
       # Check if ref_group is NA or a number or a string
       stopifnot(

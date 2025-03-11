@@ -351,9 +351,9 @@ calculate_bootstrap_ci <- function(
 
       acceleration_df <- jackknife_df %>%
         dplyr::left_join(bootstrap_samples_df %>%
-                           dplyr::distinct(!!dplyr::sym(grouping_var),
+                           dplyr::distinct(!!!dplyr::syms(grouping_var),
                                            .data$est_original),
-                         by = dplyr::join_by(!!grouping_var)) %>%
+                         by = grouping_var) %>%
         dplyr::mutate(n = dplyr::n(),
                       .by = dplyr::all_of(grouping_var)) %>%
         dplyr::rowwise() %>%
@@ -374,9 +374,13 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         dplyr::left_join(acceleration_df,
-                         by = dplyr::join_by(!!grouping_var)) %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+                         by = grouping_var) %>%
+        split(bootstrap_samples_df[, grouping_var]) %>%
         lapply(function(df) {
+          # Get group
+          group <- df %>%
+            dplyr::distinct(!!!dplyr::syms(grouping_var))
+
           # Get the original statistic and bootstrap replicates
           t0 <- unique(df$est_original)
           t <- df$rep_boot
@@ -385,7 +389,7 @@ calculate_bootstrap_ci <- function(
           a <- unique(df$acceleration)
           if (!is.finite(a)) {
             warning("Estimated adjustment 'a' is NA.")
-            return(cbind(conf, NA, NA))
+            return(cbind(group, conf, ll = NA, ul = NA))
           }
 
           # Calculate the BCa critical values
@@ -395,28 +399,27 @@ calculate_bootstrap_ci <- function(
           z0 <- stats::qnorm(sum(t < t0) / length(t))
           if (!is.finite(z0)) {
             warning("Estimated adjustment 'z0' is infinite.")
-            return(cbind(conf, NA, NA))
+            return(cbind(group, conf, ll = NA, ul = NA))
           }
 
           # Adjust for acceleration
           adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
                                       (1 - a * (z0 + zalpha)))
           qq <- boot:::norm.inter(t, adj_alpha)
+          qq_matrix <- matrix(qq[, 2L], ncol = 2L)
+          colnames(qq_matrix) <- c("ll", "ul")
 
-          return(cbind(conf, matrix(qq[, 2L], ncol = 2L)))
+          return(cbind(group, conf, ))
         })
 
       # Combine confidence levels in dataframe
-      intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
-        dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
-        dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+      intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df,
-                         by = dplyr::join_by(!!grouping_var == "group"))
+                         by = grouping_var)
     }
     if (t == "norm") {
       # Calculate confidence limits per group

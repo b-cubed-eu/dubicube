@@ -343,9 +343,10 @@ bootstrap_cube <- function(
       se_boot = stats::sd(.data$rep_boot),
       .by = dplyr::all_of(grouping_var)) %>%
     dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
-    dplyr::arrange(.data[[grouping_var]]) %>%
+    dplyr::arrange(dplyr::across(grouping_var)) %>%
     dplyr::select("sample", dplyr::all_of(grouping_var), "est_original",
-                  dplyr::everything())
+                  dplyr::everything()) %>%
+    as.data.frame()
 
   return(bootstrap_samples_df)
 }

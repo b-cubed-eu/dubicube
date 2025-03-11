@@ -187,7 +187,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       fun = mean_obs,
       grouping_var = 2,
       samples = 10),
-    "`grouping_var` must be a character vector of length 1.",
+    "`grouping_var` must be a character vector.",
     fixed = TRUE)
 
   expect_error(

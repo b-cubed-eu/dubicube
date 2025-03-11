@@ -257,9 +257,9 @@ calculate_bootstrap_ci <- function(
   stopifnot("`bootstrap_samples_df` must be a dataframe." =
               inherits(bootstrap_samples_df, "data.frame"))
 
-  # Check if grouping_var is a character vector of length 1
-  stopifnot("`grouping_var` must be a character vector of length 1." =
-              assertthat::is.string(grouping_var))
+  # Check if grouping_var is a character vector
+  stopifnot("`grouping_var` must be a character vector." =
+              is.character(grouping_var))
 
   # Check if "rep_boot", "est_original" and grouping_var columns are present
   colname_message <- paste(

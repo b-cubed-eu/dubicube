@@ -188,7 +188,7 @@ cross_validate_cube <- function(
   # Check fun input
   stopifnot("`fun` must be a function." = is.function(fun))
 
-  # Check if grouping_var is a character vector of length 1
+  # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
               is.character(grouping_var))
 

@@ -217,17 +217,6 @@ bootstrap_cube <- function(
         )
     )
 
-    matching_col <- grouping_var[
-      sapply(data_cube$data[, grouping_var],
-             function(col) ref_group %in% col)]
-
-    stopifnot(
-      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-        is.na(ref_group) |
-        (ref_group %in% data_cube$data[[matching_col]] &
-           mode(ref_group) == mode(data_cube$data[[matching_col]]))
-    )
-
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube$data, samples, id = "id")
 
@@ -260,17 +249,6 @@ bootstrap_cube <- function(
         )
     )
 
-    matching_col <- grouping_var[
-      sapply(data_cube[, grouping_var],
-             function(col) ref_group %in% col)]
-
-    stopifnot(
-      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-        is.na(ref_group) |
-        (ref_group %in% data_cube[[matching_col]] &
-           mode(ref_group) == mode(data_cube[[matching_col]]))
-    )
-
     # Generate bootstrap replicates
     resample_df <- modelr::bootstrap(data_cube, samples, id = "id")
 
@@ -297,8 +275,32 @@ bootstrap_cube <- function(
   if (!is.na(ref_group)) {
     # Calculate true statistic
     if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube$data %>% dplyr::select(all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) |
+          (ref_group %in% data_cube$data[[matching_col]] &
+             mode(ref_group) == mode(data_cube$data[[matching_col]]))
+      )
+
       t0_full <- fun(data_cube)$data
     } else {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) |
+          (ref_group %in% data_cube[[matching_col]] &
+             mode(ref_group) == mode(data_cube[[matching_col]]))
+      )
+
       t0_full <- fun(data_cube)
     }
 

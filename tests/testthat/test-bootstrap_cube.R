@@ -40,9 +40,10 @@ class(processed_cube) <- "processed_cube"
 # Mean observations per year
 mean_obs <- function(data) {
   # Calculate mean obs per year
-  out_df <- aggregate(obs ~ time_point + year, data, mean)
+  out_df <- aggregate(obs ~ year, data, mean)
+  out_df$time_point <- seq_along(out_df$year)
   # Rename columns
-  names(out_df) <- c("time_point", "year", "diversity_val")
+  names(out_df) <- c("year", "diversity_val", "time_point")
   return(out_df)
 }
 
@@ -51,9 +52,10 @@ mean_obs_processed <- function(data) {
   out_df <- NULL
   out_df$meta <- "Mean number of observations per year"
   # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ time_point + year, data$data, mean)
+  out_df$data <- aggregate(obs ~ year, data$data, mean)
+  out_df$data$time_point <- seq_along(out_df$data$year)
   # Rename columns
-  names(out_df$data) <- c("time_point", "year", "diversity_val")
+  names(out_df$data) <- c("year", "diversity_val", "time_point")
 
   return(out_df)
 }
@@ -151,10 +153,32 @@ test_that("identical results with normal and processed cube", {
 
 # Test results with single grouping variable
 test_that("identical results with single grouping variable", {
+  # Dataframe
+  mean_obs2 <- function(data) {
+    # Calculate mean obs per year
+    out_df <- aggregate(obs ~ year, data, mean)
+    # Rename columns
+    names(out_df) <- c("year", "diversity_val")
+    return(out_df)
+  }
+
+  # Processed cube
+  mean_obs_processed2 <- function(data) {
+    # Initiate output variable
+    out_df <- NULL
+    out_df$meta <- "Mean number of observations per year"
+    # Calculate mean obs per year
+    out_df$data <- aggregate(obs ~ year, data$data, mean)
+    # Rename columns
+    names(out_df$data) <- c("year", "diversity_val")
+
+    return(out_df)
+  }
+
   # Perform bootstrapping dataframe
   result12 <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
+    fun = mean_obs2,
     grouping_var = "year",
     samples = 10,
     seed = 123
@@ -165,7 +189,7 @@ test_that("identical results with single grouping variable", {
   # Perform bootstrapping 'processed_cube'
   result22 <- bootstrap_cube(
     data_cube = processed_cube,
-    fun = mean_obs_processed,
+    fun = mean_obs_processed2,
     grouping_var = "year",
     samples = 10,
     seed = 123
@@ -186,6 +210,8 @@ test_that("identical results with single grouping variable", {
   #  ref_group = ref_year
   #)
 
+  #expect_equal(result3[, setdiff(colnames(result3), "time_point")], result32)
+
   # Perform bootstrapping 'processed_cube' with reference group
   #result42 <- bootstrap_cube(
   #  data_cube = processed_cube,
@@ -195,6 +221,11 @@ test_that("identical results with single grouping variable", {
   #  seed = 123,
   #  ref_group = ref_year
   #)
+
+  #expect_equal(result4[, setdiff(colnames(result4), "time_point")], result42)
+
+  # Should be the same as well
+  #expect_equal(result32, result42)
 })
 
 # Test reproducibility with seed

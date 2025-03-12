@@ -140,6 +140,15 @@ test_that("bootstrap_cube computes bootstrap statistics correctly", {
   expect_true(all(result4$year %in% years_ref))
 })
 
+# Test results based on data cube and processed data cube
+test_that("identical results with normal and processed cube", {
+  # Without reference group
+  expect_equal(result1, result2)
+
+  # With reference group
+  expect_equal(result1, result2)
+})
+
 # Test reproducibility with seed
 test_that("bootstrap_cube is reproducible with set seed", {
   result5 <- bootstrap_cube(

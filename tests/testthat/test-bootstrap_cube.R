@@ -149,6 +149,54 @@ test_that("identical results with normal and processed cube", {
   expect_equal(result1, result2)
 })
 
+# Test results with single grouping variable
+test_that("identical results with single grouping variable", {
+  # Perform bootstrapping dataframe
+  result12 <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs,
+    grouping_var = "year",
+    samples = 10,
+    seed = 123
+  )
+
+  expect_equal(result1[, setdiff(colnames(result1), "time_point")], result12)
+
+  # Perform bootstrapping 'processed_cube'
+  result22 <- bootstrap_cube(
+    data_cube = processed_cube,
+    fun = mean_obs_processed,
+    grouping_var = "year",
+    samples = 10,
+    seed = 123
+  )
+
+  expect_equal(result2[, setdiff(colnames(result2), "time_point")], result22)
+
+  # Should be the same as well
+  expect_equal(result12, result22)
+
+  # Perform bootstrapping dataframe with reference group
+  #result32 <- bootstrap_cube(
+  #  data_cube = cube_df,
+  #  fun = mean_obs,
+  #  grouping_var = "year",
+  #  samples = 10,
+  #  seed = 123,
+  #  ref_group = ref_year
+  #)
+
+  # Perform bootstrapping 'processed_cube' with reference group
+  #result42 <- bootstrap_cube(
+  #  data_cube = processed_cube,
+  #  fun = mean_obs_processed,
+  #  grouping_var = "year",
+  #  samples = 10,
+  #  seed = 123,
+  #  ref_group = ref_year
+  #)
+})
+
 # Test reproducibility with seed
 test_that("bootstrap_cube is reproducible with set seed", {
   result5 <- bootstrap_cube(

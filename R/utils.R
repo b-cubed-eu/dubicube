@@ -14,7 +14,8 @@
 #' @noRd
 #'
 #' @import dplyr
-#' @importFrom rlang .data
+#' @importFrom rlang .data inherits_any
+#' @importFrom stats setNames
 #'
 #' @examples
 #' years <- 2000:2002
@@ -27,13 +28,20 @@
 #' check_redundant_grouping_vars(df, c("year", "region"))
 
 check_redundant_grouping_vars <- function(data, grouping_var) {
+  if (rlang::inherits_any(data, c("processed_cube", "sim_cube"))) {
+    data <- data$data
+  }
+
   if (length(grouping_var) > 1) {
+    # Subset the data to keep only the specified grouping variables
     grouping_data <- data[, grouping_var, drop = FALSE]
 
+    # Loop over all pairs of grouping variables
     for (i in seq_along(grouping_var)) {
       for (j in seq_along(grouping_var)) {
-        if (i != j) {
-          # Check for one-to-one mapping
+        if (i != j) { # Avoid self-comparisons
+
+          # Check for a one-to-one mapping between the two variables
           mapping_check <- grouping_data %>%
             dplyr::select(grouping_var[i], grouping_var[j]) %>%
             dplyr::distinct() %>%
@@ -41,13 +49,19 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
             dplyr::pull(n) %>%
             unique()
 
-          if (length(mapping_check) == 1 && mapping_check == 1) {
-            stop(paste0(
-              "Grouping variables '", grouping_var[i], "' and '",
-              grouping_var[j], "' contain redundant information. ",
-              "Please use only one of them."
-            ))
-          }
+          # If there is only one unique count and it equals 1, then the
+          # variables are redundant
+          error_message <- paste0(
+            "Grouping variables '", grouping_var[i], "' and '",
+            grouping_var[j], "' contain redundant information. ",
+            "Please use only one of them."
+          )
+
+          do.call(stopifnot,
+                  stats::setNames(list(
+                    !(length(mapping_check) == 1 && mapping_check == 1)),
+                    error_message)
+          )
         }
       }
     }

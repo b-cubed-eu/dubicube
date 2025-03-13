@@ -8,8 +8,12 @@
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
 #' 'processed_cube' or 'sim_cube'). As used by `bootstrap_cube()`.
-#' @param grouping_var A string specifying the grouping variable(s) used for the
-#' bootstrap analysis.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' confidence interval calculations.
 #' @param fun A function which, when applied to

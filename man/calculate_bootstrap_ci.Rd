@@ -29,8 +29,12 @@ columns should be present:
 replicate)
 }}
 
-\item{grouping_var}{A string specifying the grouping variable(s) used for the
-bootstrap analysis.
+\item{grouping_var}{A character vector specifying the grouping variable(s)
+for the bootstrap analysis. The function \code{fun(data_cube, ...)} should return
+a row per group. The specified variables must not be redundant, meaning they
+should not contain the same information (e.g., \code{"time_point"} (1, 2, 3) and
+\code{"year"} (2000, 2001, 2002) should not be used together if \code{"time_point"} is
+just an alternative encoding of \code{"year"}).
 This variable is used to split the dataset into groups for separate
 confidence interval calculations.}
 

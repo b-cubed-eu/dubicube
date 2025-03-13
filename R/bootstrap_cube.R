@@ -294,13 +294,12 @@ bootstrap_cube <- function(
              mode(ref_group) == mode(data_cube$data[[matching_col]]))
       )
 
-      t0_full <- fun(data_cube)$data
+      t0_full <- fun(data_cube, ...)$data
     } else {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
         sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
                function(col) ref_group %in% col)]
-      non_matching_cols <- setdiff(grouping_var, matching_col)
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
@@ -309,7 +308,7 @@ bootstrap_cube <- function(
              mode(ref_group) == mode(data_cube[[matching_col]]))
       )
 
-      t0_full <- fun(data_cube)
+      t0_full <- fun(data_cube, ...)
     }
 
     ref_val <- t0_full %>%
@@ -319,19 +318,22 @@ bootstrap_cube <- function(
 
     t0 <- t0_full %>%
       dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
-      left_join(ref_val, by = non_matching_cols) %>%
+      left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
       dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
       dplyr::select(-"ref_val")
 
     # Get bootstrap samples as a list
     bootstrap_samples_list <- lapply(bootstrap_samples_list_raw, function(df) {
       ref_val <- df %>%
-        dplyr::filter(.data[[grouping_var]] == !!ref_group) %>%
-        dplyr::pull(.data$diversity_val)
+        dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+        dplyr::rename("ref_val" = "diversity_val") %>%
+        dplyr::select(-matching_col, -"sample")
 
       df %>%
-        dplyr::filter(.data[[grouping_var]] != !!ref_group) %>%
-        dplyr::mutate(diversity_val = .data$diversity_val - ref_val)
+        dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+        left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+        dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
+        dplyr::select(-"ref_val")
     })
   } else {
     # Calculate true statistic

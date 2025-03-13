@@ -14,8 +14,12 @@
 #' statistic(s) of interest. This function must return a dataframe with a column
 #' `diversity_val` containing the statistic of interest.
 #' @param ... Additional arguments passed on to `fun`.
-#' @param grouping_var A string specifying the grouping variable(s) for the
-#' bootstrap analysis. The output of `fun(data_cube)` returns a row per group.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
 #' @param samples The number of bootstrap replicates. A single positive integer.
 #' Default is 1000.
 #' @param ref_group A string indicating the reference group to compare the
@@ -169,6 +173,9 @@ bootstrap_cube <- function(
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
               is.character(grouping_var))
+
+  # Check if grouping_var containts redundant variables
+  check_redundant_grouping_vars(data_cube, grouping_var)
 
   # Check if samples is a positive integer
   stopifnot(

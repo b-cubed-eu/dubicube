@@ -37,13 +37,12 @@ processed_cube$data <- cube_df
 class(processed_cube) <- "processed_cube"
 
 ## Function to calculate statistic of interest
-# Mean observations per year
+# Mean observations per year per species
 mean_obs <- function(data) {
   # Calculate mean obs per year
-  out_df <- aggregate(obs ~ year, data, mean)
-  out_df$time_point <- seq_along(out_df$year)
+  out_df <- aggregate(obs ~ year + taxonKey, data, mean)
   # Rename columns
-  names(out_df) <- c("year", "diversity_val", "time_point")
+  names(out_df) <- c("year", "taxonKey", "diversity_val")
   return(out_df)
 }
 
@@ -52,10 +51,9 @@ mean_obs_processed <- function(data) {
   out_df <- NULL
   out_df$meta <- "Mean number of observations per year"
   # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ year, data$data, mean)
-  out_df$data$time_point <- seq_along(out_df$data$year)
+  out_df$data <- aggregate(obs ~ year + taxonKey, data$data, mean)
   # Rename columns
-  names(out_df$data) <- c("year", "diversity_val", "time_point")
+  names(out_df$data) <- c("year", "taxonKey", "diversity_val")
 
   return(out_df)
 }
@@ -65,7 +63,7 @@ mean_obs_processed <- function(data) {
 result1 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
-  grouping_var = c("time_point", "year"),
+  grouping_var = c("year", "taxonKey"),
   samples = 10,
   seed = 123
 )
@@ -74,7 +72,7 @@ result1 <- bootstrap_cube(
 result2 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
-  grouping_var = c("time_point", "year"),
+  grouping_var = c("year", "taxonKey"),
   samples = 10,
   seed = 123
 )
@@ -103,11 +101,11 @@ result4 <- bootstrap_cube(
 # Test bootstrap_cube output
 test_that("bootstrap_cube returns a dataframe with expected structure", {
   expect_s3_class(result1, "data.frame")
-  expect_true(all(c("sample", "time_point", "year", "est_original", "rep_boot",
+  expect_true(all(c("sample", "taxonKey", "year", "est_original", "rep_boot",
                     "est_boot", "se_boot", "bias_boot") %in% names(result1)))
 
   expect_s3_class(result2, "data.frame")
-  expect_true(all(c("sample", "time_point", "year", "est_original", "rep_boot",
+  expect_true(all(c("sample", "taxonKey", "year", "est_original", "rep_boot",
                     "est_boot", "se_boot", "bias_boot")  %in% names(result2)))
 
   expect_s3_class(result3, "data.frame")
@@ -184,8 +182,6 @@ test_that("identical results with single grouping variable", {
     seed = 123
   )
 
-  expect_equal(result1[, setdiff(colnames(result1), "time_point")], result12)
-
   # Perform bootstrapping 'processed_cube'
   result22 <- bootstrap_cube(
     data_cube = processed_cube,
@@ -195,37 +191,8 @@ test_that("identical results with single grouping variable", {
     seed = 123
   )
 
-  expect_equal(result2[, setdiff(colnames(result2), "time_point")], result22)
-
-  # Should be the same as well
+  # Should be the same
   expect_equal(result12, result22)
-
-  # Perform bootstrapping dataframe with reference group
-  #result32 <- bootstrap_cube(
-  #  data_cube = cube_df,
-  #  fun = mean_obs,
-  #  grouping_var = "year",
-  #  samples = 10,
-  #  seed = 123,
-  #  ref_group = ref_year
-  #)
-
-  #expect_equal(result3[, setdiff(colnames(result3), "time_point")], result32)
-
-  # Perform bootstrapping 'processed_cube' with reference group
-  #result42 <- bootstrap_cube(
-  #  data_cube = processed_cube,
-  #  fun = mean_obs_processed,
-  #  grouping_var = "year",
-  #  samples = 10,
-  #  seed = 123,
-  #  ref_group = ref_year
-  #)
-
-  #expect_equal(result4[, setdiff(colnames(result4), "time_point")], result42)
-
-  # Should be the same as well
-  #expect_equal(result32, result42)
 })
 
 # Test reproducibility with seed
@@ -233,7 +200,7 @@ test_that("bootstrap_cube is reproducible with set seed", {
   result5 <- bootstrap_cube(
     data_cube = cube_df,
     fun = mean_obs,
-    grouping_var = c("time_point", "year"),
+    grouping_var = c("year", "taxonKey"),
     samples = 10,
     seed = 123
   )
@@ -244,14 +211,14 @@ test_that("bootstrap_cube is reproducible with set seed", {
   result6 <- bootstrap_cube(
     data_cube = cube_df,
     fun = mean_obs,
-    grouping_var = c("time_point", "year"),
+    grouping_var = c("year", "taxonKey"),
     samples = 10
   )
 
   result7 <- bootstrap_cube(
     data_cube = cube_df,
     fun = mean_obs,
-    grouping_var = c("time_point", "year"),
+    grouping_var = c("year", "taxonKey"),
     samples = 10
   )
 

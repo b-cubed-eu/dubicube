@@ -4,30 +4,14 @@ ref_year <- 2020
 grid_cells <- c("E003N55BA", "E003N55BB", "E003N55BC")
 species <- paste0("spec", 1:3)
 
-# Simulate observations
-get_obs <- function(x, int, slope) {
-  sapply(seq_along(x), function(i) {
-    rpois(1, int + slope * i)
-  })
-}
-
 set.seed(123)
-obs1 <- as.vector(
-  sapply(seq_along(grid_cells), function(i) get_obs(years, 30, 3))
-  )
-obs2 <- as.vector(
-  sapply(seq_along(grid_cells), function(i) get_obs(years, 50, 0))
-)
-obs3 <- as.vector(
-  sapply(seq_along(grid_cells), function(i) get_obs(years, 60, -2))
-)
 
 # Create data cube as data.frame
 cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
-  taxonKey = species)
-cube_df$obs <- c(obs1, obs2, obs3)
+  taxonKey = species,
+  obs = rpois(20, 50))
 
 # Create data cube as 'processed_cube'
 processed_cube <- NULL
@@ -294,7 +278,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       fun = mean_obs,
       grouping_var = "year",
       samples = 10,
-      ref_group = "2020"),
+      ref_group = "twothousandtwenty"),
     "`ref_group` is not present in `grouping_var` column of `data_cube`.",
     fixed = TRUE)
 

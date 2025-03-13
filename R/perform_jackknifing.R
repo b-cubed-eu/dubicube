@@ -8,8 +8,12 @@
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
 #' 'processed_cube' or 'sim_cube'). As used by `bootstrap_cube()`.
-#' @param grouping_var A string specifying the grouping variable(s) used for the
-#' bootstrap analysis.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' confidence interval calculations.
 #' @param fun A function which, when applied to
@@ -124,9 +128,7 @@ perform_jackknifing <- function(
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) |
-          (ref_group %in% data_cube$data[[matching_col]] &
-             mode(ref_group) == mode(data_cube$data[[matching_col]]))
+          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
       )
 
       group_estimates <- fun(data_cube, ...)$data
@@ -138,36 +140,36 @@ perform_jackknifing <- function(
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) |
-          (ref_group %in% data_cube[[matching_col]] &
-             mode(ref_group) == mode(data_cube[[matching_col]]))
+          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
       )
 
       group_estimates <- fun(data_cube, ...)
     }
 
     # Get estimate for reference group
-    ref_estimate <- group_estimates %>%
-      dplyr::filter(.data[[grouping_var]] == ref_group) %>%
-      dplyr::pull(.data$diversity_val)
+    ref_val <- group_estimates %>%
+      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+      dplyr::rename("theta2" = "diversity_val") %>%
+      dplyr::select(-matching_col)
 
     # Calculate jackknife estimates for difference for non-reference groups
     thetai_nonref <- jackknife_df %>%
-      dplyr::filter(.data[[grouping_var]] != ref_group) %>%
-      dplyr::mutate(theta2 = ref_estimate) %>%
+      dplyr::filter(.data[[matching_col]] != ref_group) %>%
+      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$jack_rep - .data$theta2) %>%
       dplyr::ungroup()
 
     # Calculate jackknife estimates for difference for reference group
-    thetai_ref <- tidyr::expand_grid(
-      group_estimates %>%
-        dplyr::filter(.data[[grouping_var]] != ref_group),
-      jack_rep = jackknife_df %>%
-        dplyr::filter(.data[[grouping_var]] == ref_group) %>%
-        dplyr::pull(.data$jack_rep)
-    ) %>%
-      dplyr::rename("theta1" = "diversity_val") %>%
+    non_ref_val <- group_estimates %>%
+      dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+      dplyr::rename("theta1" = "diversity_val")
+
+    thetai_ref <- jackknife_df %>%
+      dplyr::filter(.data[[matching_col]] == ref_group) %>%
+      dplyr::select(-matching_col) %>%
+      dplyr::right_join(non_ref_val,
+                        by = setdiff(grouping_var, matching_col)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$theta1 - .data$jack_rep) %>%
       dplyr::ungroup()

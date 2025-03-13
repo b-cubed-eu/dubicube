@@ -289,9 +289,7 @@ bootstrap_cube <- function(
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) |
-          (ref_group %in% data_cube$data[[matching_col]] &
-             mode(ref_group) == mode(data_cube$data[[matching_col]]))
+          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
       )
 
       t0_full <- fun(data_cube, ...)$data
@@ -303,9 +301,7 @@ bootstrap_cube <- function(
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) |
-          (ref_group %in% data_cube[[matching_col]] &
-             mode(ref_group) == mode(data_cube[[matching_col]]))
+          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
       )
 
       t0_full <- fun(data_cube, ...)

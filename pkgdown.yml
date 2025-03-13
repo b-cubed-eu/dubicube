@@ -1,0 +1,8 @@
+pandoc: 3.6.3
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles: {}
+last_built: 2025-03-13T15:59Z
+urls:
+  reference: https://b-cubed-eu.github.io/dubicube/reference
+  article: https://b-cubed-eu.github.io/dubicube/articles

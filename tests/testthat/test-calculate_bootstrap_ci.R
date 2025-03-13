@@ -11,7 +11,7 @@ cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
   taxonKey = species,
-  obs = rpois(20, 50))
+  obs = rpois(5, 50))
 
 # Create data cube as 'processed_cube'
 processed_cube <- NULL

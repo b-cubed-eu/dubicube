@@ -8,13 +8,13 @@
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.4.2 (2024-10-31 ucrt)",
+  "runtimePlatform": "R version 4.4.3 (2025-02-28 ucrt)",
   "author": [
     {
       "@type": "Person",
@@ -191,7 +191,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "216.603KB",
+  "fileSize": "223.904KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -208,7 +208,7 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.3.1",
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.4.0",
       "identifier": "10.5281/zenodo.14850237",
       "url": "https://b-cubed-eu.github.io/dubicube/",
       "@id": "https://doi.org/10.5281/zenodo.14850237",

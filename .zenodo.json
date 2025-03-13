@@ -1,6 +1,6 @@
 {
   "title": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "license": "MIT",
   "upload_type": "software",
   "description": "<p>This R package provides functions to explore data cubes using simple measures and cross-validation techniques. It can also be used for uncertainty calculation using the bootstrap resampling method, and functionality is provided for efficient interpretation and visualisation of uncertainty related to indicators based on occurrence cubes.<\/p>",

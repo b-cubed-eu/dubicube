@@ -27,8 +27,12 @@ statistic(s) of interest. This function must return a dataframe with a column
 
 \item{...}{Additional arguments passed on to \code{fun}.}
 
-\item{grouping_var}{A string specifying the grouping variable(s) for the
-bootstrap analysis. The output of \code{fun(data_cube)} returns a row per group.}
+\item{grouping_var}{A character vector specifying the grouping variable(s)
+for the bootstrap analysis. The function \code{fun(data_cube, ...)} should return
+a row per group. The specified variables must not be redundant, meaning they
+should not contain the same information (e.g., \code{"time_point"} (1, 2, 3) and
+\code{"year"} (2000, 2001, 2002) should not be used together if \code{"time_point"} is
+just an alternative encoding of \code{"year"}).}
 
 \item{samples}{The number of bootstrap replicates. A single positive integer.
 Default is 1000.}

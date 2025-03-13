@@ -4,30 +4,14 @@ ref_year <- 2020
 grid_cells <- c("E003N55BA", "E003N55BB", "E003N55BC")
 species <- paste0("spec", 1:3)
 
-# Simulate observations
-get_obs <- function(x, int, slope) {
-  sapply(seq_along(x), function(i) {
-    rpois(1, int + slope * i)
-  })
-}
-
 set.seed(123)
-obs1 <- as.vector(
-  sapply(seq_along(grid_cells), function(i) get_obs(years, 30, 3))
-)
-obs2 <- as.vector(
-  sapply(seq_along(grid_cells), function(i) get_obs(years, 50, 0))
-)
-obs3 <- as.vector(
-  sapply(seq_along(grid_cells), function(i) get_obs(years, 60, -2))
-)
 
 # Create data cube as data.frame
 cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
-  taxonKey = species)
-cube_df$obs <- c(obs1, obs2, obs3)
+  taxonKey = species,
+  obs = rpois(5, 50))
 
 # Create data cube as 'processed_cube'
 processed_cube <- NULL
@@ -36,23 +20,23 @@ processed_cube$data <- cube_df
 class(processed_cube) <- "processed_cube"
 
 ## Function to calculate statistic of interest
-# Mean observations per year
+# Mean observations per year per species
 mean_obs <- function(data) {
-  if (inherits(data, "processed_cube")) {
-    data <- data$data
-  }
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
-  names(out_df) <- c("year", "diversity_val") # Rename columns
+  # Calculate mean obs per year
+  out_df <- aggregate(obs ~ year + taxonKey, data, mean)
+  # Rename columns
+  names(out_df) <- c("year", "taxonKey", "diversity_val")
   return(out_df)
 }
 
 mean_obs_processed <- function(data) {
+  # Initiate output variable
   out_df <- NULL
   out_df$meta <- "Mean number of observations per year"
-
   # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ year, data$data, mean)
-  names(out_df$data) <- c("year", "diversity_val") # Rename columns
+  out_df$data <- aggregate(obs ~ year + taxonKey, data$data, mean)
+  # Rename columns
+  names(out_df$data) <- c("year", "taxonKey", "diversity_val")
 
   return(out_df)
 }
@@ -62,7 +46,7 @@ mean_obs_processed <- function(data) {
 boot_df1 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123
 )
@@ -71,7 +55,7 @@ boot_df1 <- bootstrap_cube(
 boot_df2 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123
 )
@@ -80,7 +64,7 @@ boot_df2 <- bootstrap_cube(
 boot_df3 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
   ref_group = ref_year
@@ -90,7 +74,7 @@ boot_df3 <- bootstrap_cube(
 boot_df4 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
   ref_group = ref_year
@@ -100,7 +84,7 @@ boot_df4 <- bootstrap_cube(
 # Percentile
 result_perc1 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df1,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "perc",
   conf = 0.95,
   aggregate = TRUE)
@@ -108,7 +92,7 @@ result_perc1 <- calculate_bootstrap_ci(
 # BCa with dataframe without reference group
 result_bca1 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df1,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
   aggregate = TRUE,
@@ -120,7 +104,7 @@ result_bca1 <- calculate_bootstrap_ci(
 # BCa with dataframe with reference group
 result_bca2 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df3,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
   aggregate = TRUE,
@@ -132,7 +116,7 @@ result_bca2 <- calculate_bootstrap_ci(
 # BCa with 'processed_cube' without reference group
 result_bca3 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df2,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
   aggregate = TRUE,
@@ -144,7 +128,7 @@ result_bca3 <- calculate_bootstrap_ci(
 # BCa with 'processed_cube' with reference group
 result_bca4 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df4,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
   aggregate = TRUE,
@@ -156,7 +140,7 @@ result_bca4 <- calculate_bootstrap_ci(
 # Normal
 result_norm1 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df1,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "norm",
   conf = 0.95,
   aggregate = TRUE)
@@ -164,7 +148,7 @@ result_norm1 <- calculate_bootstrap_ci(
 # Basic
 result_basic1 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df1,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "basic",
   conf = 0.95,
   aggregate = TRUE)
@@ -172,7 +156,7 @@ result_basic1 <- calculate_bootstrap_ci(
 # All with dataframe without reference group
 result_all1 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df1,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "all",
   conf = 0.95,
   aggregate = TRUE,
@@ -192,7 +176,7 @@ example_ci_results <- c(example_ci_results_noref, example_ci_results_ref)
 # Without aggregation
 result_perc2 <- calculate_bootstrap_ci(
   bootstrap_samples_df = boot_df1,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   type = "perc",
   conf = 0.95,
   aggregate = FALSE)
@@ -251,7 +235,7 @@ test_that("calculate_bootstrap_ci computes values correctly", {
 
   result_test <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df1,
-    grouping_var = "year",
+    grouping_var = c("year", "taxonKey"),
     type = c("perc", "norm"),
     conf = 0.95,
     aggregate = TRUE)
@@ -266,7 +250,7 @@ test_that("calculate_bootstrap_ci computes values correctly", {
 test_that("Identical results for processed cube and dataframe", {
   result_bca12 <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df1,
-    grouping_var = "year",
+    grouping_var = c("year", "taxonKey"),
     type = "bca",
     conf = 0.95,
     aggregate = TRUE,
@@ -277,7 +261,7 @@ test_that("Identical results for processed cube and dataframe", {
 
   result_bca32 <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df2,
-    grouping_var = "year",
+    grouping_var = c("year", "taxonKey"),
     type = "bca",
     conf = 0.95,
     aggregate = TRUE,
@@ -292,7 +276,7 @@ test_that("Identical results for processed cube and dataframe", {
 
   result_all2 <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df2,
-    grouping_var = "year",
+    grouping_var = c("year", "taxonKey"),
     type = "all",
     conf = 0.95,
     aggregate = TRUE,
@@ -308,7 +292,7 @@ test_that("Identical results for processed cube and dataframe", {
 test_that("Confidence intervals are smaller with smaller conf argument", {
   result_all3 <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df1,
-    grouping_var = "year",
+    grouping_var = c("year", "taxonKey"),
     type = "all",
     conf = 0.9,
     aggregate = TRUE,
@@ -326,7 +310,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
       bootstrap_samples_df = boot_df1,
-      grouping_var = "year",
+      grouping_var = c("year", "taxonKey"),
       type = c("perc", "normal"),
       conf = 0.95,
       aggregate = TRUE),
@@ -336,7 +320,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
       bootstrap_samples_df = boot_df1,
-      grouping_var = "year",
+      grouping_var = c("year", "taxonKey"),
       type = c("perc", "norm"),
       conf = 0.95,
       aggregate = "TRUE"),
@@ -346,7 +330,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
       bootstrap_samples_df = boot_df1,
-      grouping_var = "year",
+      grouping_var = c("year", "taxonKey"),
       type = c("perc", "norm"),
       conf = 1.5,
       aggregate = TRUE),
@@ -356,7 +340,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
       bootstrap_samples_df = boot_df1,
-      grouping_var = "year",
+      grouping_var = c("year", "taxonKey"),
       type = c("perc", "bca"),
       conf = 0.95,
       aggregate = TRUE),
@@ -377,13 +361,13 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
       bootstrap_samples_df = boot_df3,
-      grouping_var = "year",
+      grouping_var = c("year", "taxonKey"),
       type = "bca",
       conf = 0.95,
       aggregate = TRUE,
       data_cube = cube_df,
       fun = mean_obs,
-      ref_group = "2020",
+      ref_group = "twothousandtwenty",
       jackknife = "usual"),
     "`ref_group` is not present in `grouping_var` column of `data_cube`.",
     fixed = TRUE)
@@ -391,7 +375,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
       bootstrap_samples_df = boot_df3,
-      grouping_var = "year",
+      grouping_var = c("year", "taxonKey"),
       type = "bca",
       conf = 0.95,
       aggregate = TRUE,

@@ -8,8 +8,12 @@
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
 #' 'processed_cube' or 'sim_cube'). As used by `bootstrap_cube()`.
-#' @param grouping_var A string specifying the grouping variable(s) used for the
-#' bootstrap analysis.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' confidence interval calculations.
 #' @param fun A function which, when applied to
@@ -41,19 +45,28 @@ perform_jackknifing <- function(
     progress = FALSE) {
   # Perform jackknifing
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+    # Check if grouping_var column is present in data cube
+    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
+                all(grouping_var %in% names(data_cube$data)))
+
     # Check if ref_group is present in grouping_var
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube$data[[grouping_var]] &
-           mode(ref_group) == mode(data_cube$data[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube$data[[var]]
+            })
+        )
     )
 
     jackknife_estimates <- purrr::map(
       seq_len(nrow(data_cube$data)),
       function(i) {
         # Identify group
-        group <- data_cube$data[[i, grouping_var]]
+        group <- data_cube$data[i, ] %>%
+          select(all_of(grouping_var))
 
         # Remove i'th observation
         data <- data_cube$data[-i, ]
@@ -62,7 +75,7 @@ perform_jackknifing <- function(
 
         # Calculate indicator value without i'th observation
         fun(data_cube_copy, ...)$data %>%
-          dplyr::filter(!!rlang::sym(grouping_var) == group) %>%
+          dplyr::inner_join(group, by = grouping_var) %>%
           dplyr::pull(.data$diversity_val)
       },
       .progress = ifelse(progress, "Jackknife estimation", progress)) %>%
@@ -76,19 +89,24 @@ perform_jackknifing <- function(
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube[[grouping_var]] &
-           mode(ref_group) == mode(data_cube[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube[[var]]
+            })
+        )
     )
 
     jackknife_estimates <- purrr::map(
       seq_len(nrow(data_cube)),
       function(i) {
         # Identify group
-        group <- data_cube[[i, grouping_var]]
+        group <- data_cube[i, ] %>%
+          select(all_of(grouping_var))
 
         # Calculate indicator value without i'th observation
         fun(data_cube[-i, ], ...) %>%
-          dplyr::filter(!!sym(grouping_var) == group) %>%
+          dplyr::inner_join(group, by = grouping_var) %>%
           dplyr::pull(.data$diversity_val)
       },
       .progress = ifelse(progress, "Jackknife estimation", progress)) %>%
@@ -103,33 +121,55 @@ perform_jackknifing <- function(
   if (!is.na(ref_group)) {
     # Get group-specific estimates
     if (inherits(data_cube, "processed_cube")) {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube$data %>% dplyr::select(all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
+      )
+
       group_estimates <- fun(data_cube, ...)$data
     } else {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
+      )
+
       group_estimates <- fun(data_cube, ...)
     }
 
     # Get estimate for reference group
-    ref_estimate <- group_estimates %>%
-      dplyr::filter(.data[[grouping_var]] == ref_group) %>%
-      dplyr::pull(.data$diversity_val)
+    ref_val <- group_estimates %>%
+      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+      dplyr::rename("theta2" = "diversity_val") %>%
+      dplyr::select(-matching_col)
 
     # Calculate jackknife estimates for difference for non-reference groups
     thetai_nonref <- jackknife_df %>%
-      dplyr::filter(.data[[grouping_var]] != ref_group) %>%
-      dplyr::mutate(theta2 = ref_estimate) %>%
+      dplyr::filter(.data[[matching_col]] != ref_group) %>%
+      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$jack_rep - .data$theta2) %>%
       dplyr::ungroup()
 
     # Calculate jackknife estimates for difference for reference group
-    thetai_ref <- tidyr::expand_grid(
-      group_estimates %>%
-        dplyr::filter(.data[[grouping_var]] != ref_group),
-      jack_rep = jackknife_df %>%
-        dplyr::filter(.data[[grouping_var]] == ref_group) %>%
-        dplyr::pull(.data$jack_rep)
-    ) %>%
-      dplyr::rename("theta1" = "diversity_val") %>%
+    non_ref_val <- group_estimates %>%
+      dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+      dplyr::rename("theta1" = "diversity_val")
+
+    thetai_ref <- jackknife_df %>%
+      dplyr::filter(.data[[matching_col]] == ref_group) %>%
+      dplyr::select(-matching_col) %>%
+      dplyr::right_join(non_ref_val,
+                        by = setdiff(grouping_var, matching_col)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$theta1 - .data$jack_rep) %>%
       dplyr::ungroup()

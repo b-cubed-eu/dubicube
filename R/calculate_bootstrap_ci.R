@@ -13,8 +13,12 @@
 #'   - `est_original`: The statistic based on the full dataset per group
 #'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
 #'   replicate)
-#' @param grouping_var A string specifying the grouping variable(s) used for the
-#' bootstrap analysis.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' confidence interval calculations.
 #' @param type A character vector specifying the type(s) of confidence intervals
@@ -257,9 +261,9 @@ calculate_bootstrap_ci <- function(
   stopifnot("`bootstrap_samples_df` must be a dataframe." =
               inherits(bootstrap_samples_df, "data.frame"))
 
-  # Check if grouping_var is a character vector of length 1
-  stopifnot("`grouping_var` must be a character vector of length 1." =
-              assertthat::is.string(grouping_var))
+  # Check if grouping_var is a character vector
+  stopifnot("`grouping_var` must be a character vector." =
+              is.character(grouping_var))
 
   # Check if "rep_boot", "est_original" and grouping_var columns are present
   colname_message <- paste(
@@ -299,44 +303,40 @@ calculate_bootstrap_ci <- function(
     if (t == "perc") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+        split(bootstrap_samples_df %>%
+                dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
+          # Get group
+          group <- df %>%
+            dplyr::distinct(!!!dplyr::syms(grouping_var))
+
+          # Calculate interval
           replicates <- df$rep_boot
-          boot:::perc.ci(t = replicates, conf = conf)
+          qq <- boot:::perc.ci(t = replicates, conf = conf)
+
+          # Return interval limits
+          qq_matrix <- matrix(qq[4:5], ncol = 2L)
+          colnames(qq_matrix) <- c("ll", "ul")
+
+          return(cbind(group, conf, qq_matrix))
         })
 
       # Combine confidence levels in dataframe
-      intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
-        dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
-        dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+      intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
         dplyr::mutate(int_type = t) %>%
-        dplyr::left_join(intervals_df,
-                         by = dplyr::join_by(!!grouping_var == "group"))
+        dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "bca") {
       # Check whether data_cube and fun are provided
       stopifnot(
         "`data_cube` and `fun` must be provided to calculate BCa interval." =
-          assertthat::noNA(data_cube) &
-          suppressWarnings(assertthat::noNA(fun)))
-
-      # Check data_cube input
-      cube_message <- paste("`data_cube` must be a data cube object (class",
-                            "'processed_cube' or 'sim_cube') or a dataframe.")
-      do.call(stopifnot,
-              stats::setNames(list(
-                rlang::inherits_any(
-                  data_cube,
-                  c("processed_cube", "sim_cube", "data.frame"))),
-                cube_message)
-      )
-
-      # Check fun input
-      stopifnot("`fun` must be a function." = is.function(fun))
+          rlang::inherits_any(
+            data_cube,
+            c("processed_cube", "sim_cube", "data.frame")) &
+          is.function(fun))
 
       # Check if ref_group is NA or a number or a string
       stopifnot(
@@ -363,9 +363,9 @@ calculate_bootstrap_ci <- function(
 
       acceleration_df <- jackknife_df %>%
         dplyr::left_join(bootstrap_samples_df %>%
-                           dplyr::distinct(!!dplyr::sym(grouping_var),
+                           dplyr::distinct(!!!dplyr::syms(grouping_var),
                                            .data$est_original),
-                         by = dplyr::join_by(!!grouping_var)) %>%
+                         by = grouping_var) %>%
         dplyr::mutate(n = dplyr::n(),
                       .by = dplyr::all_of(grouping_var)) %>%
         dplyr::rowwise() %>%
@@ -386,9 +386,14 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         dplyr::left_join(acceleration_df,
-                         by = dplyr::join_by(!!grouping_var)) %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+                         by = grouping_var) %>%
+        split(bootstrap_samples_df %>%
+                dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
+          # Get group
+          group <- df %>%
+            dplyr::distinct(!!!dplyr::syms(grouping_var))
+
           # Get the original statistic and bootstrap replicates
           t0 <- unique(df$est_original)
           t <- df$rep_boot
@@ -397,7 +402,7 @@ calculate_bootstrap_ci <- function(
           a <- unique(df$acceleration)
           if (!is.finite(a)) {
             warning("Estimated adjustment 'a' is NA.")
-            return(cbind(conf, NA, NA))
+            return(cbind(group, conf, ll = NA, ul = NA))
           }
 
           # Calculate the BCa critical values
@@ -407,72 +412,86 @@ calculate_bootstrap_ci <- function(
           z0 <- stats::qnorm(sum(t < t0) / length(t))
           if (!is.finite(z0)) {
             warning("Estimated adjustment 'z0' is infinite.")
-            return(cbind(conf, NA, NA))
+            return(cbind(group, conf, ll = NA, ul = NA))
           }
 
           # Adjust for acceleration
           adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
                                       (1 - a * (z0 + zalpha)))
           qq <- boot:::norm.inter(t, adj_alpha)
+          qq_matrix <- matrix(qq[, 2L], ncol = 2L)
+          colnames(qq_matrix) <- c("ll", "ul")
 
-          return(cbind(conf, matrix(qq[, 2L], ncol = 2L)))
+          return(cbind(group, conf, qq_matrix))
         })
 
       # Combine confidence levels in dataframe
-      intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
-        dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
-        dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+      intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
         dplyr::mutate(int_type = t) %>%
-        dplyr::left_join(intervals_df,
-                         by = dplyr::join_by(!!grouping_var == "group"))
+        dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "norm") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+        split(bootstrap_samples_df %>%
+                dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
+          # Get group
+          group <- df %>%
+            dplyr::distinct(!!!dplyr::syms(grouping_var))
+
+          # Calculate interval
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
-          boot::norm.ci(t0 = estimate, t = replicates, conf = conf)
+          qq <- boot::norm.ci(t0 = estimate, t = replicates, conf = conf)
+
+          # Return interval limits
+          qq_matrix <- matrix(qq[2:3], ncol = 2L)
+          colnames(qq_matrix) <- c("ll", "ul")
+
+          return(cbind(group, conf, qq_matrix))
         })
 
       # Combine confidence levels in dataframe
-      intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
-        dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
-        dplyr::rename("ll" = "V2", "ul" = "V3") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+      intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
         dplyr::mutate(int_type = t) %>%
-        dplyr::left_join(intervals_df,
-                         by = dplyr::join_by(!!grouping_var == "group"))
+        dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "basic") {
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df[[grouping_var]]) %>%
+        split(bootstrap_samples_df %>%
+                dplyr::select(all_of(grouping_var))) %>%
         lapply(function(df) {
+          # Get group
+          group <- df %>%
+            dplyr::distinct(!!!dplyr::syms(grouping_var))
+
+          # Calculate interval
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
-          boot:::basic.ci(t0 = estimate, t = replicates, conf = conf)
+          qq <- boot:::basic.ci(t0 = estimate, t = replicates, conf = conf)
+
+          # Return interval limits
+          qq_matrix <- matrix(qq[4:5], ncol = 2L)
+          colnames(qq_matrix) <- c("ll", "ul")
+
+          return(cbind(group, conf, qq_matrix))
         })
 
       # Combine confidence levels in dataframe
-      intervals_df <- do.call(rbind.data.frame, intervals_list) %>%
-        dplyr::mutate(group = unique(bootstrap_samples_df[[grouping_var]])) %>%
-        dplyr::rename("ll" = "V4", "ul" = "V5") %>%
-        dplyr::select("group", "ll", "ul", "conf")
+      intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
       conf_df <- bootstrap_samples_df %>%
         dplyr::mutate(int_type = t) %>%
-        dplyr::left_join(intervals_df,
-                         by = dplyr::join_by(!!grouping_var == "group"))
+        dplyr::left_join(intervals_df, by = grouping_var)
     }
 
     out_list[[i]] <- conf_df

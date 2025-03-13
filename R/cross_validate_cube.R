@@ -16,8 +16,8 @@
 #' statistic(s) of interest. This function must return a dataframe with a column
 #' `diversity_val` containing the statistic of interest.
 #' @param ... Additional arguments passed on to `fun`.
-#' @param grouping_var A string specifying the grouping variable(s) for `fun`.
-#' The output of `fun(data_cube)` returns a row per group.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for `fun`. The output of `fun(data_cube)` returns a row per group.
 #' @param out_var A string specifying the column by which the data should be
 #' left out iteratively. Default is `"taxonKey"` which can be used for
 #' leave-one-species-out CV.
@@ -188,9 +188,9 @@ cross_validate_cube <- function(
   # Check fun input
   stopifnot("`fun` must be a function." = is.function(fun))
 
-  # Check if grouping_var is a character vector of length 1
-  stopifnot("`grouping_var` must be a character vector of length 1." =
-              assertthat::is.string(grouping_var))
+  # Check if grouping_var is a character vector
+  stopifnot("`grouping_var` must be a character vector." =
+              is.character(grouping_var))
 
   # Check if out_var is a character vector of length 1
   stopifnot("`out_var` must be a character vector of length 1." =
@@ -221,8 +221,8 @@ cross_validate_cube <- function(
 
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube$data))
+    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
+                all(grouping_var %in% names(data_cube$data)))
 
     # Check if out_var column is present in data cube
     stopifnot("`data_cube` should contain column `out_var`." =
@@ -244,7 +244,7 @@ cross_validate_cube <- function(
   } else {
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube))
+                all(grouping_var %in% names(data_cube)))
 
     # Check if out_var column is present in data cube
     stopifnot("`data_cube` should contain column `out_var`." =
@@ -339,6 +339,7 @@ cross_validate_cube <- function(
     purrr::map(
       cross_validate_f,
       fun = fun,
+      ...,
       .progress = ifelse(progress, "Cross-Validation", progress)) %>%
     lapply(function(df) tibble::as_tibble(df))
 
@@ -366,8 +367,8 @@ cross_validate_cube <- function(
       mse = mean(.data$sq_error),
       rmse = sqrt(.data$mse),
       .by = dplyr::all_of(grouping_var)) %>%
-    dplyr::arrange(.data[[grouping_var]]) %>%
-    dplyr::select("id_cv", all_of(grouping_var),
+    dplyr::arrange(dplyr::across(grouping_var)) %>%
+    dplyr::select("id_cv", dplyr::all_of(grouping_var),
                   !!out_col_name := "cat_left_out",
                   "rep_cv", "est_original",
                   dplyr::everything()) %>%

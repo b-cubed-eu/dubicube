@@ -1,3 +1,8 @@
+# dubicube 0.4.0
+
+* Allow `grouping_var` argument to have length > 1
+* Implement ellipsis argument `...` in `cross_validate_cube()`
+
 # dubicube 0.3.1
 
 * Fix issues: #19, #22, #23

@@ -325,3 +325,34 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
     "`k` must be smaller than the number of categories in `out_var`.",
     fixed = TRUE)
 })
+
+# Test grouping variable
+test_that("grouping_var length > 1", {
+  # Function that add extra column
+  mean_obs2 <- function(data) {
+    out_df <- mean_obs(data)
+    out_df$id <- seq_len(nrow(out_df))
+
+    return(out_df)
+  }
+  # Hack to avoid error
+  cube_df$id <- seq_len(nrow(cube_df))
+
+  result <- cross_validate_cube(
+    data_cube = cube_df,
+    fun = mean_obs2,
+    grouping_var = c("year", "id"),
+    out_var = "taxonKey",
+    crossv_method = "loo",
+    progress = FALSE)
+
+  # Data frame
+  expect_s3_class(result, "data.frame")
+
+  # Correct column names
+  expect_true(all(
+    c("id_cv", "year", "id", "taxonkey_out", "rep_cv", "est_original",
+      "error", "sq_error", "abs_error", "rel_error", "perc_error",
+      "mre", "mse", "rmse") %in% names(result)
+  ))
+})

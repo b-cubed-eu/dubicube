@@ -14,8 +14,12 @@
 #' statistic(s) of interest. This function must return a dataframe with a column
 #' `diversity_val` containing the statistic of interest.
 #' @param ... Additional arguments passed on to `fun`.
-#' @param grouping_var A string specifying the grouping variable(s) for the
-#' bootstrap analysis. The output of `fun(data_cube)` returns a row per group.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
 #' @param samples The number of bootstrap replicates. A single positive integer.
 #' Default is 1000.
 #' @param ref_group A string indicating the reference group to compare the
@@ -166,9 +170,12 @@ bootstrap_cube <- function(
   # Check fun input
   stopifnot("`fun` must be a function." = is.function(fun))
 
-  # Check if grouping_var is a character vector of length 1
-  stopifnot("`grouping_var` must be a character vector of length 1." =
-              assertthat::is.string(grouping_var))
+  # Check if grouping_var is a character vector
+  stopifnot("`grouping_var` must be a character vector." =
+              is.character(grouping_var))
+
+  # Check if grouping_var containts redundant variables
+  check_redundant_grouping_vars(data_cube, grouping_var)
 
   # Check if samples is a positive integer
   stopifnot(
@@ -202,15 +209,19 @@ bootstrap_cube <- function(
 
   if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
     # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube$data))
+    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
+                all(grouping_var %in% names(data_cube$data)))
 
     # Check if ref_group is present in grouping_var
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube$data[[grouping_var]] &
-           mode(ref_group) == mode(data_cube$data[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube$data[[var]]
+            })
+        )
     )
 
     # Generate bootstrap replicates
@@ -231,14 +242,18 @@ bootstrap_cube <- function(
   } else {
     # Check if grouping_var column is present in data cube
     stopifnot("`data_cube` should contain column `grouping_var`." =
-                grouping_var %in% names(data_cube))
+                all(grouping_var %in% names(data_cube)))
 
     # Check if ref_group is present in grouping_var
     stopifnot(
       "`ref_group` is not present in `grouping_var` column of `data_cube`." =
         is.na(ref_group) |
-        (ref_group %in% data_cube[[grouping_var]] &
-           mode(ref_group) == mode(data_cube[[grouping_var]]))
+        any(
+          sapply(
+            as.list(grouping_var), function(var) {
+              ref_group %in% data_cube[[var]]
+            })
+        )
     )
 
     # Generate bootstrap replicates
@@ -267,28 +282,54 @@ bootstrap_cube <- function(
   if (!is.na(ref_group)) {
     # Calculate true statistic
     if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      t0_full <- fun(data_cube)$data
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube$data %>% dplyr::select(all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
+      )
+
+      t0_full <- fun(data_cube, ...)$data
     } else {
-      t0_full <- fun(data_cube)
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
+      )
+
+      t0_full <- fun(data_cube, ...)
     }
 
     ref_val <- t0_full %>%
-      dplyr::filter(.data[[grouping_var]] == !!ref_group) %>%
-      dplyr::pull(.data$diversity_val)
+      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+      dplyr::rename("ref_val" = "diversity_val") %>%
+      dplyr::select(-matching_col)
 
     t0 <- t0_full %>%
-      dplyr::filter(.data[[grouping_var]] != !!ref_group) %>%
-      dplyr::mutate(diversity_val = .data$diversity_val - ref_val)
+      dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+      left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
+      dplyr::select(-"ref_val")
 
     # Get bootstrap samples as a list
     bootstrap_samples_list <- lapply(bootstrap_samples_list_raw, function(df) {
       ref_val <- df %>%
-        dplyr::filter(.data[[grouping_var]] == !!ref_group) %>%
-        dplyr::pull(.data$diversity_val)
+        dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+        dplyr::rename("ref_val" = "diversity_val") %>%
+        dplyr::select(-matching_col, -"sample")
 
       df %>%
-        dplyr::filter(.data[[grouping_var]] != !!ref_group) %>%
-        dplyr::mutate(diversity_val = .data$diversity_val - ref_val)
+        dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+        left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+        dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
+        dplyr::select(-"ref_val")
     })
   } else {
     # Calculate true statistic
@@ -313,9 +354,10 @@ bootstrap_cube <- function(
       se_boot = stats::sd(.data$rep_boot),
       .by = dplyr::all_of(grouping_var)) %>%
     dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
-    dplyr::arrange(.data[[grouping_var]]) %>%
+    dplyr::arrange(dplyr::across(grouping_var)) %>%
     dplyr::select("sample", dplyr::all_of(grouping_var), "est_original",
-                  dplyr::everything())
+                  dplyr::everything()) %>%
+    as.data.frame()
 
   return(bootstrap_samples_df)
 }

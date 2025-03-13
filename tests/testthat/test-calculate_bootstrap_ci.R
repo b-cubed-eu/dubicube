@@ -36,23 +36,23 @@ processed_cube$data <- cube_df
 class(processed_cube) <- "processed_cube"
 
 ## Function to calculate statistic of interest
-# Mean observations per year
+# Mean observations per year per species
 mean_obs <- function(data) {
-  if (inherits(data, "processed_cube")) {
-    data <- data$data
-  }
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
-  names(out_df) <- c("year", "diversity_val") # Rename columns
+  # Calculate mean obs per year
+  out_df <- aggregate(obs ~ year + taxonKey, data, mean)
+  # Rename columns
+  names(out_df) <- c("year", "taxonKey", "diversity_val")
   return(out_df)
 }
 
 mean_obs_processed <- function(data) {
+  # Initiate output variable
   out_df <- NULL
   out_df$meta <- "Mean number of observations per year"
-
   # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ year, data$data, mean)
-  names(out_df$data) <- c("year", "diversity_val") # Rename columns
+  out_df$data <- aggregate(obs ~ year + taxonKey, data$data, mean)
+  # Rename columns
+  names(out_df$data) <- c("year", "taxonKey", "diversity_val")
 
   return(out_df)
 }

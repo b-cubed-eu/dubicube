@@ -24,7 +24,6 @@ obs3 <- as.vector(
 
 # Create data cube as data.frame
 cube_df <- expand.grid(
-  time_point = seq_along(years),
   year = years,
   cellCode = grid_cells,
   taxonKey = species)

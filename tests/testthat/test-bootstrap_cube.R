@@ -81,7 +81,7 @@ result2 <- bootstrap_cube(
 result3 <- bootstrap_cube(
   data_cube = cube_df,
   fun = mean_obs,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   samples = 10,
   seed = 123,
   ref_group = ref_year
@@ -91,7 +91,7 @@ result3 <- bootstrap_cube(
 result4 <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs_processed,
-  grouping_var = "year",
+  grouping_var = c("year", "taxonKey"),
   samples = 10,
   seed = 123,
   ref_group = ref_year
@@ -109,12 +109,12 @@ test_that("bootstrap_cube returns a dataframe with expected structure", {
                     "est_boot", "se_boot", "bias_boot")  %in% names(result2)))
 
   expect_s3_class(result3, "data.frame")
-  expect_true(all(c("sample", "year", "est_original", "rep_boot", "est_boot",
-                    "se_boot", "bias_boot") %in% names(result3)))
+  expect_true(all(c("sample", "taxonKey", "year", "est_original", "rep_boot",
+                    "est_boot", "se_boot", "bias_boot") %in% names(result3)))
 
   expect_s3_class(result4, "data.frame")
-  expect_true(all(c("sample", "year", "est_original", "rep_boot", "est_boot",
-                    "se_boot", "bias_boot") %in% names(result4)))
+  expect_true(all(c("sample", "taxonKey", "year", "est_original", "rep_boot",
+                    "est_boot", "se_boot", "bias_boot") %in% names(result4)))
 })
 
 # Test that bootstrapping produces reasonable values
@@ -146,7 +146,7 @@ test_that("identical results with normal and processed cube", {
   expect_equal(result1, result2)
 
   # With reference group
-  expect_equal(result1, result2)
+  expect_equal(result3, result4)
 })
 
 # Test results with single grouping variable
@@ -193,6 +193,30 @@ test_that("identical results with single grouping variable", {
 
   # Should be the same
   expect_equal(result12, result22)
+
+
+  # Perform bootstrapping dataframe with reference group
+  result32 <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs2,
+    grouping_var = "year",
+    samples = 10,
+    seed = 123,
+    ref_group = ref_year
+  )
+
+  # Perform bootstrapping 'processed_cube' with reference group
+  result42 <- bootstrap_cube(
+    data_cube = processed_cube,
+    fun = mean_obs_processed2,
+    grouping_var = "year",
+    samples = 10,
+    seed = 123,
+    ref_group = ref_year
+  )
+
+  # Should be the same
+  expect_equal(result32, result42)
 })
 
 # Test reproducibility with seed

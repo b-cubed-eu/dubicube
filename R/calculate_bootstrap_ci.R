@@ -254,8 +254,8 @@ calculate_bootstrap_ci <- function(
     jackknife = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
   ### Start checks
-  # Arguments data_cube, fun, ref_group, and jackknife arguments are checked
-  # further on in code
+  # Arguments data_cube, fun, ref_group, jackknife, and progress arguments are
+  # checked in the calculate_acceleration() function
 
   # Check dataframe input
   stopifnot("`bootstrap_samples_df` must be a dataframe." =
@@ -288,10 +288,6 @@ calculate_bootstrap_ci <- function(
   # Check if aggregate is a logical vector of length 1
   stopifnot("`aggregate` must be a logical vector of length 1." =
               assertthat::is.flag(aggregate))
-
-  # Check if progress is a logical vector of length 1
-  stopifnot("`progress` must be a logical vector of length 1." =
-              assertthat::is.flag(progress))
   ### End checks
 
   # Calculate intervals
@@ -337,21 +333,6 @@ calculate_bootstrap_ci <- function(
             data_cube,
             c("processed_cube", "sim_cube", "data.frame")) &
           is.function(fun))
-
-      # Check if ref_group is NA or a number or a string
-      stopifnot(
-        "`ref_group` must be a numeric/character vector of length 1 or NA." =
-          (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-             is.na(ref_group)) &
-          length(ref_group) == 1)
-
-      # Check if jackknife is 'usual' or 'pos'
-      jackknife <- tryCatch({
-        match.arg(jackknife, c("usual", "pos"))
-      }, error = function(e) {
-        stop("`jackknife` must be one of 'usual', 'pos'.",
-             call. = FALSE)
-      })
 
       # Calculate acceleration values per grouping_var
       acceleration_df <- calculate_acceleration(

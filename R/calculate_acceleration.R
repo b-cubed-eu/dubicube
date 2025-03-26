@@ -8,6 +8,25 @@ calculate_acceleration <- function(
     jackknife = "usual",
     progress = FALSE) {
   ### Start checks
+  # Check dataframe input
+  stopifnot("`bootstrap_samples_df` must be a dataframe." =
+              inherits(bootstrap_samples_df, "data.frame"))
+
+  # Check if grouping_var is a character vector
+  stopifnot("`grouping_var` must be a character vector." =
+              is.character(grouping_var))
+
+  # Check if "est_original" and grouping_var columns are present
+  colname_message <- paste(
+    "`bootstrap_samples_df` should contain columns: 'est_original'",
+    "and `grouping_var`.")
+  do.call(stopifnot,
+          stats::setNames(list(
+            all(c(grouping_var, "est_original") %in%
+                  names(bootstrap_samples_df))),
+            colname_message)
+  )
+
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
                         "'processed_cube' or 'sim_cube') or a dataframe.")

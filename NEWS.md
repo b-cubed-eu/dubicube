@@ -1,3 +1,7 @@
+# dubicube 0.5.0
+
+* Move acceleration calculation to separate function `calculate_acceleration()`
+
 # dubicube 0.4.0
 
 * Allow `grouping_var` argument to have length > 1

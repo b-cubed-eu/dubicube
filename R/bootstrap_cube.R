@@ -174,7 +174,7 @@ bootstrap_cube <- function(
   stopifnot("`grouping_var` must be a character vector." =
               is.character(grouping_var))
 
-  # Check if grouping_var containts redundant variables
+  # Check if grouping_var contains redundant variables
   check_redundant_grouping_vars(data_cube, grouping_var)
 
   # Check if samples is a positive integer

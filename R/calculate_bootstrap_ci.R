@@ -353,35 +353,16 @@ calculate_bootstrap_ci <- function(
              call. = FALSE)
       })
 
-      jackknife_df <- perform_jackknifing(
+      # Calculate acceleration values per grouping_var
+      acceleration_df <- calculate_acceleration(
+        bootstrap_samples_df = bootstrap_samples_df,
         data_cube = data_cube,
         fun = fun,
         ...,
         grouping_var = grouping_var,
         ref_group = ref_group,
+        jackknife = jackknife,
         progress = progress)
-
-      acceleration_df <- jackknife_df %>%
-        dplyr::left_join(bootstrap_samples_df %>%
-                           dplyr::distinct(!!!dplyr::syms(grouping_var),
-                                           .data$est_original),
-                         by = grouping_var) %>%
-        dplyr::mutate(n = dplyr::n(),
-                      .by = dplyr::all_of(grouping_var)) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(intensity = ifelse(
-          jackknife == "usual",
-          (.data$n - 1) * (.data$est_original - .data$jack_rep),
-          (.data$n + 1) * (.data$jack_rep - .data$est_original)
-        )
-        ) %>%
-        dplyr::ungroup() %>%
-        dplyr::summarise(
-          numerator = sum(.data$intensity^3),
-          denominator = 6 * sum(.data$intensity^2)^1.5,
-          acceleration = .data$numerator / .data$denominator,
-          .by = dplyr::all_of(grouping_var)
-        )
 
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%

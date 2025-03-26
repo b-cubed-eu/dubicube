@@ -30,7 +30,7 @@ statistic's variability (e.g., positive skew)
 statistic's variability (e.g., negative skew).
 }
 
-The acceleration term is calculated as follows:
+The acceleration term is calculated as follows (Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R (Canty & Ripley, 1999)):
 
 \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 

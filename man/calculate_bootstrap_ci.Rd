@@ -137,6 +137,7 @@ cumulative density function of the standard normal distribution.
 
 Acceleration quantifies how sensitive the variability of the statistic is
 to changes in the data.
+See \code{calculate_acceleration()} on how this is calculated.
 \itemize{
 \item \eqn{a=0}: The statistic's variability does not depend on the data
 (e.g., symmetric distribution)
@@ -145,21 +146,6 @@ statistic's variability (e.g., positive skew)
 \item \eqn{a<0}: Small changes in the data have a smaller effect on the
 statistic's variability (e.g., negative skew).
 }
-
-The acceleration term is calculated as follows:
-
-\deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
-
-where \eqn{I_i} denotes the influence of data point \eqn{x_i} on the
-estimation of \eqn{\theta}. \eqn{I_i} can be estimated using jackknifing.
-Examples are (1) the negative jackknife:
-\eqn{I_i = (n-1)(\hat{\theta} - \hat{\theta}_{-i})}, and (2) the positive
-jackknife \eqn{I_i = (n+1)(\hat{\theta}_{-i} - \hat{\theta})}
-(Frangos & Schucany, 1990). Here, \eqn{\hat{\theta}_{-i}} is the estimated
-value leaving out the \eqn{i}’th data point \eqn{x_i}. The \pkg{boot}
-package also offers infinitesimal jackknife and regression estimation.
-Implementation of these jackknife algorithms can be explored in the
-future.
 
 The bias and acceleration estimates are then used to calculate adjusted
 percentiles.
@@ -262,14 +248,11 @@ American Statistical Association, 82(397), 171–185.
 
 Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
-
-Frangos, C. C., & Schucany, W. R. (1990). Jackknife estimation of the
-bootstrap acceleration constant. Computational Statistics & Data Analysis,
-9(3), 271–281. \doi{10.1016/0167-9473(90)90109-U}
 }
 \seealso{
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
-\code{\link{bootstrap_cube}()}
+\code{\link{bootstrap_cube}()},
+\code{\link{calculate_acceleration}()}
 }
 \concept{indicator_uncertainty}

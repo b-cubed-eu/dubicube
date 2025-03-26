@@ -178,6 +178,7 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 \seealso{
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
+\code{\link{calculate_acceleration}()},
 \code{\link{calculate_bootstrap_ci}()}
 }
 \concept{indicator_uncertainty}

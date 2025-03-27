@@ -38,6 +38,8 @@
 #' used to transform the intervals calculated on the scale of `h(t)` back to the
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
+#' @param no_bias Logical. If `TRUE` intervals are centered around the original
+#' estimates (bias is ignored). Default is `FALSE`.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.
@@ -237,6 +239,7 @@ calculate_bootstrap_ci <- function(
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t,
+    no_bias = FALSE,
     aggregate = TRUE,
     data_cube = NA,
     fun = NA,

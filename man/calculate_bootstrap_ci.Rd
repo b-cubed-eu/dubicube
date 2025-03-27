@@ -9,6 +9,8 @@ calculate_bootstrap_ci(
   grouping_var,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
+  h = function(t) t,
+  hinv = function(t) t,
   aggregate = TRUE,
   data_cube = NA,
   fun = NA,
@@ -50,6 +52,16 @@ to compute. Options include:
 
 \item{conf}{A numeric value specifying the confidence level of the intervals.
 Default is \code{0.95} (95 \% confidence level).}
+
+\item{h}{A function defining a transformation. The intervals are calculated
+on the scale of \code{h(t)} and the inverse function \code{hinv} applied to the
+resulting intervals. It must be a function of one variable only. The default
+is the identity function.}
+
+\item{hinv}{A function, like \code{h}, which returns the inverse of \code{h}. It is
+used to transform the intervals calculated on the scale of \code{h(t)} back to the
+original scale. The default is the identity function. If \code{h} is supplied but
+\code{hinv} is not, then the intervals returned will be on the transformed scale.}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to

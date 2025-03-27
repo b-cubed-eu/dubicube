@@ -84,7 +84,7 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
-#' a row per group.
+#' a row per group. Used in combination with `ref_group`.
 #' @param ref_group A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
@@ -102,7 +102,7 @@ calc_stat_by_group <- function(
     data_cube,
     fun,
     ...,
-    grouping_var,
+    grouping_var = NA,
     ref_group = NA) {
   if (!is.na(ref_group)) {
     if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {

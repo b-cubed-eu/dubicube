@@ -205,52 +205,12 @@ calculate_acceleration <- function(
     progress = progress)
 
   # Calculate original estimates
-  if (!is.na(ref_group)) {
-    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      # Check if ref_group is present in grouping_var
-      matching_col <- grouping_var[
-        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)]
-
-      stopifnot(
-        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
-      )
-
-      t0_full <- fun(data_cube, ...)$data
-    } else {
-      # Check if ref_group is present in grouping_var
-      matching_col <- grouping_var[
-        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)]
-
-      stopifnot(
-        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
-      )
-
-      t0_full <- fun(data_cube, ...)
-    }
-
-    # Calculate reference value
-    ref_val <- t0_full %>%
-      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
-      dplyr::rename("ref_val" = "diversity_val") %>%
-      dplyr::select(-matching_col)
-
-    t0 <- t0_full %>%
-      dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
-      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
-      dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
-      dplyr::select(-"ref_val")
-  } else {
-    # Calculate true statistic
-    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      t0 <- fun(data_cube, ...)$data
-    } else {
-      t0 <- fun(data_cube, ...)
-    }
-  }
+  t0 <- calc_stat_by_group(
+    data_cube = data_cube,
+    fun = fun,
+    ...,
+    grouping_var = grouping_var,
+    ref_group = ref_group)
 
   # Calculate influence values
   influence_df <- jackknife_df %>%

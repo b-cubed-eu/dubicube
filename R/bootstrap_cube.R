@@ -278,19 +278,10 @@ bootstrap_cube <- function(
 
   # Take difference with reference group if specified
   if (!is.na(ref_group)) {
-    # Calculate true statistic without reference group
-    t0_full <- calc_stat_by_group(data_cube, fun)
-
     # Calculate group_var columns for matching
     matching_col <- grouping_var[
       sapply(data_cube_data %>% dplyr::select(dplyr::all_of(grouping_var)),
              function(col) ref_group %in% col)]
-
-    # Get reference group
-    ref_val <- t0_full %>%
-      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
-      dplyr::rename("ref_val" = "diversity_val") %>%
-      dplyr::select(-matching_col)
 
     # Get bootstrap samples as a list
     bootstrap_samples_list <- lapply(bootstrap_samples_list_raw, function(df) {

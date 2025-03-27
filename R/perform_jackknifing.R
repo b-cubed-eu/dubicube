@@ -1,9 +1,10 @@
 #' Calculate jackknife estimates for a dataframe with bootstrap replicates
 #'
 #' This function jackknife estimates for a dataframe containing
-#' bootstrap replicates per group. The output is used to calculate the
-#' acceleration `calculate_acceleration()` which can be used for BCa interval
-#' calculation `calculate_bootstrap_ci()`.
+#' bootstrap replicates per group. The resulting estimates are used to compute
+#' the acceleration factor for BCa confidence intervals
+#' (`calculate_acceleration()`), which in turn is used in
+#' `calculate_bootstrap_ci()`.
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
@@ -27,7 +28,8 @@
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe containing the jackknife estimates.
+#' @returns A dataframe with jackknife estimates for each group defined by
+#' `grouping_var`.
 #'
 #' @import dplyr
 #' @importFrom rlang .data inherits_any

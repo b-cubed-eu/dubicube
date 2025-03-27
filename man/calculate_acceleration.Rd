@@ -65,14 +65,14 @@ to \code{TRUE} to display a progress bar, \code{FALSE} (default) to suppress it.
 A dataframe containing the acceleration values per \code{grouping_var}.
 }
 \description{
-This function calculates acceleration values for a dataframe containing
-bootstrap replicates. Acceleration quantifies how sensitive the variability
-of a statistic is to changes in the data. It can be used for BCa interval
-calculation \code{calculate_bootstrap_ci()}.
+This function calculates acceleration values, which quantify the sensitivity
+of a statistic’s variability to changes in the dataset. Acceleration is used
+for bias-corrected and accelerated (BCa) confidence intervals in
+\code{calculate_bootstrap_ci()}.
 }
 \details{
-Acceleration quantifies how sensitive the variability of a statistic is
-to changes in the data.
+Acceleration quantifies how sensitive the variability of a statistic
+\eqn{\theta} is to changes in the data.
 \itemize{
 \item \eqn{a=0}: The statistic's variability does not depend on the data
 (e.g., symmetric distribution)
@@ -82,8 +82,10 @@ statistic's variability (e.g., positive skew)
 statistic's variability (e.g., negative skew).
 }
 
-The acceleration term is calculated as follows (Davison & Hinkley, 1997,
-Chapter 5; see also the \pkg{boot} package in R (Canty & Ripley, 1999)):
+The acceleration is calculated as follows. It is useful for BCa confidence
+intervals, which adjust for bias and skewness in bootstrapped distributions
+(Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R
+(Canty & Ripley, 1999)):
 
 \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 
@@ -97,6 +99,22 @@ value leaving out the \eqn{i}’th data point \eqn{x_i}. The \pkg{boot}
 package also offers infinitesimal jackknife and regression estimation.
 Implementation of these jackknife algorithms can be explored in the
 future.
+
+If a reference group is used, jackknifing is implemented in a different way.
+Consider \eqn{\hat{\theta} = \hat{\theta}_1 - \hat{\theta}_2} where
+\eqn{\hat{\theta}_1} is the estimate for the indicator value of a
+non-reference period (sample size \eqn{n_1}) and \eqn{\hat{\theta}_2} is the
+estimate for the indicator value of a reference period (sample size
+\eqn{n_2}). The acceleration is now calculated as follows:
+
+\deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n_1 + n_2}(I_i^3)}{\left( \sum_{i = 1}^{n_1 + n_2}(I_i^2) \right)^{3/2}}}
+
+\eqn{I_i} can be calculated using the negative or positive jackknife. Such
+that
+
+\eqn{\hat{\theta}_{-i} = \hat{\theta}_{1,-i} - \hat{\theta}_2 \text{ for } i = 1, \ldots, n_1}, and
+
+\eqn{\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1 + 1, \ldots, n_1 + n_2}
 }
 \examples{
 # Get example data

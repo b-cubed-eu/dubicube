@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_acceleration.R
 \name{calculate_acceleration}
 \alias{calculate_acceleration}
-\title{Calculate acceleration}
+\title{Calculate acceleration for a dataframe with bootstrap replicates}
 \usage{
 calculate_acceleration(
   bootstrap_samples_df,
@@ -15,11 +15,60 @@ calculate_acceleration(
   progress = FALSE
 )
 }
+\arguments{
+\item{bootstrap_samples_df}{A dataframe containing the bootstrap replicates,
+where each row represents a bootstrap sample. As returned by
+\code{bootstrap_cube()}. Apart from the \code{grouping_var} column, the following
+columns should be present:
+\itemize{
+\item \code{est_original}: The statistic based on the full dataset per group
+}}
+
+\item{data_cube}{A data cube object (class
+'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
+(from \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
+\code{bootstrap_cube()}. To limit runtime, we recommend using a
+dataframe with custom function as \code{fun}.}
+
+\item{fun}{A function which, when applied to
+\code{data_cube} returns the statistic(s) of interest. This function must return a
+dataframe with a column \code{diversity_val} containing the statistic of interest.
+As used by \code{bootstrap_cube()}.}
+
+\item{...}{Additional arguments passed on to \code{fun}.}
+
+\item{grouping_var}{A character vector specifying the grouping variable(s)
+for the bootstrap analysis. The function \code{fun(data_cube, ...)} should return
+a row per group. The specified variables must not be redundant, meaning they
+should not contain the same information (e.g., \code{"time_point"} (1, 2, 3) and
+\code{"year"} (2000, 2001, 2002) should not be used together if \code{"time_point"} is
+just an alternative encoding of \code{"year"}).
+This variable is used to split the dataset into groups for separate
+acceleration calculations.}
+
+\item{ref_group}{A string indicating the
+reference group to compare the statistic with. Default is \code{NA}, meaning no
+reference group is used.
+As used by \code{bootstrap_cube()}.}
+
+\item{jackknife}{A string specifying the
+jackknife resampling method for calculating the influence values.
+\itemize{
+\item \code{"usual"}: Negative jackknife (default if BCa is selected).
+\item \code{"pos"}: Positive jackknife
+}}
+
+\item{progress}{Logical. Whether to show a progress bar for jackknifing. Set
+to \code{TRUE} to display a progress bar, \code{FALSE} (default) to suppress it.}
+}
+\value{
+A dataframe containing ...
+}
 \description{
-Calculate acceleration
+Calculate acceleration for a dataframe with bootstrap replicates
 }
 \details{
-Acceleration quantifies how sensitive the variability of the statistic is
+Acceleration quantifies how sensitive the variability of a statistic is
 to changes in the data.
 \itemize{
 \item \eqn{a=0}: The statistic's variability does not depend on the data
@@ -30,7 +79,8 @@ statistic's variability (e.g., positive skew)
 statistic's variability (e.g., negative skew).
 }
 
-The acceleration term is calculated as follows (Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R (Canty & Ripley, 1999)):
+The acceleration term is calculated as follows (Davison & Hinkley, 1997,
+Chapter 5; see also the \pkg{boot} package in R (Canty & Ripley, 1999)):
 
 \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 
@@ -44,6 +94,9 @@ value leaving out the \eqn{i}’th data point \eqn{x_i}. The \pkg{boot}
 package also offers infinitesimal jackknife and regression estimation.
 Implementation of these jackknife algorithms can be explored in the
 future.
+}
+\examples{
+# ...
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

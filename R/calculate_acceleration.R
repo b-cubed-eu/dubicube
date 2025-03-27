@@ -1,8 +1,46 @@
 # nolint start: line_length_linter.
-#' Calculate acceleration
+#' Calculate acceleration for a dataframe with bootstrap replicates
+#'
+#'
+#'
+#' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
+#' where each row represents a bootstrap sample. As returned by
+#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
+#' columns should be present:
+#'   - `est_original`: The statistic based on the full dataset per group
+#' @param data_cube A data cube object (class
+#' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
+#' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
+#' `bootstrap_cube()`. To limit runtime, we recommend using a
+#' dataframe with custom function as `fun`.
+#' @param fun A function which, when applied to
+#' `data_cube` returns the statistic(s) of interest. This function must return a
+#' dataframe with a column `diversity_val` containing the statistic of interest.
+#'  As used by `bootstrap_cube()`.
+#' @param ... Additional arguments passed on to `fun`.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group. The specified variables must not be redundant, meaning they
+#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
+#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
+#' just an alternative encoding of `"year"`).
+#' This variable is used to split the dataset into groups for separate
+#' acceleration calculations.
+#' @param ref_group A string indicating the
+#' reference group to compare the statistic with. Default is `NA`, meaning no
+#' reference group is used.
+#' As used by `bootstrap_cube()`.
+#' @param jackknife A string specifying the
+#' jackknife resampling method for calculating the influence values.
+#'   - `"usual"`: Negative jackknife (default if BCa is selected).
+#'   - `"pos"`: Positive jackknife
+#' @param progress Logical. Whether to show a progress bar for jackknifing. Set
+#' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
+#'
+#' @returns A dataframe containing ...
 #'
 #' @details
-#' Acceleration quantifies how sensitive the variability of the statistic is
+#' Acceleration quantifies how sensitive the variability of a statistic is
 #' to changes in the data.
 #'
 #' - \eqn{a=0}: The statistic's variability does not depend on the data
@@ -12,7 +50,8 @@
 #' - \eqn{a<0}: Small changes in the data have a smaller effect on the
 #' statistic's variability (e.g., negative skew).
 #'
-#' The acceleration term is calculated as follows (Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R (Canty & Ripley, 1999)):
+#' The acceleration term is calculated as follows (Davison & Hinkley, 1997,
+#' Chapter 5; see also the \pkg{boot} package in R (Canty & Ripley, 1999)):
 #'
 #' \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 #'
@@ -48,6 +87,9 @@
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
 #' @importFrom stats setNames
+#'
+#' @examples
+#' # ...
 
 calculate_acceleration <- function(
     bootstrap_samples_df,
@@ -66,6 +108,9 @@ calculate_acceleration <- function(
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
               is.character(grouping_var))
+
+  # Check if grouping_var contains redundant variables
+  check_redundant_grouping_vars(data_cube, grouping_var)
 
   # Check if "est_original" and grouping_var columns are present
   colname_message <- paste(

@@ -1,3 +1,7 @@
+# dubicube 0.6.0
+
+* Add transformation and no bias options to `calculate_bootstrap_ci()`
+
 # dubicube 0.5.0
 
 * Move acceleration calculation to separate function `calculate_acceleration()`

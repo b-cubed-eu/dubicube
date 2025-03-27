@@ -1,13 +1,18 @@
-#' Calculate confidence intervals for a dataframe with bootstrap replicates
+#' Calculate jackknife estimates for a dataframe with bootstrap replicates
 #'
-#' This function calculates confidence intervals for a dataframe containing
-#' bootstrap replicates based on different methods, including percentile
-#' (`perc`), bias-corrected and accelerated (`bca`), normal (`norm`), and basic
-#' (`basic`).
+#' This function jackknife estimates for a dataframe containing
+#' bootstrap replicates per group. The output is used to calculate the
+#' acceleration `calculate_acceleration()` which can be used for BCa interval
+#' calculation `calculate_bootstrap_ci()`.
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
 #' 'processed_cube' or 'sim_cube'). As used by `bootstrap_cube()`.
+#' @param fun A function which, when applied to
+#' `data_cube` returns the statistic(s) of interest. This function must return a
+#' dataframe with a column `diversity_val` containing the statistic of interest.
+#'  As used by `bootstrap_cube()`.
+#' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
 #' a row per group. The specified variables must not be redundant, meaning they
@@ -15,12 +20,7 @@
 #' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
 #' just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
-#' confidence interval calculations.
-#' @param fun A function which, when applied to
-#' `data_cube` returns the statistic(s) of interest. This function must return a
-#' dataframe with a column `diversity_val` containing the statistic of interest.
-#'  As used by `bootstrap_cube()`.
-#' @param ... Additional arguments passed on to `fun`.
+#' jackknife calculations.
 #' @param ref_group A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used. As used by `bootstrap_cube()`.

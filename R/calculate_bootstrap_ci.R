@@ -317,7 +317,6 @@ calculate_bootstrap_ci <- function(
 
       # Calculate acceleration values per grouping_var
       acceleration_df <- calculate_acceleration(
-        bootstrap_samples_df = bootstrap_samples_df,
         data_cube = data_cube,
         fun = fun,
         ...,

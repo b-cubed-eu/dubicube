@@ -281,7 +281,7 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%
@@ -331,7 +331,7 @@ calculate_bootstrap_ci <- function(
         dplyr::left_join(acceleration_df,
                          by = grouping_var) %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%
@@ -380,7 +380,7 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%
@@ -410,7 +410,7 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%

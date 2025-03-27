@@ -283,7 +283,7 @@ bootstrap_cube <- function(
     if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
-        sapply(data_cube$data %>% dplyr::select(all_of(grouping_var)),
+        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
                function(col) ref_group %in% col)]
 
       stopifnot(
@@ -295,7 +295,7 @@ bootstrap_cube <- function(
     } else {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
-        sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
+        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
                function(col) ref_group %in% col)]
 
       stopifnot(

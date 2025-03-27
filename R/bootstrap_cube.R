@@ -313,7 +313,7 @@ bootstrap_cube <- function(
 
     t0 <- t0_full %>%
       dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
-      left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
       dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
       dplyr::select(-"ref_val")
 
@@ -326,7 +326,7 @@ bootstrap_cube <- function(
 
       df %>%
         dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
-        left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+        dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
         dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
         dplyr::select(-"ref_val")
     })

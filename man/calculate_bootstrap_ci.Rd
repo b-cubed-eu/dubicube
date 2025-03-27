@@ -14,7 +14,7 @@ calculate_bootstrap_ci(
   fun = NA,
   ...,
   ref_group = NA,
-  jackknife = ifelse(is.element("bca", type), "usual", NA),
+  influence_method = ifelse(is.element("bca", type), "usual", NA),
   progress = FALSE
 )
 }
@@ -73,8 +73,8 @@ reference group to compare the statistic with. Default is \code{NA}, meaning no
 reference group is used.
 As used by \code{bootstrap_cube()}.}
 
-\item{jackknife}{Only used when \code{type = "bca"}. A string specifying the
-jackknife resampling method for BCa intervals.
+\item{influence_method}{A string specifying the method used for calculating
+the influence values.
 \itemize{
 \item \code{"usual"}: Negative jackknife (default if BCa is selected).
 \item \code{"pos"}: Positive jackknife

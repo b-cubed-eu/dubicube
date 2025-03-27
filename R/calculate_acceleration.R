@@ -1,16 +1,11 @@
 # nolint start: line_length_linter.
-#' Calculate acceleration for a dataframe with bootstrap replicates
+#' Calculate acceleration for a statistic in a dataframe
 #'
 #' This function calculates acceleration values, which quantify the sensitivity
 #' of a statistic’s variability to changes in the dataset. Acceleration is used
 #' for bias-corrected and accelerated (BCa) confidence intervals in
 #' `calculate_bootstrap_ci()`.
 #'
-#' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
-#' where each row represents a bootstrap sample. As returned by
-#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
-#' columns should be present:
-#'   - `est_original`: The statistic based on the full dataset per group
 #' @param data_cube A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
@@ -33,8 +28,8 @@
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
 #' As used by `bootstrap_cube()`.
-#' @param jackknife A string specifying the
-#' jackknife resampling method for calculating the influence values.
+#' @param influence_method A string specifying the method used for calculating
+#' the influence values.
 #'   - `"usual"`: Negative jackknife (default if BCa is selected).
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
@@ -53,10 +48,10 @@
 #' - \eqn{a<0}: Small changes in the data have a smaller effect on the
 #' statistic's variability (e.g., negative skew).
 #'
-#' The acceleration is calculated as follows. It is useful for BCa confidence
-#' intervals, which adjust for bias and skewness in bootstrapped distributions
-#' (Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R
-#' (Canty & Ripley, 1999)):
+#' It is used for BCa confidence interval calculation, which adjust for
+#' bias and skewness in bootstrapped distributions (Davison & Hinkley, 1997,
+#' Chapter 5). See also the `empinf()` function of the \pkg{boot} package in R
+#' (Canty & Ripley, 1999)). The acceleration is calculated as follows:
 #'
 #' \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 #'
@@ -143,7 +138,6 @@
 #'
 #' # Calculate acceleration
 #' acceleration_df <- calculate_acceleration(
-#'   bootstrap_samples_df = bootstrap_mean_obs,
 #'   data_cube = denmark_cube$data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
@@ -153,36 +147,20 @@
 # nolint end
 
 calculate_acceleration <- function(
-    bootstrap_samples_df,
     data_cube,
     fun,
     ...,
     grouping_var,
     ref_group = NA,
-    jackknife = "usual",
+    influence_method = "usual",
     progress = FALSE) {
   ### Start checks
-  # Check dataframe input
-  stopifnot("`bootstrap_samples_df` must be a dataframe." =
-              inherits(bootstrap_samples_df, "data.frame"))
-
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
               is.character(grouping_var))
 
   # Check if grouping_var contains redundant variables
   check_redundant_grouping_vars(data_cube, grouping_var)
-
-  # Check if "est_original" and grouping_var columns are present
-  colname_message <- paste(
-    "`bootstrap_samples_df` should contain columns: 'est_original'",
-    "and `grouping_var`.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            all(c(grouping_var, "est_original") %in%
-                  names(bootstrap_samples_df))),
-            colname_message)
-  )
 
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
@@ -204,11 +182,11 @@ calculate_acceleration <- function(
          is.na(ref_group)) &
       length(ref_group) == 1)
 
-  # Check if jackknife is 'usual' or 'pos'
-  jackknife <- tryCatch({
-    match.arg(jackknife, c("usual", "pos"))
+  # Check if influence_method is 'usual' or 'pos'
+  influence_method <- tryCatch({
+    match.arg(influence_method, c("usual", "pos"))
   }, error = function(e) {
-    stop("`jackknife` must be one of 'usual', 'pos'.",
+    stop("`influence_method` must be one of 'usual', 'pos'.",
          call. = FALSE)
   })
 
@@ -226,20 +204,25 @@ calculate_acceleration <- function(
     ref_group = ref_group,
     progress = progress)
 
+  # Calculate original estimates
+  t0 <- calc_stat_by_group(
+    data_cube = data_cube,
+    fun = fun,
+    ...,
+    grouping_var = grouping_var,
+    ref_group = ref_group)
+
   # Calculate influence values
   influence_df <- jackknife_df %>%
-    dplyr::left_join(bootstrap_samples_df %>%
-                       dplyr::distinct(!!!dplyr::syms(grouping_var),
-                                       .data$est_original),
-                     by = grouping_var) %>%
+    dplyr::left_join(t0, by = grouping_var) %>%
     dplyr::mutate(n = dplyr::n(),
                   .by = dplyr::all_of(grouping_var)) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(influence = ifelse(
-      jackknife == "usual",
-      (.data$n - 1) * (.data$est_original - .data$jack_rep),
-      (.data$n + 1) * (.data$jack_rep - .data$est_original)
-    )
+        influence_method == "usual",
+        (.data$n - 1) * (.data$diversity_val - .data$jack_rep),
+        (.data$n + 1) * (.data$jack_rep - .data$diversity_val)
+      )
     ) %>%
     dplyr::ungroup()
 

@@ -68,7 +68,7 @@ perform_jackknifing <- function(
       function(i) {
         # Identify group
         group <- data_cube$data[i, ] %>%
-          select(all_of(grouping_var))
+          dplyr::select(dplyr::all_of(grouping_var))
 
         # Remove i'th observation
         data <- data_cube$data[-i, ]
@@ -104,7 +104,7 @@ perform_jackknifing <- function(
       function(i) {
         # Identify group
         group <- data_cube[i, ] %>%
-          select(all_of(grouping_var))
+          dplyr::select(dplyr::all_of(grouping_var))
 
         # Calculate indicator value without i'th observation
         fun(data_cube[-i, ], ...) %>%
@@ -125,7 +125,7 @@ perform_jackknifing <- function(
     if (inherits(data_cube, "processed_cube")) {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
-        sapply(data_cube$data %>% dplyr::select(all_of(grouping_var)),
+        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
                function(col) ref_group %in% col)]
 
       stopifnot(
@@ -137,7 +137,7 @@ perform_jackknifing <- function(
     } else {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
-        sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
+        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
                function(col) ref_group %in% col)]
 
       stopifnot(

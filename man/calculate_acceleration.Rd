@@ -2,28 +2,19 @@
 % Please edit documentation in R/calculate_acceleration.R
 \name{calculate_acceleration}
 \alias{calculate_acceleration}
-\title{Calculate acceleration for a dataframe with bootstrap replicates}
+\title{Calculate acceleration for a statistic in a dataframe}
 \usage{
 calculate_acceleration(
-  bootstrap_samples_df,
   data_cube,
   fun,
   ...,
   grouping_var,
   ref_group = NA,
-  jackknife = "usual",
+  influence_method = "usual",
   progress = FALSE
 )
 }
 \arguments{
-\item{bootstrap_samples_df}{A dataframe containing the bootstrap replicates,
-where each row represents a bootstrap sample. As returned by
-\code{bootstrap_cube()}. Apart from the \code{grouping_var} column, the following
-columns should be present:
-\itemize{
-\item \code{est_original}: The statistic based on the full dataset per group
-}}
-
 \item{data_cube}{A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
 (from \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
@@ -51,8 +42,8 @@ reference group to compare the statistic with. Default is \code{NA}, meaning no
 reference group is used.
 As used by \code{bootstrap_cube()}.}
 
-\item{jackknife}{A string specifying the
-jackknife resampling method for calculating the influence values.
+\item{influence_method}{A string specifying the method used for calculating
+the influence values.
 \itemize{
 \item \code{"usual"}: Negative jackknife (default if BCa is selected).
 \item \code{"pos"}: Positive jackknife
@@ -82,10 +73,10 @@ statistic's variability (e.g., positive skew)
 statistic's variability (e.g., negative skew).
 }
 
-The acceleration is calculated as follows. It is useful for BCa confidence
-intervals, which adjust for bias and skewness in bootstrapped distributions
-(Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R
-(Canty & Ripley, 1999)):
+It is used for BCa confidence interval calculation, which adjust for
+bias and skewness in bootstrapped distributions (Davison & Hinkley, 1997,
+Chapter 5). See also the \code{empinf()} function of the \pkg{boot} package in R
+(Canty & Ripley, 1999)). The acceleration is calculated as follows:
 
 \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 
@@ -150,7 +141,6 @@ head(bootstrap_mean_obs)
 
 # Calculate acceleration
 acceleration_df <- calculate_acceleration(
-  bootstrap_samples_df = bootstrap_mean_obs,
   data_cube = denmark_cube$data,
   fun = mean_obs,
   grouping_var = "year",

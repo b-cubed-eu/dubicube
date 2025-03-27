@@ -2,10 +2,9 @@
 % Please edit documentation in R/calculate_acceleration.R
 \name{calculate_acceleration}
 \alias{calculate_acceleration}
-\title{Calculate acceleration for a dataframe with bootstrap replicates}
+\title{Calculate acceleration for a statistic in a dataframe}
 \usage{
 calculate_acceleration(
-  bootstrap_samples_df,
   data_cube,
   fun,
   ...,
@@ -16,14 +15,6 @@ calculate_acceleration(
 )
 }
 \arguments{
-\item{bootstrap_samples_df}{A dataframe containing the bootstrap replicates,
-where each row represents a bootstrap sample. As returned by
-\code{bootstrap_cube()}. Apart from the \code{grouping_var} column, the following
-columns should be present:
-\itemize{
-\item \code{est_original}: The statistic based on the full dataset per group
-}}
-
 \item{data_cube}{A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
 (from \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
@@ -150,7 +141,6 @@ head(bootstrap_mean_obs)
 
 # Calculate acceleration
 acceleration_df <- calculate_acceleration(
-  bootstrap_samples_df = bootstrap_mean_obs,
   data_cube = denmark_cube$data,
   fun = mean_obs,
   grouping_var = "year",

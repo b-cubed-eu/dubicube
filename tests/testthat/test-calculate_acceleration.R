@@ -41,43 +41,33 @@ mean_obs_processed <- function(data) {
   return(out_df)
 }
 
-## Perform bootstrapping
-# Perform bootstrapping dataframe
-boot_df1 <- bootstrap_cube(
+## Calculate acceleration
+# Input dataframe
+acceleration_df1 <- calculate_acceleration(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
-  samples = 1000,
-  seed = 123
-)
+  influence_method = "usual")
 
-# Perform bootstrapping 'processed_cube'
-boot_df2 <- bootstrap_cube(
+# Input 'processed_cube'
+acceleration_df2 <- calculate_acceleration(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   grouping_var = c("year", "taxonKey"),
-  samples = 1000,
-  seed = 123
-)
+  influence_method = "pos")
 
-# Perform bootstrapping dataframe with reference group
-boot_df3 <- bootstrap_cube(
+# Input dataframe with reference group
+acceleration_df3 <- calculate_acceleration(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
-  samples = 1000,
-  seed = 123,
-  ref_group = ref_year
-)
+  ref_group = ref_year,
+  influence_method = "pos")
 
-# Perform bootstrapping 'processed_cube' with reference group
-boot_df4 <- bootstrap_cube(
+# Input 'processed_cube' with reference group
+acceleration_df4 <- calculate_acceleration(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   grouping_var = c("year", "taxonKey"),
-  samples = 1000,
-  seed = 123,
-  ref_group = ref_year
-)
-
-
+  ref_group = ref_year,
+  influence_method = "usual")

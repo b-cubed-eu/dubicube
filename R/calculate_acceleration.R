@@ -1,16 +1,11 @@
 # nolint start: line_length_linter.
-#' Calculate acceleration for a dataframe with bootstrap replicates
+#' Calculate acceleration for a statistic in a dataframe
 #'
 #' This function calculates acceleration values, which quantify the sensitivity
 #' of a statistic’s variability to changes in the dataset. Acceleration is used
 #' for bias-corrected and accelerated (BCa) confidence intervals in
 #' `calculate_bootstrap_ci()`.
 #'
-#' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
-#' where each row represents a bootstrap sample. As returned by
-#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
-#' columns should be present:
-#'   - `est_original`: The statistic based on the full dataset per group
 #' @param data_cube A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
@@ -143,7 +138,6 @@
 #'
 #' # Calculate acceleration
 #' acceleration_df <- calculate_acceleration(
-#'   bootstrap_samples_df = bootstrap_mean_obs,
 #'   data_cube = denmark_cube$data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
@@ -153,7 +147,6 @@
 # nolint end
 
 calculate_acceleration <- function(
-    bootstrap_samples_df,
     data_cube,
     fun,
     ...,
@@ -162,27 +155,12 @@ calculate_acceleration <- function(
     influence_method = "usual",
     progress = FALSE) {
   ### Start checks
-  # Check dataframe input
-  stopifnot("`bootstrap_samples_df` must be a dataframe." =
-              inherits(bootstrap_samples_df, "data.frame"))
-
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
               is.character(grouping_var))
 
   # Check if grouping_var contains redundant variables
   check_redundant_grouping_vars(data_cube, grouping_var)
-
-  # Check if "est_original" and grouping_var columns are present
-  colname_message <- paste(
-    "`bootstrap_samples_df` should contain columns: 'est_original'",
-    "and `grouping_var`.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            all(c(grouping_var, "est_original") %in%
-                  names(bootstrap_samples_df))),
-            colname_message)
-  )
 
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
@@ -226,20 +204,65 @@ calculate_acceleration <- function(
     ref_group = ref_group,
     progress = progress)
 
+  # Calculate original estimates
+  if (!is.na(ref_group)) {
+    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
+      )
+
+      t0_full <- fun(data_cube, ...)$data
+    } else {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
+      )
+
+      t0_full <- fun(data_cube, ...)
+    }
+
+    # Calculate reference value
+    ref_val <- t0_full %>%
+      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+      dplyr::rename("ref_val" = "diversity_val") %>%
+      dplyr::select(-matching_col)
+
+    t0 <- t0_full %>%
+      dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
+      dplyr::select(-"ref_val")
+  } else {
+    # Calculate true statistic
+    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+      t0 <- fun(data_cube, ...)$data
+    } else {
+      t0 <- fun(data_cube, ...)
+    }
+  }
+
   # Calculate influence values
   influence_df <- jackknife_df %>%
-    dplyr::left_join(bootstrap_samples_df %>%
-                       dplyr::distinct(!!!dplyr::syms(grouping_var),
-                                       .data$est_original),
-                     by = grouping_var) %>%
+    dplyr::left_join(t0, by = grouping_var) %>%
     dplyr::mutate(n = dplyr::n(),
                   .by = dplyr::all_of(grouping_var)) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(influence = ifelse(
-      influence_method == "usual",
-      (.data$n - 1) * (.data$est_original - .data$jack_rep),
-      (.data$n + 1) * (.data$jack_rep - .data$est_original)
-    )
+        influence_method == "usual",
+        (.data$n - 1) * (.data$diversity_val - .data$jack_rep),
+        (.data$n + 1) * (.data$jack_rep - .data$diversity_val)
+      )
     ) %>%
     dplyr::ungroup()
 

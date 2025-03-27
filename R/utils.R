@@ -67,3 +67,89 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
     }
   }
 }
+
+#' Calculate Statistic Per Group
+#'
+#' This function calculates a specified statistic on a dataset, grouped by one
+#' or more grouping variables. It applies the user-defined function to the data
+#' and returns the statistic for each group.
+#'
+#' @param data_cube A data cube object (class
+#' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
+#' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
+#' `bootstrap_cube()`.
+#' @param fun A function which, when applied to
+#' `data_cube` returns the statistic(s) of interest. This function must return a
+#' dataframe with a column `diversity_val` containing the statistic of interest.
+#' @param ... Additional arguments passed on to `fun`.
+#' @param grouping_var A character vector specifying the grouping variable(s)
+#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' a row per group.
+#' @param ref_group A string indicating the
+#' reference group to compare the statistic with. Default is `NA`, meaning no
+#' reference group is used.
+#'
+#' @return A dataframe containing the calculated statistic for each group.
+#' The returned dataframe will include the grouping variable(s) and the
+#' statistic(s) computed by the function.
+#'
+#' @noRd
+#'
+#' @import dplyr
+#' @importFrom rlang .data inherits_any
+
+calc_stat_by_group <- function(
+    data_cube,
+    fun,
+    ...,
+    grouping_var,
+    ref_group = NA) {
+  if (!is.na(ref_group)) {
+    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
+      )
+
+      t0_full <- fun(data_cube, ...)$data
+    } else {
+      # Check if ref_group is present in grouping_var
+      matching_col <- grouping_var[
+        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
+               function(col) ref_group %in% col)]
+
+      stopifnot(
+        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
+      )
+
+      t0_full <- fun(data_cube, ...)
+    }
+
+    # Calculate reference value
+    ref_val <- t0_full %>%
+      dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
+      dplyr::rename("ref_val" = "diversity_val") %>%
+      dplyr::select(-matching_col)
+
+    t0 <- t0_full %>%
+      dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
+      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
+      dplyr::select(-"ref_val")
+  } else {
+    # Calculate true statistic
+    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
+      t0 <- fun(data_cube, ...)$data
+    } else {
+      t0 <- fun(data_cube, ...)
+    }
+  }
+
+  return(t0)
+}

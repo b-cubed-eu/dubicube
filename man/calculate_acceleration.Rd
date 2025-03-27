@@ -11,7 +11,7 @@ calculate_acceleration(
   ...,
   grouping_var,
   ref_group = NA,
-  jackknife = "usual",
+  influence_method = "usual",
   progress = FALSE
 )
 }
@@ -51,8 +51,8 @@ reference group to compare the statistic with. Default is \code{NA}, meaning no
 reference group is used.
 As used by \code{bootstrap_cube()}.}
 
-\item{jackknife}{A string specifying the
-jackknife resampling method for calculating the influence values.
+\item{influence_method}{A string specifying the method used for calculating
+the influence values.
 \itemize{
 \item \code{"usual"}: Negative jackknife (default if BCa is selected).
 \item \code{"pos"}: Positive jackknife
@@ -82,10 +82,10 @@ statistic's variability (e.g., positive skew)
 statistic's variability (e.g., negative skew).
 }
 
-The acceleration is calculated as follows. It is useful for BCa confidence
-intervals, which adjust for bias and skewness in bootstrapped distributions
-(Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R
-(Canty & Ripley, 1999)):
+It is used for BCa confidence interval calculation, which adjust for
+bias and skewness in bootstrapped distributions (Davison & Hinkley, 1997,
+Chapter 5). See also the \code{empinf()} function of the \pkg{boot} package in R
+(Canty & Ripley, 1999)). The acceleration is calculated as follows:
 
 \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 

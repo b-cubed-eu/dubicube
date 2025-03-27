@@ -33,8 +33,8 @@
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
 #' As used by `bootstrap_cube()`.
-#' @param jackknife A string specifying the
-#' jackknife resampling method for calculating the influence values.
+#' @param influence_method A string specifying the method used for calculating
+#' the influence values.
 #'   - `"usual"`: Negative jackknife (default if BCa is selected).
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
@@ -53,10 +53,10 @@
 #' - \eqn{a<0}: Small changes in the data have a smaller effect on the
 #' statistic's variability (e.g., negative skew).
 #'
-#' The acceleration is calculated as follows. It is useful for BCa confidence
-#' intervals, which adjust for bias and skewness in bootstrapped distributions
-#' (Davison & Hinkley, 1997, Chapter 5; see also the \pkg{boot} package in R
-#' (Canty & Ripley, 1999)):
+#' It is used for BCa confidence interval calculation, which adjust for
+#' bias and skewness in bootstrapped distributions (Davison & Hinkley, 1997,
+#' Chapter 5). See also the `empinf()` function of the \pkg{boot} package in R
+#' (Canty & Ripley, 1999)). The acceleration is calculated as follows:
 #'
 #' \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
 #'
@@ -159,7 +159,7 @@ calculate_acceleration <- function(
     ...,
     grouping_var,
     ref_group = NA,
-    jackknife = "usual",
+    influence_method = "usual",
     progress = FALSE) {
   ### Start checks
   # Check dataframe input
@@ -204,11 +204,11 @@ calculate_acceleration <- function(
          is.na(ref_group)) &
       length(ref_group) == 1)
 
-  # Check if jackknife is 'usual' or 'pos'
-  jackknife <- tryCatch({
-    match.arg(jackknife, c("usual", "pos"))
+  # Check if influence_method is 'usual' or 'pos'
+  influence_method <- tryCatch({
+    match.arg(influence_method, c("usual", "pos"))
   }, error = function(e) {
-    stop("`jackknife` must be one of 'usual', 'pos'.",
+    stop("`influence_method` must be one of 'usual', 'pos'.",
          call. = FALSE)
   })
 
@@ -236,7 +236,7 @@ calculate_acceleration <- function(
                   .by = dplyr::all_of(grouping_var)) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(influence = ifelse(
-      jackknife == "usual",
+      influence_method == "usual",
       (.data$n - 1) * (.data$est_original - .data$jack_rep),
       (.data$n + 1) * (.data$jack_rep - .data$est_original)
     )

@@ -47,8 +47,8 @@
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
 #' As used by `bootstrap_cube()`.
-#' @param jackknife Only used when `type = "bca"`. A string specifying the
-#' jackknife resampling method for BCa intervals.
+#' @param influence_method A string specifying the method used for calculating
+#' the influence values.
 #'   - `"usual"`: Negative jackknife (default if BCa is selected).
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
@@ -232,11 +232,11 @@ calculate_bootstrap_ci <- function(
     fun = NA,
     ...,
     ref_group = NA,
-    jackknife = ifelse(is.element("bca", type), "usual", NA),
+    influence_method = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
   ### Start checks
-  # Arguments data_cube, fun, ref_group, jackknife, and progress arguments are
-  # checked in the calculate_acceleration() function
+  # Arguments data_cube, fun, ref_group, influence_method, and progress
+  # arguments are checked in the calculate_acceleration() function
 
   # Check dataframe input
   stopifnot("`bootstrap_samples_df` must be a dataframe." =
@@ -323,7 +323,7 @@ calculate_bootstrap_ci <- function(
         ...,
         grouping_var = grouping_var,
         ref_group = ref_group,
-        jackknife = jackknife,
+        influence_method = influence_method,
         progress = progress)
 
       # Calculate confidence limits per group

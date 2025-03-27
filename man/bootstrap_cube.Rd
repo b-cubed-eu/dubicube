@@ -135,8 +135,7 @@ the variability of the statistic.
 }
 \examples{
 # Get example data
-# install.packages("remotes")
-# remotes::install_github("b-cubed-eu/b3gbi")
+# install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
 library(b3gbi)
 cube_path <- system.file(
   "extdata", "denmark_mammals_cube_eqdgc.csv",
@@ -178,6 +177,7 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 \seealso{
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
+\code{\link{calculate_acceleration}()},
 \code{\link{calculate_bootstrap_ci}()}
 }
 \concept{indicator_uncertainty}

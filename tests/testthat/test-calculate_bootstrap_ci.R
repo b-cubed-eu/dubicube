@@ -99,7 +99,7 @@ result_bca1 <- calculate_bootstrap_ci(
   data_cube = cube_df,
   fun = mean_obs,
   ref_group = NA,
-  jackknife = "pos")
+  influence_method = "pos")
 
 # BCa with dataframe with reference group
 result_bca2 <- calculate_bootstrap_ci(
@@ -111,7 +111,7 @@ result_bca2 <- calculate_bootstrap_ci(
   data_cube = cube_df,
   fun = mean_obs,
   ref_group = ref_year,
-  jackknife = "usual")
+  influence_method = "usual")
 
 # BCa with 'processed_cube' without reference group
 result_bca3 <- calculate_bootstrap_ci(
@@ -123,7 +123,7 @@ result_bca3 <- calculate_bootstrap_ci(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   ref_group = NA,
-  jackknife = "usual")
+  influence_method = "usual")
 
 # BCa with 'processed_cube' with reference group
 result_bca4 <- calculate_bootstrap_ci(
@@ -135,7 +135,7 @@ result_bca4 <- calculate_bootstrap_ci(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   ref_group = ref_year,
-  jackknife = "usual")
+  influence_method = "usual")
 
 # Normal
 result_norm1 <- calculate_bootstrap_ci(
@@ -163,7 +163,7 @@ result_all1 <- calculate_bootstrap_ci(
   data_cube = cube_df,
   fun = mean_obs,
   ref_group = NA,
-  jackknife = "pos")
+  influence_method = "pos")
 
 example_ci_results_noref <- list(
   result_perc1, result_bca1, result_bca3,
@@ -257,7 +257,7 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = cube_df,
     fun = mean_obs,
     ref_group = NA,
-    jackknife = "usual")
+    influence_method = "usual")
 
   result_bca32 <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df2,
@@ -268,7 +268,7 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = processed_cube,
     fun = mean_obs_processed,
     ref_group = NA,
-    jackknife = "pos")
+    influence_method = "pos")
 
   expect_identical(result_bca12, result_bca3)
   expect_identical(result_bca1, result_bca32)
@@ -283,7 +283,7 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = processed_cube,
     fun = mean_obs_processed,
     ref_group = NA,
-    jackknife = "pos")
+    influence_method = "pos")
 
   expect_identical(result_all1, result_all2)
 })
@@ -299,7 +299,7 @@ test_that("Confidence intervals are smaller with smaller conf argument", {
     data_cube = cube_df,
     fun = mean_obs,
     ref_group = NA,
-    jackknife = "pos")
+    influence_method = "pos")
 
   expect_true(all(result_all1$ll < result_all3$ll))
   expect_true(all(result_all1$ul > result_all3$ul))
@@ -368,7 +368,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       data_cube = cube_df,
       fun = mean_obs,
       ref_group = "twothousandtwenty",
-      jackknife = "usual"),
+      influence_method = "usual"),
     "`ref_group` is not present in `grouping_var` column of `data_cube`.",
     fixed = TRUE)
 
@@ -382,7 +382,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       data_cube = cube_df,
       fun = mean_obs,
       ref_group = "2020",
-      jackknife = "negative"),
-    "`jackknife` must be one of 'usual', 'pos'.",
+      influence_method = "negative"),
+    "`influence_method` must be one of 'usual', 'pos'.",
     fixed = TRUE)
 })

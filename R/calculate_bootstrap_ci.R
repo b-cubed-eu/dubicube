@@ -47,8 +47,8 @@
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used.
 #' As used by `bootstrap_cube()`.
-#' @param jackknife Only used when `type = "bca"`. A string specifying the
-#' jackknife resampling method for BCa intervals.
+#' @param influence_method A string specifying the method used for calculating
+#' the influence values.
 #'   - `"usual"`: Negative jackknife (default if BCa is selected).
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
@@ -100,6 +100,7 @@
 #'
 #'    Acceleration quantifies how sensitive the variability of the statistic is
 #'    to changes in the data.
+#'    See `calculate_acceleration()` on how this is calculated.
 #'
 #'    - \eqn{a=0}: The statistic's variability does not depend on the data
 #'    (e.g., symmetric distribution)
@@ -107,21 +108,6 @@
 #'    statistic's variability (e.g., positive skew)
 #'    - \eqn{a<0}: Small changes in the data have a smaller effect on the
 #'    statistic's variability (e.g., negative skew).
-#'
-#'    The acceleration term is calculated as follows:
-#'
-#'    \deqn{\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}}
-#'
-#'    where \eqn{I_i} denotes the influence of data point \eqn{x_i} on the
-#'    estimation of \eqn{\theta}. \eqn{I_i} can be estimated using jackknifing.
-#'    Examples are (1) the negative jackknife:
-#'    \eqn{I_i = (n-1)(\hat{\theta} - \hat{\theta}_{-i})}, and (2) the positive
-#'    jackknife \eqn{I_i = (n+1)(\hat{\theta}_{-i} - \hat{\theta})}
-#'    (Frangos & Schucany, 1990). Here, \eqn{\hat{\theta}_{-i}} is the estimated
-#'    value leaving out the \eqn{i}’th data point \eqn{x_i}. The \pkg{boot}
-#'    package also offers infinitesimal jackknife and regression estimation.
-#'    Implementation of these jackknife algorithms can be explored in the
-#'    future.
 #'
 #'    The bias and acceleration estimates are then used to calculate adjusted
 #'    percentiles.
@@ -170,10 +156,6 @@
 #' Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 #' (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 #'
-#' Frangos, C. C., & Schucany, W. R. (1990). Jackknife estimation of the
-#' bootstrap acceleration constant. Computational Statistics & Data Analysis,
-#' 9(3), 271–281. \doi{10.1016/0167-9473(90)90109-U}
-#'
 #' @export
 #'
 #' @family indicator_uncertainty
@@ -181,13 +163,12 @@
 #' @import dplyr
 #' @import boot
 #' @import assertthat
-#' @importFrom rlang .data
-#' @importFrom stats pnorm qnorm
+#' @importFrom rlang .data inherits_any
+#' @importFrom stats pnorm qnorm setNames
 #'
 #' @examples
 #' # Get example data
-#' # install.packages("remotes")
-#' # remotes::install_github("b-cubed-eu/b3gbi")
+#' # install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
 #' library(b3gbi)
 #' cube_path <- system.file(
 #'   "extdata", "denmark_mammals_cube_eqdgc.csv",
@@ -251,11 +232,11 @@ calculate_bootstrap_ci <- function(
     fun = NA,
     ...,
     ref_group = NA,
-    jackknife = ifelse(is.element("bca", type), "usual", NA),
+    influence_method = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
   ### Start checks
-  # Arguments data_cube, fun, ref_group, and jackknife arguments are checked
-  # further on in code
+  # Arguments data_cube, fun, ref_group, influence_method, and progress
+  # arguments are checked in the calculate_acceleration() function
 
   # Check dataframe input
   stopifnot("`bootstrap_samples_df` must be a dataframe." =
@@ -288,10 +269,6 @@ calculate_bootstrap_ci <- function(
   # Check if aggregate is a logical vector of length 1
   stopifnot("`aggregate` must be a logical vector of length 1." =
               assertthat::is.flag(aggregate))
-
-  # Check if progress is a logical vector of length 1
-  stopifnot("`progress` must be a logical vector of length 1." =
-              assertthat::is.flag(progress))
   ### End checks
 
   # Calculate intervals
@@ -304,7 +281,7 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%
@@ -338,57 +315,22 @@ calculate_bootstrap_ci <- function(
             c("processed_cube", "sim_cube", "data.frame")) &
           is.function(fun))
 
-      # Check if ref_group is NA or a number or a string
-      stopifnot(
-        "`ref_group` must be a numeric/character vector of length 1 or NA." =
-          (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-             is.na(ref_group)) &
-          length(ref_group) == 1)
-
-      # Check if jackknife is 'usual' or 'pos'
-      jackknife <- tryCatch({
-        match.arg(jackknife, c("usual", "pos"))
-      }, error = function(e) {
-        stop("`jackknife` must be one of 'usual', 'pos'.",
-             call. = FALSE)
-      })
-
-      jackknife_df <- perform_jackknifing(
+      # Calculate acceleration values per grouping_var
+      acceleration_df <- calculate_acceleration(
         data_cube = data_cube,
         fun = fun,
         ...,
         grouping_var = grouping_var,
         ref_group = ref_group,
+        influence_method = influence_method,
         progress = progress)
-
-      acceleration_df <- jackknife_df %>%
-        dplyr::left_join(bootstrap_samples_df %>%
-                           dplyr::distinct(!!!dplyr::syms(grouping_var),
-                                           .data$est_original),
-                         by = grouping_var) %>%
-        dplyr::mutate(n = dplyr::n(),
-                      .by = dplyr::all_of(grouping_var)) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(intensity = ifelse(
-          jackknife == "usual",
-          (.data$n - 1) * (.data$est_original - .data$jack_rep),
-          (.data$n + 1) * (.data$jack_rep - .data$est_original)
-        )
-        ) %>%
-        dplyr::ungroup() %>%
-        dplyr::summarise(
-          numerator = sum(.data$intensity^3),
-          denominator = 6 * sum(.data$intensity^2)^1.5,
-          acceleration = .data$numerator / .data$denominator,
-          .by = dplyr::all_of(grouping_var)
-        )
 
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         dplyr::left_join(acceleration_df,
                          by = grouping_var) %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%
@@ -437,7 +379,7 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%
@@ -467,7 +409,7 @@ calculate_bootstrap_ci <- function(
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
         split(bootstrap_samples_df %>%
-                dplyr::select(all_of(grouping_var))) %>%
+                dplyr::select(dplyr::all_of(grouping_var))) %>%
         lapply(function(df) {
           # Get group
           group <- df %>%

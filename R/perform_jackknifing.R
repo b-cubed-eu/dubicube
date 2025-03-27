@@ -1,13 +1,19 @@
-#' Calculate confidence intervals for a dataframe with bootstrap replicates
+#' Calculate jackknife estimates for a dataframe with bootstrap replicates
 #'
-#' This function calculates confidence intervals for a dataframe containing
-#' bootstrap replicates based on different methods, including percentile
-#' (`perc`), bias-corrected and accelerated (`bca`), normal (`norm`), and basic
-#' (`basic`).
+#' This function jackknife estimates for a dataframe containing
+#' bootstrap replicates per group. The resulting estimates are used to compute
+#' the acceleration factor for BCa confidence intervals
+#' (`calculate_acceleration()`), which in turn is used in
+#' `calculate_bootstrap_ci()`.
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
 #' 'processed_cube' or 'sim_cube'). As used by `bootstrap_cube()`.
+#' @param fun A function which, when applied to
+#' `data_cube` returns the statistic(s) of interest. This function must return a
+#' dataframe with a column `diversity_val` containing the statistic of interest.
+#'  As used by `bootstrap_cube()`.
+#' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
 #' a row per group. The specified variables must not be redundant, meaning they
@@ -15,19 +21,15 @@
 #' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
 #' just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
-#' confidence interval calculations.
-#' @param fun A function which, when applied to
-#' `data_cube` returns the statistic(s) of interest. This function must return a
-#' dataframe with a column `diversity_val` containing the statistic of interest.
-#'  As used by `bootstrap_cube()`.
-#' @param ... Additional arguments passed on to `fun`.
+#' jackknife calculations.
 #' @param ref_group A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
 #' reference group is used. As used by `bootstrap_cube()`.
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe containing the jackknife estimates.
+#' @returns A dataframe with jackknife estimates for each group defined by
+#' `grouping_var`.
 #'
 #' @import dplyr
 #' @importFrom rlang .data inherits_any
@@ -66,7 +68,7 @@ perform_jackknifing <- function(
       function(i) {
         # Identify group
         group <- data_cube$data[i, ] %>%
-          select(all_of(grouping_var))
+          dplyr::select(dplyr::all_of(grouping_var))
 
         # Remove i'th observation
         data <- data_cube$data[-i, ]
@@ -102,7 +104,7 @@ perform_jackknifing <- function(
       function(i) {
         # Identify group
         group <- data_cube[i, ] %>%
-          select(all_of(grouping_var))
+          dplyr::select(dplyr::all_of(grouping_var))
 
         # Calculate indicator value without i'th observation
         fun(data_cube[-i, ], ...) %>%
@@ -123,7 +125,7 @@ perform_jackknifing <- function(
     if (inherits(data_cube, "processed_cube")) {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
-        sapply(data_cube$data %>% dplyr::select(all_of(grouping_var)),
+        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
                function(col) ref_group %in% col)]
 
       stopifnot(
@@ -135,7 +137,7 @@ perform_jackknifing <- function(
     } else {
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
-        sapply(data_cube %>% dplyr::select(all_of(grouping_var)),
+        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
                function(col) ref_group %in% col)]
 
       stopifnot(

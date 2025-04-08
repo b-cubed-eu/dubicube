@@ -30,6 +30,16 @@
 #'   - `"all"`: Compute all available interval types (default)
 #' @param conf A numeric value specifying the confidence level of the intervals.
 #' Default is `0.95` (95 % confidence level).
+#' @param h A function defining a transformation. The intervals are calculated
+#' on the scale of `h(t)` and the inverse function `hinv` applied to the
+#' resulting intervals. It must be a function of one variable only. The default
+#' is the identity function.
+#' @param hinv A function, like `h`, which returns the inverse of `h`. It is
+#' used to transform the intervals calculated on the scale of `h(t)` back to the
+#' original scale. The default is the identity function. If `h` is supplied but
+#' `hinv` is not, then the intervals returned will be on the transformed scale.
+#' @param no_bias Logical. If `TRUE` intervals are centered around the original
+#' estimates (bias is ignored). Default is `FALSE`.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.
@@ -227,6 +237,9 @@ calculate_bootstrap_ci <- function(
     grouping_var,
     type = c("perc", "bca", "norm", "basic"),
     conf = 0.95,
+    h = function(t) t,
+    hinv = function(t) t,
+    no_bias = FALSE,
     aggregate = TRUE,
     data_cube = NA,
     fun = NA,
@@ -271,6 +284,17 @@ calculate_bootstrap_ci <- function(
               assertthat::is.flag(aggregate))
   ### End checks
 
+  # Adjust bias if required
+  bootstrap_samples_df <- bootstrap_samples_df %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      rep_boot = ifelse(
+        no_bias,
+        .data$rep_boot - .data$bias_boot,
+        .data$rep_boot)
+    ) %>%
+    dplyr::ungroup()
+
   # Calculate intervals
   if (any(type == "all")) type <- c("perc", "bca", "norm", "basic")
   out_list <- vector(mode = "list", length = length(type))
@@ -289,7 +313,7 @@ calculate_bootstrap_ci <- function(
 
           # Calculate interval
           replicates <- df$rep_boot
-          qq <- boot:::perc.ci(t = replicates, conf = conf)
+          qq <- boot:::perc.ci(t = h(replicates), conf = conf, hinv = hinv)
 
           # Return interval limits
           qq_matrix <- matrix(qq[4:5], ncol = 2L)
@@ -361,7 +385,7 @@ calculate_bootstrap_ci <- function(
           adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
                                       (1 - a * (z0 + zalpha)))
           qq <- boot:::norm.inter(t, adj_alpha)
-          qq_matrix <- matrix(qq[, 2L], ncol = 2L)
+          qq_matrix <- matrix(hinv(h(qq[, 2L])), ncol = 2L)
           colnames(qq_matrix) <- c("ll", "ul")
 
           return(cbind(group, conf, qq_matrix))
@@ -388,7 +412,8 @@ calculate_bootstrap_ci <- function(
           # Calculate interval
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
-          qq <- boot::norm.ci(t0 = estimate, t = replicates, conf = conf)
+          qq <- boot::norm.ci(t0 = estimate, t = replicates, conf = conf,
+                              h = h, hinv = hinv)
 
           # Return interval limits
           qq_matrix <- matrix(qq[2:3], ncol = 2L)
@@ -418,7 +443,8 @@ calculate_bootstrap_ci <- function(
           # Calculate interval
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
-          qq <- boot:::basic.ci(t0 = estimate, t = replicates, conf = conf)
+          qq <- boot:::basic.ci(t0 = h(estimate), t = h(replicates),
+                                conf = conf, hinv = hinv)
 
           # Return interval limits
           qq_matrix <- matrix(qq[4:5], ncol = 2L)
@@ -440,15 +466,26 @@ calculate_bootstrap_ci <- function(
   }
 
   # Combine dataframes from all interval types
-  conf_df_full <- dplyr::bind_rows(out_list)
+  conf_df_full <- dplyr::bind_rows(out_list) %>%
+      # Revert bias if required
+      dplyr::rowwise() %>%
+      dplyr::mutate(
+        rep_boot = ifelse(
+          no_bias,
+          .data$rep_boot + .data$bias_boot,
+          .data$rep_boot)
+      ) %>%
+      dplyr::ungroup()
 
   # Aggregate if requested
   if (aggregate) {
     conf_df_out <- conf_df_full %>%
       dplyr::select(-c("sample", "rep_boot")) %>%
-      dplyr::distinct()
+      dplyr::distinct() %>%
+      as.data.frame()
   } else {
-    conf_df_out <- conf_df_full
+    conf_df_out <- conf_df_full %>%
+      as.data.frame()
   }
 
   return(conf_df_out)

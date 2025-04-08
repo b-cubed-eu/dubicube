@@ -11,6 +11,7 @@ calculate_bootstrap_ci(
   conf = 0.95,
   h = function(t) t,
   hinv = function(t) t,
+  no_bias = FALSE,
   aggregate = TRUE,
   data_cube = NA,
   fun = NA,
@@ -62,6 +63,9 @@ is the identity function.}
 used to transform the intervals calculated on the scale of \code{h(t)} back to the
 original scale. The default is the identity function. If \code{h} is supplied but
 \code{hinv} is not, then the intervals returned will be on the transformed scale.}
+
+\item{no_bias}{Logical. If \code{TRUE} intervals are centered around the original
+estimates (bias is ignored). Default is \code{FALSE}.}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to

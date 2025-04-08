@@ -284,6 +284,17 @@ calculate_bootstrap_ci <- function(
               assertthat::is.flag(aggregate))
   ### End checks
 
+  # Adjust bias if required
+  bootstrap_samples_df <- bootstrap_samples_df %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      rep_boot = ifelse(
+        no_bias,
+        .data$rep_boot - .data$bias_boot,
+        .data$rep_boot)
+    ) %>%
+    dplyr::ungroup()
+
   # Calculate intervals
   if (any(type == "all")) type <- c("perc", "bca", "norm", "basic")
   out_list <- vector(mode = "list", length = length(type))
@@ -455,15 +466,26 @@ calculate_bootstrap_ci <- function(
   }
 
   # Combine dataframes from all interval types
-  conf_df_full <- dplyr::bind_rows(out_list)
+  conf_df_full <- dplyr::bind_rows(out_list) %>%
+      # Revert bias if required
+      dplyr::rowwise() %>%
+      dplyr::mutate(
+        rep_boot = ifelse(
+          no_bias,
+          .data$rep_boot + .data$bias_boot,
+          .data$rep_boot)
+      ) %>%
+      dplyr::ungroup()
 
   # Aggregate if requested
   if (aggregate) {
     conf_df_out <- conf_df_full %>%
       dplyr::select(-c("sample", "rep_boot")) %>%
-      dplyr::distinct()
+      dplyr::distinct() %>%
+      as.data.frame()
   } else {
-    conf_df_out <- conf_df_full
+    conf_df_out <- conf_df_full %>%
+      as.data.frame()
   }
 
   return(conf_df_out)

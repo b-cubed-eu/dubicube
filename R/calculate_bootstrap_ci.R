@@ -313,7 +313,7 @@ calculate_bootstrap_ci <- function(
 
           # Calculate interval
           replicates <- df$rep_boot
-          qq <- boot:::perc.ci(t = replicates, conf = conf, hinv = hinv)
+          qq <- boot:::perc.ci(t = h(replicates), conf = conf, hinv = hinv)
 
           # Return interval limits
           qq_matrix <- matrix(qq[4:5], ncol = 2L)
@@ -443,8 +443,8 @@ calculate_bootstrap_ci <- function(
           # Calculate interval
           estimate <- unique(df$est_original)
           replicates <- df$rep_boot
-          qq <- boot:::basic.ci(t0 = estimate, t = replicates, conf = conf,
-                                hinv = hinv)
+          qq <- boot:::basic.ci(t0 = h(estimate), t = h(replicates),
+                                conf = conf, hinv = hinv)
 
           # Return interval limits
           qq_matrix <- matrix(qq[4:5], ncol = 2L)

@@ -1,0 +1,14 @@
+---
+title: "Calculating Bootstrap Confidence Intervals for Indicators from Data Cubes"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+> Coming soon!

@@ -1,0 +1,14 @@
+---
+title: "Group-Level Sensitivity Analysis of Indicators for Data Cubes"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+> Coming soon!

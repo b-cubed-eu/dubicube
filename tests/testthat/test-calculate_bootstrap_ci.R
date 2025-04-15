@@ -11,7 +11,8 @@ cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
   taxonKey = species,
-  obs = rpois(5, 50))
+  obs = rpois(5, 50)
+)
 
 # Create data cube as 'processed_cube'
 processed_cube <- NULL
@@ -87,7 +88,8 @@ result_perc1 <- calculate_bootstrap_ci(
   grouping_var = c("year", "taxonKey"),
   type = "perc",
   conf = 0.95,
-  aggregate = TRUE)
+  aggregate = TRUE
+)
 
 # BCa with dataframe without reference group
 result_bca1 <- calculate_bootstrap_ci(
@@ -99,7 +101,8 @@ result_bca1 <- calculate_bootstrap_ci(
   data_cube = cube_df,
   fun = mean_obs,
   ref_group = NA,
-  influence_method = "pos")
+  influence_method = "pos"
+)
 
 # BCa with dataframe with reference group
 result_bca2 <- calculate_bootstrap_ci(
@@ -111,7 +114,8 @@ result_bca2 <- calculate_bootstrap_ci(
   data_cube = cube_df,
   fun = mean_obs,
   ref_group = ref_year,
-  influence_method = "usual")
+  influence_method = "usual"
+)
 
 # BCa with 'processed_cube' without reference group
 result_bca3 <- calculate_bootstrap_ci(
@@ -123,7 +127,8 @@ result_bca3 <- calculate_bootstrap_ci(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   ref_group = NA,
-  influence_method = "usual")
+  influence_method = "usual"
+)
 
 # BCa with 'processed_cube' with reference group
 result_bca4 <- calculate_bootstrap_ci(
@@ -135,7 +140,8 @@ result_bca4 <- calculate_bootstrap_ci(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   ref_group = ref_year,
-  influence_method = "usual")
+  influence_method = "usual"
+)
 
 # Normal
 result_norm1 <- calculate_bootstrap_ci(
@@ -143,7 +149,8 @@ result_norm1 <- calculate_bootstrap_ci(
   grouping_var = c("year", "taxonKey"),
   type = "norm",
   conf = 0.95,
-  aggregate = TRUE)
+  aggregate = TRUE
+)
 
 # Basic
 result_basic1 <- calculate_bootstrap_ci(
@@ -151,7 +158,8 @@ result_basic1 <- calculate_bootstrap_ci(
   grouping_var = c("year", "taxonKey"),
   type = "basic",
   conf = 0.95,
-  aggregate = TRUE)
+  aggregate = TRUE
+)
 
 # All with dataframe without reference group
 result_all1 <- calculate_bootstrap_ci(
@@ -163,11 +171,13 @@ result_all1 <- calculate_bootstrap_ci(
   data_cube = cube_df,
   fun = mean_obs,
   ref_group = NA,
-  influence_method = "pos")
+  influence_method = "pos"
+)
 
 example_ci_results_noref <- list(
   result_perc1, result_bca1, result_bca3,
-  result_norm1, result_basic1, result_all1)
+  result_norm1, result_basic1, result_all1
+)
 
 example_ci_results_ref <- list(result_bca2, result_bca4)
 
@@ -179,7 +189,8 @@ result_perc2 <- calculate_bootstrap_ci(
   grouping_var = c("year", "taxonKey"),
   type = "perc",
   conf = 0.95,
-  aggregate = FALSE)
+  aggregate = FALSE
+)
 
 ## Perform tests
 # Test calculate_bootstrap_ci output
@@ -195,7 +206,7 @@ test_that("calculate_bootstrap_ci returns a df with expected structure", {
     expect_true(all(
       c("year", "est_original", "est_boot", "se_boot", "bias_boot",
         "int_type", "ll", "ul", "conf") %in% names(df)
-      ))
+    ))
   })
   # Not aggregated
   expect_true(all(
@@ -238,7 +249,8 @@ test_that("calculate_bootstrap_ci computes values correctly", {
     grouping_var = c("year", "taxonKey"),
     type = c("perc", "norm"),
     conf = 0.95,
-    aggregate = TRUE)
+    aggregate = TRUE
+  )
 
   expect_identical(sort(unique(result_test$int_type)), sort(c("perc", "norm")))
   expect_identical(sort(unique(result_all1$int_type)),
@@ -257,7 +269,8 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = cube_df,
     fun = mean_obs,
     ref_group = NA,
-    influence_method = "usual")
+    influence_method = "usual"
+  )
 
   result_bca32 <- calculate_bootstrap_ci(
     bootstrap_samples_df = boot_df2,
@@ -268,7 +281,8 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = processed_cube,
     fun = mean_obs_processed,
     ref_group = NA,
-    influence_method = "pos")
+    influence_method = "pos"
+  )
 
   expect_identical(result_bca12, result_bca3)
   expect_identical(result_bca1, result_bca32)
@@ -283,7 +297,8 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = processed_cube,
     fun = mean_obs_processed,
     ref_group = NA,
-    influence_method = "pos")
+    influence_method = "pos"
+  )
 
   expect_identical(result_all1, result_all2)
 })
@@ -299,7 +314,8 @@ test_that("Confidence intervals are smaller with smaller conf argument", {
     data_cube = cube_df,
     fun = mean_obs,
     ref_group = NA,
-    influence_method = "pos")
+    influence_method = "pos"
+  )
 
   expect_true(all(result_all1$ll < result_all3$ll))
   expect_true(all(result_all1$ul > result_all3$ul))
@@ -313,9 +329,11 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "normal"),
       conf = 0.95,
-      aggregate = TRUE),
+      aggregate = TRUE
+    ),
     "`type` must be one of 'perc', 'bca', 'norm', 'basic'.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     calculate_bootstrap_ci(
@@ -323,9 +341,11 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "norm"),
       conf = 0.95,
-      aggregate = "TRUE"),
+      aggregate = "TRUE"
+    ),
     "`aggregate` must be a logical vector of length 1.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     calculate_bootstrap_ci(
@@ -333,9 +353,11 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "norm"),
       conf = 1.5,
-      aggregate = TRUE),
+      aggregate = TRUE
+    ),
     "`conf` must be a numeric value between 0 and 1.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     calculate_bootstrap_ci(
@@ -343,9 +365,11 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "bca"),
       conf = 0.95,
-      aggregate = TRUE),
+      aggregate = TRUE
+    ),
     "`data_cube` and `fun` must be provided to calculate BCa interval.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     calculate_bootstrap_ci(
@@ -353,10 +377,12 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       grouping_var = "month",
       type = "perc",
       conf = 0.95,
-      aggregate = TRUE),
+      aggregate = TRUE
+    ),
     paste("`bootstrap_samples_df` should contain columns: 'rep_boot',",
           "'est_original' and `grouping_var`."),
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     calculate_bootstrap_ci(
@@ -368,9 +394,11 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       data_cube = cube_df,
       fun = mean_obs,
       ref_group = "twothousandtwenty",
-      influence_method = "usual"),
+      influence_method = "usual"
+    ),
     "`ref_group` is not present in `grouping_var` column of `data_cube`.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     calculate_bootstrap_ci(
@@ -382,7 +410,9 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       data_cube = cube_df,
       fun = mean_obs,
       ref_group = "2020",
-      influence_method = "negative"),
+      influence_method = "negative"
+    ),
     "`influence_method` must be one of 'usual', 'pos'.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 })

@@ -177,11 +177,17 @@ cross_validate_cube <- function(
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
                         "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            rlang::inherits_any(data_cube,
-                                c("processed_cube", "sim_cube", "data.frame"))),
-            cube_message)
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        rlang::inherits_any(
+          data_cube,
+          c("processed_cube", "sim_cube", "data.frame")
+        )
+      ),
+      cube_message
+    )
   )
 
   # Check fun input
@@ -206,12 +212,14 @@ cross_validate_cube <- function(
   # Check if k is NA or an integer
   stopifnot(
     "`k` must be a positive integer of length 1 or NA." =
-      (assertthat::is.count(k) | is.na(k)) & length(k) == 1)
+      (assertthat::is.count(k) | is.na(k)) & length(k) == 1
+  )
 
   # Check if max_out_cats is a positive integer
   stopifnot(
     "`max_out_cats` must be a single positive integer." =
-      assertthat::is.count(max_out_cats))
+      assertthat::is.count(max_out_cats)
+  )
 
   # Check if progress is a logical vector of length 1
   stopifnot("`progress` must be a logical vector of length 1." =
@@ -269,11 +277,14 @@ cross_validate_cube <- function(
   # Check if number of categories is not larger than control argument
   cat_message <- paste(
     "Number of categories in `out_var` is larger than `max_out_cats`.",
-    "Increase the number of `max_out_cats`.", sep = "\n")
-  do.call(stopifnot,
-          stats::setNames(list(
-            num_cats <= max_out_cats),
-            cat_message)
+    "Increase the number of `max_out_cats`.", sep = "\n"
+  )
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(num_cats <= max_out_cats),
+      cat_message
+    )
   )
   # Warn for long runtime
   if (num_cats > 1000) {
@@ -300,7 +311,8 @@ cross_validate_cube <- function(
     # Check if k is not too large
     stopifnot(
       "`k` must be smaller than the number of categories in `out_var`." =
-        k <= length(unique(data_cube_df[[out_var]])))
+        k <= length(unique(data_cube_df[[out_var]]))
+    )
 
     # Category partitioning
     cat_list <- data_cube_df %>%
@@ -308,14 +320,15 @@ cross_validate_cube <- function(
       modelr::crossv_kfold(id = "id_cv", k = k)
 
     # Get category left out
-    cat_left_out_list <- lapply(lapply(cat_list$test, as.integer),
-                                    function(indices) {
-                                      df <- data_cube_df %>%
-                                        dplyr::distinct(.data[[out_var]])
+    cat_left_out_list <- lapply(
+      lapply(cat_list$test, as.integer),
+      function(indices) {
+        df <- data_cube_df %>%
+          dplyr::distinct(.data[[out_var]])
 
-                                      df[indices, ] %>%
-                                        dplyr::pull(.data[[out_var]])
-                                    }
+        df[indices, ] %>%
+          dplyr::pull(.data[[out_var]])
+      }
     )
     names(cat_left_out_list) <- NULL
 
@@ -339,7 +352,8 @@ cross_validate_cube <- function(
       cross_validate_f,
       fun = fun,
       ...,
-      .progress = ifelse(progress, "Cross-Validation", progress)) %>%
+      .progress = ifelse(progress, "Cross-Validation", progress)
+    ) %>%
     lapply(function(df) tibble::as_tibble(df))
 
   # Summarise CV statistics in dataframe
@@ -365,7 +379,8 @@ cross_validate_cube <- function(
       mre = mean(.data$rel_error),
       mse = mean(.data$sq_error),
       rmse = sqrt(.data$mse),
-      .by = dplyr::all_of(grouping_var)) %>%
+      .by = dplyr::all_of(grouping_var)
+    ) %>%
     dplyr::arrange(dplyr::across(grouping_var)) %>%
     dplyr::select("id_cv", dplyr::all_of(grouping_var),
                   !!out_col_name := "cat_left_out",

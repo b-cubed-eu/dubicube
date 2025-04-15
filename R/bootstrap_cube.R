@@ -159,12 +159,16 @@ bootstrap_cube <- function(
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
                         "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            rlang::inherits_any(data_cube,
-                                c("processed_cube", "sim_cube", "data.frame"))),
-            cube_message)
-          )
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        rlang::inherits_any(data_cube,
+                            c("processed_cube", "sim_cube", "data.frame"))
+      ),
+      cube_message
+    )
+  )
 
   # Check fun input
   stopifnot("`fun` must be a function." = is.function(fun))
@@ -179,14 +183,16 @@ bootstrap_cube <- function(
   # Check if samples is a positive integer
   stopifnot(
     "`samples` must be a single positive integer." =
-      assertthat::is.count(samples))
+      assertthat::is.count(samples)
+  )
 
   # Check if ref_group is NA or a number or a string
   stopifnot(
     "`ref_group` must be a numeric/character vector of length 1 or NA." =
       (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-         is.na(ref_group)) &
-      length(ref_group) == 1)
+       is.na(ref_group)) &
+      length(ref_group) == 1
+  )
 
   # Check if seed is NA or a number
   stopifnot("`seed` must be a numeric vector of length 1 or NA." =
@@ -251,7 +257,8 @@ bootstrap_cube <- function(
         sapply(
           as.list(grouping_var), function(var) {
             ref_group %in% data_cube_data[[var]]
-          })
+          }
+        )
       )
   )
   ### End extra checks
@@ -266,7 +273,8 @@ bootstrap_cube <- function(
       bootstrap_resample,
       fun = fun,
       ...,
-      .progress = ifelse(progress, "Bootstrapping", progress))
+      .progress = ifelse(progress, "Bootstrapping", progress)
+    )
 
   # Calculate original estimates
   t0 <- calc_stat_by_group(
@@ -274,14 +282,16 @@ bootstrap_cube <- function(
     fun = fun,
     ...,
     grouping_var = grouping_var,
-    ref_group = ref_group)
+    ref_group = ref_group
+  )
 
   # Take difference with reference group if specified
   if (!is.na(ref_group)) {
     # Calculate group_var columns for matching
     matching_col <- grouping_var[
       sapply(data_cube_data %>% dplyr::select(dplyr::all_of(grouping_var)),
-             function(col) ref_group %in% col)]
+             function(col) ref_group %in% col)
+    ]
 
     # Get bootstrap samples as a list
     bootstrap_samples_list <- lapply(bootstrap_samples_list_raw, function(df) {
@@ -310,7 +320,8 @@ bootstrap_cube <- function(
     dplyr::mutate(
       est_boot = mean(.data$rep_boot),
       se_boot = stats::sd(.data$rep_boot),
-      .by = dplyr::all_of(grouping_var)) %>%
+      .by = dplyr::all_of(grouping_var)
+    ) %>%
     dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
     dplyr::arrange(dplyr::across(grouping_var)) %>%
     dplyr::select("sample", dplyr::all_of(grouping_var), "est_original",

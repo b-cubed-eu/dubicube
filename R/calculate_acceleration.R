@@ -165,11 +165,15 @@ calculate_acceleration <- function(
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
                         "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            rlang::inherits_any(data_cube,
-                                c("processed_cube", "sim_cube", "data.frame"))),
-            cube_message)
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        rlang::inherits_any(data_cube,
+                            c("processed_cube", "sim_cube", "data.frame"))
+      ),
+      cube_message
+    )
   )
 
   # Check fun input
@@ -179,8 +183,9 @@ calculate_acceleration <- function(
   stopifnot(
     "`ref_group` must be a numeric/character vector of length 1 or NA." =
       (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-         is.na(ref_group)) &
-      length(ref_group) == 1)
+       is.na(ref_group)) &
+      length(ref_group) == 1
+  )
 
   # Check if influence_method is 'usual' or 'pos'
   influence_method <- tryCatch({
@@ -202,7 +207,8 @@ calculate_acceleration <- function(
     ...,
     grouping_var = grouping_var,
     ref_group = ref_group,
-    progress = progress)
+    progress = progress
+  )
 
   # Calculate original estimates
   t0 <- calc_stat_by_group(
@@ -210,7 +216,8 @@ calculate_acceleration <- function(
     fun = fun,
     ...,
     grouping_var = grouping_var,
-    ref_group = ref_group)
+    ref_group = ref_group
+  )
 
   # Calculate influence values
   influence_df <- jackknife_df %>%
@@ -218,7 +225,8 @@ calculate_acceleration <- function(
     dplyr::mutate(n = dplyr::n(),
                   .by = dplyr::all_of(grouping_var)) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(influence = ifelse(
+    dplyr::mutate(
+      influence = ifelse(
         influence_method == "usual",
         (.data$n - 1) * (.data$diversity_val - .data$jack_rep),
         (.data$n + 1) * (.data$jack_rep - .data$diversity_val)

@@ -106,35 +106,41 @@ add_effect_classification <- function(
 
   # Classify effects with effectclass
   classified_df <- df %>%
-    dplyr::mutate(effect_code = effectclass::classification(
-      lcl = !!dplyr::sym(cl_columns[1]),
-      ucl = !!dplyr::sym(cl_columns[2]),
-      threshold = threshold,
-      reference = reference)
+    dplyr::mutate(
+      effect_code = effectclass::classification(
+        lcl = !!dplyr::sym(cl_columns[1]),
+        ucl = !!dplyr::sym(cl_columns[2]),
+        threshold = threshold,
+        reference = reference
+      )
     )
 
   # Add coarse classification if specified
   if (coarse) {
     classified_df$effect_code_coarse <- effectclass::coarse_classification(
-      classified_df$effect_code)
+      classified_df$effect_code
+    )
   }
 
   # Create ordered factors of effects
   out_df <- classified_df %>%
     dplyr::mutate(
-      effect_code = factor(.data$effect_code,
-                           levels = c(
-                             "++",
-                             "+",
-                             "+~",
-                             "~",
-                             "-~",
-                             "-",
-                             "--",
-                             "?+",
-                             "?-",
-                             "?"),
-                           ordered = TRUE),
+      effect_code = factor(
+        .data$effect_code,
+        levels = c(
+          "++",
+          "+",
+          "+~",
+          "~",
+          "-~",
+          "-",
+          "--",
+          "?+",
+          "?-",
+          "?"
+        ),
+        ordered = TRUE
+      ),
       effect = dplyr::case_when(
         effect_code == "++" ~ "strong increase",
         effect_code == "+"  ~ "increase",
@@ -147,45 +153,54 @@ add_effect_classification <- function(
         effect_code == "?-" ~ "potential decrease",
         effect_code == "?"  ~ "unknown"
       ),
-      effect = factor(.data$effect,
-                      levels = c(
-                        "strong increase",
-                        "increase",
-                        "moderate increase",
-                        "stable",
-                        "moderate decrease",
-                        "decrease",
-                        "strong decrease",
-                        "potential increase",
-                        "potential decrease",
-                        "unknown"),
-                      ordered = TRUE)
+      effect = factor(
+        .data$effect,
+        levels = c(
+          "strong increase",
+          "increase",
+          "moderate increase",
+          "stable",
+          "moderate decrease",
+          "decrease",
+          "strong decrease",
+          "potential increase",
+          "potential decrease",
+          "unknown"
+        ),
+        ordered = TRUE
+      )
     )
 
   # Create ordered factors of effects if coarse is specified
   if (coarse) {
     out_df <- out_df %>%
       dplyr::mutate(
-        effect_code_coarse = factor(.data$effect_code_coarse,
-                                    levels = c(
-                                      "+",
-                                      "~",
-                                      "-",
-                                      "?"),
-                                    ordered = TRUE),
+        effect_code_coarse = factor(
+          .data$effect_code_coarse,
+          levels = c(
+            "+",
+            "~",
+            "-",
+            "?"
+          ),
+          ordered = TRUE
+        ),
         effect_coarse = dplyr::case_when(
           effect_code_coarse == "+" ~ "increase",
           effect_code_coarse == "-" ~ "decrease",
           effect_code_coarse == "~" ~ "stable",
           effect_code_coarse == "?" ~ "unknown"
         ),
-        effect_coarse = factor(.data$effect_coarse,
-                               levels = c(
-                                 "increase",
-                                 "stable",
-                                 "decrease",
-                                 "unknown"),
-                               ordered = TRUE)
+        effect_coarse = factor(
+          .data$effect_coarse,
+          levels = c(
+            "increase",
+            "stable",
+            "decrease",
+            "unknown"
+          ),
+          ordered = TRUE
+        )
       )
   }
 

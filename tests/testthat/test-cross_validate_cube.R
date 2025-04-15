@@ -26,7 +26,8 @@ obs3 <- as.vector(
 cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
-  taxonKey = species)
+  taxonKey = species
+)
 cube_df$obs <- c(obs1, obs2, obs3)
 
 # Create data cube as 'processed_cube'
@@ -65,7 +66,8 @@ result1 <- cross_validate_cube(
   grouping_var = "year",
   out_var = "taxonKey",
   crossv_method = "loo",
-  progress = FALSE)
+  progress = FALSE
+)
 
 # Perform LOO CV 'processed_cube'
 result2 <- cross_validate_cube(
@@ -74,7 +76,8 @@ result2 <- cross_validate_cube(
   grouping_var = "year",
   out_var = "taxonKey",
   crossv_method = "loo",
-  progress = FALSE)
+  progress = FALSE
+)
 
 # Create extra data from k-fold CV
 species2 <- paste0("spec", 4:6)
@@ -92,7 +95,8 @@ obs3 <- as.vector(
 cube_df2 <- expand.grid(
   year = years,
   cellCode = grid_cells,
-  taxonKey = species2)
+  taxonKey = species2
+)
 cube_df2$obs <- c(obs1, obs2, obs3)
 
 cube_df2 <- rbind(cube_df, cube_df2)
@@ -111,7 +115,8 @@ result3 <- cross_validate_cube(
   out_var = "taxonKey",
   crossv_method = "kfold",
   k = 3,
-  progress = FALSE)
+  progress = FALSE
+)
 
 # Perform kfold CV 'processed_cube'
 result4 <- cross_validate_cube(
@@ -121,7 +126,8 @@ result4 <- cross_validate_cube(
   out_var = "taxonKey",
   crossv_method = "kfold",
   k = 3,
-  progress = FALSE)
+  progress = FALSE
+)
 
 loo_results <- list(result1, result2)
 kfold_results <- list(result3, result4)
@@ -153,7 +159,8 @@ test_that("cross_validate_cube returns a dataframe with expected structure", {
     grouping_var = "year",
     out_var = "Taxon key",
     crossv_method = "loo",
-    progress = FALSE)
+    progress = FALSE
+  )
 
   expect_true(all(
     c("id_cv", "year", "taxon_key_out", "rep_cv", "est_original", "error",
@@ -207,7 +214,8 @@ test_that("loo and k-fold return same results", {
     grouping_var = "year",
     out_var = "taxonKey",
     crossv_method = "loo",
-    progress = FALSE)
+    progress = FALSE
+  )
 
   # Result with k-fold and k = number of categories
   result_kloo2 <- cross_validate_cube(
@@ -217,7 +225,8 @@ test_that("loo and k-fold return same results", {
     out_var = "taxonKey",
     crossv_method = "kfold",
     k = length(species),
-    progress = FALSE)
+    progress = FALSE
+  )
   # Adjust sorting and rownames
   result_kloo2 <- result_kloo2[order(result_kloo2[, "year"],
                                      result_kloo2[, "taxonkey_out"]),
@@ -232,7 +241,8 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
   # Problems with number of categories
   cat_message <- paste(
     "Number of categories in `out_var` is larger than `max_out_cats`.",
-    "Increase the number of `max_out_cats`.", sep = "\n")
+    "Increase the number of `max_out_cats`.", sep = "\n"
+  )
 
   expect_error(
     cross_validate_cube(
@@ -242,9 +252,11 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       out_var = "taxonKey",
       crossv_method = "loo",
       progress = FALSE,
-      max_out_cats = 2),
+      max_out_cats = 2
+    ),
     cat_message,
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     cross_validate_cube(
@@ -254,15 +266,18 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       out_var = "taxonKey",
       crossv_method = "loo",
       progress = FALSE,
-      max_out_cats = 2),
+      max_out_cats = 2
+    ),
     cat_message,
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   # Warning message for large number of categories
   grid <- expand.grid(
     year = years,
     cellCode = grid_cells,
-    taxonKey = paste0("spec", 1:1001))
+    taxonKey = paste0("spec", 1:1001)
+  )
   grid$obs <- 1
 
   expect_warning(
@@ -273,10 +288,12 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       out_var = "taxonKey",
       crossv_method = "loo",
       progress = FALSE,
-      max_out_cats = 2000),
+      max_out_cats = 2000
+    ),
     paste("Number of categories in `out_var` is larger than 1000.",
           "Runtime of Cross-Validation may be substantial.", sep = "\n"),
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   # Errors
   expect_error(
@@ -286,9 +303,11 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxon_key",
       crossv_method = "loo",
-      progress = FALSE),
+      progress = FALSE
+    ),
     "`data_cube` should contain column `out_var`.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     cross_validate_cube(
@@ -297,10 +316,12 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxonKey",
       crossv_method = "loo",
-      progress = FALSE),
+      progress = FALSE
+    ),
     paste("`data_cube` must be a data cube object (class 'processed_cube' or",
           "'sim_cube') or a dataframe."),
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     cross_validate_cube(
@@ -309,9 +330,11 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxonKey",
       crossv_method = "LOO",
-      progress = FALSE),
+      progress = FALSE
+    ),
     "`crossv_method` must be one of 'loo', 'kfold'.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     cross_validate_cube(
@@ -321,9 +344,11 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       out_var = "taxonKey",
       crossv_method = "kfold",
       k = 7,
-      progress = FALSE),
+      progress = FALSE
+    ),
     "`k` must be smaller than the number of categories in `out_var`.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 })
 
 # Test grouping variable
@@ -344,7 +369,8 @@ test_that("grouping_var length > 1", {
     grouping_var = c("year", "id"),
     out_var = "taxonKey",
     crossv_method = "loo",
-    progress = FALSE)
+    progress = FALSE
+  )
 
   # Data frame
   expect_s3_class(result, "data.frame")

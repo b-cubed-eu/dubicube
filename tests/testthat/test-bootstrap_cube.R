@@ -11,7 +11,8 @@ cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
   taxonKey = species,
-  obs = rpois(5, 50))
+  obs = rpois(5, 50)
+)
 
 # Create data cube as 'processed_cube'
 processed_cube <- NULL
@@ -239,28 +240,34 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       data_cube = NULL,
       fun = mean_obs,
       grouping_var = "year",
-      samples = 10),
+      samples = 10
+    ),
     paste("`data_cube` must be a data cube object (class 'processed_cube' or",
           "'sim_cube') or a dataframe."),
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     bootstrap_cube(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = 2,
-      samples = 10),
+      samples = 10
+    ),
     "`grouping_var` must be a character vector.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     bootstrap_cube(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
-      samples = -10),
+      samples = -10
+    ),
     "`samples` must be a single positive integer.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     bootstrap_cube(
@@ -268,9 +275,11 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       fun = mean_obs,
       grouping_var = "year",
       samples = 10,
-      ref_group = 1:2),
+      ref_group = 1:2
+    ),
     "`ref_group` must be a numeric/character vector of length 1 or NA.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     bootstrap_cube(
@@ -278,9 +287,11 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       fun = mean_obs,
       grouping_var = "year",
       samples = 10,
-      ref_group = "twothousandtwenty"),
+      ref_group = "twothousandtwenty"
+    ),
     "`ref_group` is not present in `grouping_var` column of `data_cube`.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     bootstrap_cube(
@@ -288,7 +299,9 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       fun = mean_obs,
       grouping_var = "year",
       samples = 10,
-      progress = "TRUE"),
+      progress = "TRUE"
+    ),
     "`progress` must be a logical vector of length 1.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 })

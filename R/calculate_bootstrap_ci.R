@@ -262,12 +262,17 @@ calculate_bootstrap_ci <- function(
   # Check if "rep_boot", "est_original" and grouping_var columns are present
   colname_message <- paste(
     "`bootstrap_samples_df` should contain columns: 'rep_boot', 'est_original'",
-    "and `grouping_var`.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            all(c(grouping_var, "rep_boot", "est_original") %in%
-                  names(bootstrap_samples_df))),
-            colname_message)
+    "and `grouping_var`."
+  )
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        all(c(grouping_var, "rep_boot", "est_original") %in%
+              names(bootstrap_samples_df))
+      ),
+      colname_message
+    )
   )
 
   # Check if interval type is correct
@@ -291,7 +296,8 @@ calculate_bootstrap_ci <- function(
       rep_boot = ifelse(
         no_bias,
         .data$rep_boot - .data$bias_boot,
-        .data$rep_boot)
+        .data$rep_boot
+      )
     ) %>%
     dplyr::ungroup()
 
@@ -336,8 +342,10 @@ calculate_bootstrap_ci <- function(
         "`data_cube` and `fun` must be provided to calculate BCa interval." =
           rlang::inherits_any(
             data_cube,
-            c("processed_cube", "sim_cube", "data.frame")) &
-          is.function(fun))
+            c("processed_cube", "sim_cube", "data.frame")
+          ) &
+          is.function(fun)
+      )
 
       # Calculate acceleration values per grouping_var
       acceleration_df <- calculate_acceleration(
@@ -347,7 +355,8 @@ calculate_bootstrap_ci <- function(
         grouping_var = grouping_var,
         ref_group = ref_group,
         influence_method = influence_method,
-        progress = progress)
+        progress = progress
+      )
 
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
@@ -467,15 +476,16 @@ calculate_bootstrap_ci <- function(
 
   # Combine dataframes from all interval types
   conf_df_full <- dplyr::bind_rows(out_list) %>%
-      # Revert bias if required
-      dplyr::rowwise() %>%
-      dplyr::mutate(
-        rep_boot = ifelse(
-          no_bias,
-          .data$rep_boot + .data$bias_boot,
-          .data$rep_boot)
-      ) %>%
-      dplyr::ungroup()
+    # Revert bias if required
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      rep_boot = ifelse(
+        no_bias,
+        .data$rep_boot + .data$bias_boot,
+        .data$rep_boot
+      )
+    ) %>%
+    dplyr::ungroup()
 
   # Aggregate if requested
   if (aggregate) {

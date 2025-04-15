@@ -57,10 +57,14 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
             "Please use only one of them."
           )
 
-          do.call(stopifnot,
-                  stats::setNames(list(
-                    !(length(mapping_check) == 1 && mapping_check == 1)),
-                    error_message)
+          do.call(
+            stopifnot,
+            stats::setNames(
+              list(
+                !(length(mapping_check) == 1 && mapping_check == 1)
+              ),
+              error_message
+            )
           )
         }
       }
@@ -109,7 +113,8 @@ calc_stat_by_group <- function(
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
         sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)]
+               function(col) ref_group %in% col)
+      ]
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
@@ -121,7 +126,8 @@ calc_stat_by_group <- function(
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
         sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)]
+               function(col) ref_group %in% col)
+      ]
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =

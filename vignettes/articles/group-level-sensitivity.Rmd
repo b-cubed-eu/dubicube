@@ -11,4 +11,70 @@ knitr::opts_chunk$set(
 )
 ```
 
-> Coming soon!
+## Introduction
+
+When working with biodiversity data cubes, understanding how sensitive your indicators are to individual groups (like species, sites, or time periods) can be crucial for robust analysis. This tutorial introduces **dubicube**'s `cross_validate_cube()` function that allows you to assess the influence of specific categories on biodiversity indicators through cross-validation.
+
+## Group-level cross-validation for data cubes
+
+Cross-validation is a resampling technique commonly used in statistics and machine learning to evaluate model performance.
+In the context of biodiversity data cubes, we adapt this approach to assess how robust indicators are to the inclusion or exclusion of specific groups, and to identify influential groups that disproportionately affect indicator values.
+
+### A data cube and a statistic
+
+Consider a data cube $\mathbf{X}$ from which we want to calculate a statistic $\theta$.
+The datacube can be grouped, e.g. by `taxon`, that contains multiple categories, e.g. `species1`, `species2`, `species3` ...
+
+- **Original Sample Data**: $\mathbf{X} = \{X_{11}, X_{12}, X_{13}, \ldots, X_{sn}\}$
+   - The initial set of data points, where there are $s$ different categories in a group (e.g. $s = 10$ species in group `taxon`) and $n$ total samples across all categories (= the sample size). $n$ corresponds to the number of cells in a data cube or the number of rows in tabular format.
+
+- **Statistic of Interest**: $\theta$
+   - The parameter or statistic being estimated, such as the mean $\bar{X}$, variance $\sigma^2$, or a biodiversity indicator. Let $\hat{\theta}$ denote the estimated value of $\theta$ calculated from the complete dataset $\mathbf{X}$.
+   
+### Resampling and recalculating
+
+From $\mathbf{X}$, multiple data cubes $\mathbf{X}_{-s_j}$ are created where in each new dataset a different category is removed compared to the original data cube $\mathbf{X}$.
+For example in dataset 1, `species1` is excluded, in dataset 2 `species2`, in dataset 3 `species3` ...
+For each new dataset, the statistic $\theta$ is again calculated: $\hat{\theta}_{-s_j}$.
+
+- **Cross-Validation (CV) Sample**: $\mathbf{X}_{-s_j}$
+   - The full dataset $\mathbf{X}$ excluding all samples belonging to category $j$. This subset is used to investigate the influence of category $j$ on the estimated statistic $\hat{\theta}$.
+
+- **CV Estimate for Category** $\mathbf{j}$: $\hat{\theta}_{-s_j}$
+   - The value of the statistic of interest calculated from $\mathbf{X}_{-s_j}$, which excludes category $j$. For example, if $\theta$ is the sample mean, $\hat{\theta}_{-s_j} = \bar{X}_{-s_j}$.
+
+### Derivation of error measures
+
+From this, different error measures can be calculated that can inform further analyses or processing steps.
+
+- **Error Measures**:
+
+   - The **Error** is the difference between the statistic estimated without category $j$ ($\hat{\theta}_{-s_j}$) and the statistic calculated on the complete dataset ($\hat{\theta}$).
+
+   $$\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}$$
+
+   - The **Relative Error** is the absolute error, normalized by the true estimate $\hat{\theta}$ and a small error term $\epsilon = 10^{-8}$ to avoid division by zero.
+
+   $$\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}$$
+
+   - The **Percent Error** is the relative error expressed as a percentage.
+
+   $$\text{Perc. Error}_{s_j} = \text{Rel. Error}_{s_j} \times 100 \%$$
+
+- **Summary Measures**:
+
+   - The **Mean Relative Error (MRE)** is the average of the relative errors over all categories.
+
+   $$\text{MRE} = \frac{1}{s} \sum_{j=1}^s \text{Rel. Error}_{s_j}$$
+
+   - The **Mean Squared Error (MSE)** is the average of the squared errors.
+
+   $$\text{MSE} = \frac{1}{s} \sum_{j=1}^s (\text{Error}_{s_j})^2$$
+
+   - The **Root Mean Squared Error (RMSE)** is the square root of the MSE.
+
+   $$\text{RMSE} = \sqrt{\text{MSE}}$$
+
+## Getting started with dubicube
+
+...

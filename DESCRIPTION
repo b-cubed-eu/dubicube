@@ -1,6 +1,6 @@
 Package: dubicube
 Title: Calculation and Interpretation of Data Cube Indicator Uncertainty
-Version: 0.6.0
+Version: 0.7.0
 Authors@R: c(
     person("Ward", "Langeraert", , "ward.langeraert@inbo.be", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5900-8109", affiliation = "Research Institute for Nature and Forest (INBO)")),

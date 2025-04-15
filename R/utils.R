@@ -19,9 +19,12 @@
 #'
 #' @examples
 #' years <- 2000:2002
-#' df <- data.frame(year = rep(years, 2),
-#'                  time_point = rep(seq_along(years), 2),
-#'                  region = rep(c("A", "B", "C"), each = 2))
+#' df <- data.frame(
+#'   year = rep(years, 2),
+#'   time_point = rep(seq_along(years), 2),
+#'   region = rep(c("A", "B", "C"), each = 2)
+#' )
+#'
 #' # Will throw an error
 #' check_redundant_grouping_vars(df, c("year", "time_point"))
 #' # No error

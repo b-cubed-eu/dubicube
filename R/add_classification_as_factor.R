@@ -68,7 +68,8 @@
 #'  cl_columns = c("lcl", "ucl"),
 #'  threshold = 1,
 #'  reference = 0,
-#'  coarse = TRUE)
+#'  coarse = TRUE
+#' )
 # nolint end
 
 add_effect_classification <- function(

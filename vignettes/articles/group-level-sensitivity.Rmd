@@ -13,12 +13,12 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-When working with biodiversity data cubes, understanding how sensitive your indicators are to individual groups (like species, sites, or time periods) can be crucial for robust analysis. This tutorial introduces **dubicube**'s `cross_validate_cube()` function that allows you to assess the influence of specific categories on biodiversity indicators through cross-validation.
+When working with biodiversity data cubes, understanding how sensitive your indicators are to individual groups (like species, sites, or time periods) can be crucial for robust analysis. This tutorial introduces the `cross_validate_cube()` function from **dubicube**, which helps assess how individual categories influence biodiversity indicators using cross-validation.
 
 ## Group-level cross-validation for data cubes
 
 Cross-validation is a resampling technique commonly used in statistics and machine learning to evaluate model performance.
-In the context of biodiversity data cubes, we adapt this approach to assess how robust indicators are to the inclusion or exclusion of specific groups, and to identify influential groups that disproportionately affect indicator values.
+In the context of biodiversity data cubes, we adapt cross-validation to assess how robust indicators are to the inclusion or exclusion of specific groups. This helps identify influential categories that disproportionately affect indicator values.
 
 ### A data cube and a statistic
 
@@ -34,7 +34,7 @@ The data cube can be grouped, e.g. by `taxon`, that contains multiple categories
 ### Resampling and recalculating
 
 From $\mathbf{X}$, multiple data cubes $\mathbf{X}_{-s_j}$ are created where in each new dataset a different category is removed compared to the original data cube $\mathbf{X}$.
-For example in dataset 1, `species1` is excluded, in dataset 2 `species2`, in dataset 3 `species3` ...
+For example in dataset 1, `species1` is excluded; in dataset 2 `species2`; in dataset 3 `species3`; and so on.
 For each new dataset, the statistic $\theta$ is again calculated: $\hat{\theta}_{-s_j}$.
 
 - **Cross-Validation (CV) Sample**: $\mathbf{X}_{-s_j}$
@@ -45,7 +45,7 @@ For each new dataset, the statistic $\theta$ is again calculated: $\hat{\theta}_
 
 ### Derivation of error measures
 
-From this, different error measures can be calculated that can inform further analyses or processing steps.
+From this, we can calculate different error measures that help inform further analyses or decision-making steps.
 
 - **Error Measures**:
 
@@ -144,15 +144,12 @@ We get the following results:
 mean_obs(processed_cube$data)
 ```
 
-These values are not very informative on their own.
-Are these estimates based on reliable data?
-How certain are we about these estimates?
-
-To inform us about the first question, we perform leave-one-species-out cross-validation to investigate the impact of included species on the calculation of these values.
+On their own, these values don’t tell us how reliable they are.
+Therefore, we perform leave-one-species-out cross-validation to investigate the impact of included species on the calculation of these values.
 
 ### Leave-one-species-out cross-validation
 
-For this, we rely on the `cross_validate_cube()` function. It relies on the following arguments:
+We use the `cross_validate_cube()` function to do this. It relies on the following arguments:
 
 - **`data_cube`**:  
   The input data, either as a processed data cube (from `b3gbi::process_cube()` or `b3gbi::simulate_cube()`), or simply the dataframe inside it (i.e. `processed_cube$data`). For faster computation, passing just the dataframe is recommended.
@@ -191,7 +188,7 @@ ggplot(cv_results, aes(x = as.factor(year))) +
   theme_minimal()
 ```
 
-If we look at the error values themselves, we see indeed more outliers in later years.
+Indeed, looking at the individual error values reveals more outliers in later years.
 A species key 2481139 in year 2015 with error -4 means that without species 2481139, the average number of occurrences would be 4 lower than the estimate based on the full dataset (in this case around 51 instead of 55).
 
 ```{r}
@@ -229,7 +226,7 @@ index <- match("bird_cube_belgium_mgrs10", resources(b3data_package))
 b3data_package$resources[[index]]$sources
 ```
 
-This means that these species are probably overrepresented in the cube and increase the estimates for our statistic unrelated to the true underlying diversity signal. Their disproportionate contribution may skew the results, leading to inflated values in years where those species were heavily sampled. This highlights how group-level sensitivity analysis can reveal data biases introduced by uneven sampling or targeted monitoring efforts.
+This suggests that the two species are overrepresented in the data cube, likely due to targeted monitoring efforts. Their disproportionate influence inflates indicator values in certain years, distorting the true diversity signal. Group-level sensitivity analysis like this helps uncover such sampling biases, ensuring that biodiversity indicators better reflect ecological reality rather than data artifacts.
 
 ## Advanced usage of `cross_validate_cube()`
 

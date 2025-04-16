@@ -51,29 +51,41 @@ From this, we can calculate different error measures that help inform further an
 
    - The **Error** is the difference between the statistic estimated without category $j$ ($\hat{\theta}_{-s_j}$) and the statistic calculated on the complete dataset ($\hat{\theta}$).
 
-   $$\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}$$
+$$
+\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}
+$$
 
    - The **Relative Error** is the absolute error, normalized by the true estimate $\hat{\theta}$ and a small error term $\epsilon = 10^{-8}$ to avoid division by zero.
 
-   $$\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}$$
+$$
+\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}
+$$
 
    - The **Percent Error** is the relative error expressed as a percentage.
 
-   $$\text{Perc. Error}_{s_j} = \text{Rel. Error}_{s_j} \times 100 \%$$
+$$
+\text{Perc. Error}_{s_j} = \text{Rel. Error}_{s_j} \times 100 \%
+$$
 
 - **Summary Measures**:
 
    - The **Mean Relative Error (MRE)** is the average of the relative errors over all categories.
 
-   $$\text{MRE} = \frac{1}{s} \sum_{j=1}^s \text{Rel. Error}_{s_j}$$
+$$
+\text{MRE} = \frac{1}{s} \sum_{j=1}^s \text{Rel. Error}_{s_j}
+$$
 
    - The **Mean Squared Error (MSE)** is the average of the squared errors.
 
-   $$\text{MSE} = \frac{1}{s} \sum_{j=1}^s (\text{Error}_{s_j})^2$$
+$$
+\text{MSE} = \frac{1}{s} \sum_{j=1}^s (\text{Error}_{s_j})^2
+$$
 
    - The **Root Mean Squared Error (RMSE)** is the square root of the MSE.
 
-   $$\text{RMSE} = \sqrt{\text{MSE}}$$
+$$
+\text{RMSE} = \sqrt{\text{MSE}}
+$$
 
 ## Getting started with dubicube
 
@@ -165,7 +177,7 @@ We use the `cross_validate_cube()` function to do this. It relies on the followi
 - **progress**:  
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
-```{r}
+```{r, cache=TRUE}
 cv_results <- cross_validate_cube(
   data_cube = processed_cube$data,
   fun = mean_obs,

@@ -1,5 +1,5 @@
 ---
-title: "Group-Level Sensitivity Analysis of Indicators for Data Cubes"
+title: "Group-Level Sensitivity Analysis"
 editor_options: 
   chunk_output_type: console
 ---

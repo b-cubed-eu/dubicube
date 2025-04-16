@@ -1,5 +1,5 @@
 ---
-title: "Visualising Spatial Trends in Indicators from Data Cubes"
+title: "Visualising Spatial Trends"
 editor_options: 
   chunk_output_type: console
 ---

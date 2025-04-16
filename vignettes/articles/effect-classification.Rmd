@@ -1,5 +1,5 @@
 ---
-title: "Classifying Effects of Data Cube Indicators Using Confidence Limits"
+title: "Classifying Effects Using Confidence Limits"
 editor_options: 
   chunk_output_type: console
 ---

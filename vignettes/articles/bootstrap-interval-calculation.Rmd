@@ -1,5 +1,5 @@
 ---
-title: "Calculating Bootstrap Confidence Intervals for Indicators from Data Cubes"
+title: "Calculating Bootstrap Confidence Intervals"
 editor_options: 
   chunk_output_type: console
 ---

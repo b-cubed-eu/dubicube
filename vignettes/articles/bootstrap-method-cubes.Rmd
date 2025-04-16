@@ -1,5 +1,5 @@
 ---
-title: "Bootstrap Method for Indicator Estimation from Data Cubes"
+title: "Bootstrap Method for Data Cubes"
 editor_options: 
   chunk_output_type: console
 ---

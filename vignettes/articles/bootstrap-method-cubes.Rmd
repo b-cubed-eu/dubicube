@@ -77,7 +77,7 @@ $$
 ```{r}
 #| fig.alt: >
 #|   Bootstrap resampling a data cube.
-knitr::include_graphics("man/figures/bootstrapping.png")
+knitr::include_graphics("../../man/figures/bootstrapping.png")
 ```
 
 ## Getting started with dubicube

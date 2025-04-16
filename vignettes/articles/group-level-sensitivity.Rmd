@@ -86,7 +86,7 @@ Therefore, we will use the **b3gbi** package for processing the raw data before 
 library(dubicube)
 
 # Data loading and processing
-library(frictionless) # Load example dataset
+library(frictionless) # Load example datasets
 library(b3gbi)        # Process occurrence cubes
 
 # General
@@ -96,9 +96,159 @@ library(ggplot2)      # Data visualisation
 
 ### Loading and processing the data
 
-...
+We load the bird cube data from the **b3data** data package using **frictionless** (see also [here](https://github.com/b-cubed-eu/b3data-scripts)).
+It is an occurrence cube for birds in Belgium between 2000 en 2024 using the MGRS grid at 10 km scale.
+
+```{r}
+# Read data package
+b3data_package <- read_package(
+  "https://zenodo.org/records/15211029/files/datapackage.json"
+)
+
+# Load bird cube data
+bird_cube_belgium <- read_resource(b3data_package, "bird_cube_belgium_mgrs10")
+head(bird_cube_belgium)
+```
+
+We process the cube with **b3gbi**.
+We select the data from 2011 - 2020.
+
+```{r}
+processed_cube <- process_cube(
+  bird_cube_belgium,
+  first_year = 2011,
+  last_year = 2020,
+  cols_occurrences = "n"
+)
+processed_cube
+```
+
+### Analysis of the data
+
+Let's say we are interested in the mean number of observations per year.
+We create a function to calculate this.
+
+```{r}
+# Function to calculate statistic of interest
+# Mean observations per year
+mean_obs <- function(data) {
+  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+  names(out_df) <- c("year", "diversity_val") # Rename columns
+  return(out_df)
+}
+```
+
+We get the following results:
+
+```{r}
+mean_obs(processed_cube$data)
+```
+
+These values are not very informative on their own.
+Are these estimates based on reliable data?
+How certain are we about these estimates?
+
+To inform us about the first question, we perform leave-one-species-out cross-validation to investigate the impact of included species on the calculation of these values.
 
 ### Leave-one-species-out cross-validation
 
-...
+For this, we rely on the `cross_validate_cube()` function. It relies on the following arguments:
 
+- **`data_cube`**:  
+  The input data, either as a processed data cube (from `b3gbi::process_cube()` or `b3gbi::simulate_cube()`), or simply the dataframe inside it (i.e. `processed_cube$data`). For faster computation, passing just the dataframe is recommended.
+
+- **`fun`**:  
+  A user-defined function that computes the statistic(s) of interest from `data_cube`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
+
+- **`grouping_var`**:  
+  The column(s) used for grouping the output of `fun()`. For example, if `fun()` returns one value per year, use `grouping_var = "year"`.
+
+- **`out_var`**:  
+  The variable used to leave out one group at a time during cross-validation. The default is `"taxonKey"` (typically representing species), which results in leave-one-species-out cross-validation.
+
+- **progress**:  
+  Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
+
+```{r}
+cv_results <- cross_validate_cube(
+  data_cube = processed_cube$data,
+  fun = mean_obs,
+  grouping_var = "year",
+  out_var = "taxonKey"
+)
+head(cv_results)
+```
+
+The RMSE is an average error measure we get for each year.
+We see that it becomes larger for later years.
+
+```{r}
+ggplot(cv_results, aes(x = as.factor(year))) +
+  # Reference line
+  geom_hline(yintercept = 0, colour = "black", linetype = "dashed") +
+  geom_point(aes(y = rmse), colour = "red", size = 3) +
+  labs(x = "", y = "RMSE") +
+  theme_minimal()
+```
+
+If we look at the error values themselves, we see indeed more outliers in later years.
+A species key 2481139 in year 2015 with error -4 means that without species 2481139, the average number of occurrences would be 4 lower than the estimate based on the full dataset (in this case around 51 instead of 55).
+
+```{r}
+# Get original estimates (full dataset)
+original_estimates <- cv_results %>%
+  distinct(year, est_original) %>%
+  mutate(label = paste("hat(theta) ==", round(est_original, 3)))
+
+# Visualise results
+ggplot(cv_results, aes(x = as.factor(year))) +
+  # Reference line
+  geom_hline(yintercept = 0, colour = "black", linetype = "dashed") +
+  # Plot species keys
+  geom_text(aes(y = error, colour = as.factor(taxonkey_out),
+                label = as.factor(taxonkey_out))) +
+  # Plot original estimates
+  geom_label(data = original_estimates, aes(label = label),
+             y = 0.9, parse = TRUE) +
+  # Settings
+  scale_y_continuous(limits = c(NA, 1)) +
+  labs(x = "", y = "LOSO-CV Error") +
+  theme_minimal() +
+  theme(legend.position = "")
+```
+
+There are two species that have a big effect on the calculation of our statistic.
+
+- 2481174: [*Larus fuscus* Linnaeus, 1758](https://www.gbif.org/species/2481174)
+- 2481139: [*Larus argentatus* Pontoppidan, 1763](https://www.gbif.org/species/2481139)
+
+If we go back to the source of the data, we see that the data cube includes records from two large datasets strictly dedicated to these two species ([2481174](https://www.gbif.org/dataset/355b8ff9-7bd9-49c3-92af-f6741b8bd0cb), [2481139](https://www.gbif.org/dataset/6c860eb3-83ba-48c3-9328-a7b3c7a3c7b4)).
+
+```{r}
+index <- match("bird_cube_belgium_mgrs10", resources(b3data_package))
+b3data_package$resources[[index]]$sources
+```
+
+This means that these species are probably overrepresented in the cube and increase the estimates for our statistic unrelated to the true underlying diversity signal. Their disproportionate contribution may skew the results, leading to inflated values in years where those species were heavily sampled. This highlights how group-level sensitivity analysis can reveal data biases introduced by uneven sampling or targeted monitoring efforts.
+
+## Advanced usage of `cross_validate_cube()`
+
+The `cross_validate_cube()` function includes several optional parameters that give you more control over how the cross-validation is performed. These arguments are not required for basic use but can be helpful in specific scenarios.
+
+- **Cross-validation Method**: `crossv_method`  
+   Determines how data is partitioned for cross-validation.
+
+   - `"loo"` (default):  
+     Leave-one-out cross-validation. One category in `out_var` (e.g. one species) is excluded at a time.
+     
+   - `"kfold"`:  
+     K-fold cross-validation. All categories in `out_var` are split into `k` subsets, and each subset is excluded once while the others are used for analysis.  
+     *Note: this method is experimental and results should be interpreted with caution.*
+
+- **Number of Folds**: `k`  
+   Specifies the number of folds when using `"kfold"` cross-validation.  
+   Default is `5`. Only used when `crossv_method = "kfold"`.
+
+- **Maximum Number of Categories**: `max_out_cats`  
+   Sets an upper limit on the number of unique categories in `out_var` that will be excluded one-by-one during cross-validation.  
+   Default is `1000`. This helps prevent long runtimes for datasets with many unique categories. You can increase this if needed, but expect slower computation.

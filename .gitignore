@@ -20,3 +20,4 @@ docs
 libs
 output
 renv/library
+vignettes/articles/cache

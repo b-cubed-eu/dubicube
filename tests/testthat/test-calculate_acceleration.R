@@ -11,7 +11,8 @@ cube_df <- expand.grid(
   year = years,
   cellCode = grid_cells,
   taxonKey = species,
-  obs = rpois(5, 50))
+  obs = rpois(5, 50)
+)
 
 # Create data cube as 'processed_cube'
 processed_cube <- NULL
@@ -47,14 +48,16 @@ acceleration_df1 <- calculate_acceleration(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
-  influence_method = "usual")
+  influence_method = "usual"
+)
 
 # Input 'processed_cube'
 acceleration_df2 <- calculate_acceleration(
   data_cube = processed_cube,
   fun = mean_obs_processed,
   grouping_var = c("year", "taxonKey"),
-  influence_method = "pos")
+  influence_method = "pos"
+)
 
 # Input dataframe with reference group
 acceleration_df3 <- calculate_acceleration(
@@ -62,7 +65,8 @@ acceleration_df3 <- calculate_acceleration(
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   ref_group = ref_year,
-  influence_method = "pos")
+  influence_method = "pos"
+)
 
 # Input 'processed_cube' with reference group
 acceleration_df4 <- calculate_acceleration(
@@ -70,10 +74,12 @@ acceleration_df4 <- calculate_acceleration(
   fun = mean_obs_processed,
   grouping_var = c("year", "taxonKey"),
   ref_group = ref_year,
-  influence_method = "usual")
+  influence_method = "usual"
+)
 
 example_results <- list(
-  acceleration_df1, acceleration_df2, acceleration_df3, acceleration_df4)
+  acceleration_df1, acceleration_df2, acceleration_df3, acceleration_df4
+)
 
 ## Perform tests
 # Test calculate_acceleration output
@@ -87,7 +93,7 @@ test_that("calculate_acceleration returns a df with expected structure", {
   lapply(example_results, function(df) {
     expect_true(all(
       c("year", "taxonKey", "acceleration") %in% names(df)
-      ))
+    ))
   })
 
   # Correct number of columns
@@ -104,14 +110,16 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = cube_df,
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
-    influence_method = "pos")
+    influence_method = "pos"
+  )
 
   # Input 'processed_cube'
   acceleration_df22 <- calculate_acceleration(
     data_cube = processed_cube,
     fun = mean_obs_processed,
     grouping_var = c("year", "taxonKey"),
-    influence_method = "usual")
+    influence_method = "usual"
+  )
 
   # Input dataframe with reference group
   acceleration_df32 <- calculate_acceleration(
@@ -119,7 +127,8 @@ test_that("Identical results for processed cube and dataframe", {
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
     ref_group = ref_year,
-    influence_method = "usual")
+    influence_method = "usual"
+  )
 
   # Input 'processed_cube' with reference group
   acceleration_df42 <- calculate_acceleration(
@@ -127,7 +136,8 @@ test_that("Identical results for processed cube and dataframe", {
     fun = mean_obs_processed,
     grouping_var = c("year", "taxonKey"),
     ref_group = ref_year,
-    influence_method = "pos")
+    influence_method = "pos"
+  )
 
   expect_identical(acceleration_df2, acceleration_df12)
   expect_identical(acceleration_df1, acceleration_df22)

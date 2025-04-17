@@ -59,7 +59,8 @@ perform_jackknifing <- function(
           sapply(
             as.list(grouping_var), function(var) {
               ref_group %in% data_cube$data[[var]]
-            })
+            }
+          )
         )
     )
 
@@ -80,7 +81,8 @@ perform_jackknifing <- function(
           dplyr::inner_join(group, by = grouping_var) %>%
           dplyr::pull(.data$diversity_val)
       },
-      .progress = ifelse(progress, "Jackknife estimation", progress)) %>%
+      .progress = ifelse(progress, "Jackknife estimation", progress)
+    ) %>%
       unlist()
 
     jackknife_df <- data_cube$data %>%
@@ -95,7 +97,8 @@ perform_jackknifing <- function(
           sapply(
             as.list(grouping_var), function(var) {
               ref_group %in% data_cube[[var]]
-            })
+            }
+          )
         )
     )
 
@@ -111,7 +114,8 @@ perform_jackknifing <- function(
           dplyr::inner_join(group, by = grouping_var) %>%
           dplyr::pull(.data$diversity_val)
       },
-      .progress = ifelse(progress, "Jackknife estimation", progress)) %>%
+      .progress = ifelse(progress, "Jackknife estimation", progress)
+    ) %>%
       unlist()
 
     jackknife_df <- data_cube %>%
@@ -126,7 +130,8 @@ perform_jackknifing <- function(
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
         sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)]
+               function(col) ref_group %in% col)
+      ]
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =
@@ -138,7 +143,8 @@ perform_jackknifing <- function(
       # Check if ref_group is present in grouping_var
       matching_col <- grouping_var[
         sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)]
+               function(col) ref_group %in% col)
+      ]
 
       stopifnot(
         "`ref_group` is not present in `grouping_var` column of `data_cube`." =

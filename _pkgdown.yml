@@ -29,6 +29,20 @@ navbar:
       href: https://b-cubed.eu/
       aria-label: B-Cubed website
 
+articles:
+  - title: "Data variability and exploration"
+    contents:
+    - articles/group-level-sensitivity
+  - title: "Indicator uncertainty calculation"
+    contents:
+    - articles/bootstrap-method-cubes
+    - articles/bootstrap-interval-calculation
+  - title: "Indicator interpretation and visualisation"
+    contents:
+    - articles/effect-classification
+    - articles/visualising-temporal-trends
+    - articles/visualising-spatial-trends
+
 reference:
   - title: "Data variability and exploration"
     contents:

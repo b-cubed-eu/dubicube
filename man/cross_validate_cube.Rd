@@ -155,16 +155,8 @@ over all categories.
 }
 }
 \examples{
-# Get example data
-# install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
-library(b3gbi)
-cube_path <- system.file(
-  "extdata", "denmark_mammals_cube_eqdgc.csv",
-  package = "b3gbi")
-denmark_cube <- process_cube(
-  cube_path,
-  first_year = 2014,
-  last_year = 2020)
+\dontrun{
+# After processing a data cube with b3gbi::process_cube()
 
 # Function to calculate statistic of interest
 # Mean observations per year
@@ -173,17 +165,17 @@ mean_obs <- function(data) {
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }
-mean_obs(denmark_cube$data)
+mean_obs(processed_cube$data)
 
 # Perform leave-one-species-out CV
-\donttest{
 cv_mean_obs <- cross_validate_cube(
-  data_cube = denmark_cube$data,
+  data_cube = processed_cube$data,
   fun = mean_obs,
   grouping_var = "year",
   out_var = "taxonKey",
   crossv_method = "loo",
-  progress = FALSE)
+  progress = FALSE
+)
 head(cv_mean_obs)
 }
 }

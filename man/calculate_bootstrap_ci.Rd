@@ -191,16 +191,8 @@ where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
 }
 }
 \examples{
-# Get example data
-# install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
-library(b3gbi)
-cube_path <- system.file(
-  "extdata", "denmark_mammals_cube_eqdgc.csv",
-  package = "b3gbi")
-denmark_cube <- process_cube(
-  cube_path,
-  first_year = 2014,
-  last_year = 2020)
+\dontrun{
+# After processing a data cube with b3gbi::process_cube()
 
 # Function to calculate statistic of interest
 # Mean observations per year
@@ -209,17 +201,17 @@ mean_obs <- function(data) {
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }
-mean_obs(denmark_cube$data)
+mean_obs(processed_cube$data)
 
 # Perform bootstrapping
-\donttest{
 bootstrap_mean_obs <- bootstrap_cube(
-  data_cube = denmark_cube$data,
+  data_cube = processed_cube$data,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
   seed = 123,
-  progress = FALSE)
+  progress = FALSE
+)
 head(bootstrap_mean_obs)
 
 # Calculate confidence limits
@@ -229,7 +221,8 @@ ci_mean_obs1 <- calculate_bootstrap_ci(
   grouping_var = "year",
   type = "perc",
   conf = 0.95,
-  aggregate = TRUE)
+  aggregate = TRUE
+)
 ci_mean_obs1
 
 # All intervals
@@ -239,9 +232,10 @@ ci_mean_obs2 <- calculate_bootstrap_ci(
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   aggregate = TRUE,
-  data_cube = denmark_cube$data, # Required for BCa
-  fun = mean_obs,                # Required for BCa
-  progress = FALSE)
+  data_cube = processed_cube$data, # Required for BCa
+  fun = mean_obs,                  # Required for BCa
+  progress = FALSE
+)
 ci_mean_obs2
 }
 }

@@ -1,3 +1,9 @@
+# dubicube 0.7.0
+
+* Add tutorials #30
+* Simplify function examples
+* Check package with `lintr::indentation_linter()`
+
 # dubicube 0.6.0
 
 * Add transformation and no bias options to `calculate_bootstrap_ci()`

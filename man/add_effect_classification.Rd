@@ -73,7 +73,8 @@ add_effect_classification(
  cl_columns = c("lcl", "ucl"),
  threshold = 1,
  reference = 0,
- coarse = TRUE)
+ coarse = TRUE
+)
 }
 \references{
 Onkelinx, T. (2023). effectclass: Classification and visualisation of effects

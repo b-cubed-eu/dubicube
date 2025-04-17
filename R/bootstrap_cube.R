@@ -113,16 +113,8 @@
 #' @importFrom stats sd setNames
 #'
 #' @examples
-#' # Get example data
-#' # install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
-#' library(b3gbi)
-#' cube_path <- system.file(
-#'   "extdata", "denmark_mammals_cube_eqdgc.csv",
-#'   package = "b3gbi")
-#' denmark_cube <- process_cube(
-#'   cube_path,
-#'   first_year = 2014,
-#'   last_year = 2020)
+#' \dontrun{
+#' # After processing a data cube with b3gbi::process_cube()
 #'
 #' # Function to calculate statistic of interest
 #' # Mean observations per year
@@ -131,17 +123,17 @@
 #'   names(out_df) <- c("year", "diversity_val") # Rename columns
 #'   return(out_df)
 #' }
-#' mean_obs(denmark_cube$data)
+#' mean_obs(processed_cube$data)
 #'
 #' # Perform bootstrapping
-#' \donttest{
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = denmark_cube$data,
+#'   data_cube = processed_cube$data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
 #'   seed = 123,
-#'   progress = FALSE)
+#'   progress = FALSE
+#' )
 #' head(bootstrap_mean_obs)
 #' }
 # nolint end
@@ -159,12 +151,16 @@ bootstrap_cube <- function(
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
                         "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            rlang::inherits_any(data_cube,
-                                c("processed_cube", "sim_cube", "data.frame"))),
-            cube_message)
-          )
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        rlang::inherits_any(data_cube,
+                            c("processed_cube", "sim_cube", "data.frame"))
+      ),
+      cube_message
+    )
+  )
 
   # Check fun input
   stopifnot("`fun` must be a function." = is.function(fun))
@@ -179,14 +175,16 @@ bootstrap_cube <- function(
   # Check if samples is a positive integer
   stopifnot(
     "`samples` must be a single positive integer." =
-      assertthat::is.count(samples))
+      assertthat::is.count(samples)
+  )
 
   # Check if ref_group is NA or a number or a string
   stopifnot(
     "`ref_group` must be a numeric/character vector of length 1 or NA." =
       (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-         is.na(ref_group)) &
-      length(ref_group) == 1)
+       is.na(ref_group)) &
+      length(ref_group) == 1
+  )
 
   # Check if seed is NA or a number
   stopifnot("`seed` must be a numeric vector of length 1 or NA." =
@@ -251,7 +249,8 @@ bootstrap_cube <- function(
         sapply(
           as.list(grouping_var), function(var) {
             ref_group %in% data_cube_data[[var]]
-          })
+          }
+        )
       )
   )
   ### End extra checks
@@ -266,7 +265,8 @@ bootstrap_cube <- function(
       bootstrap_resample,
       fun = fun,
       ...,
-      .progress = ifelse(progress, "Bootstrapping", progress))
+      .progress = ifelse(progress, "Bootstrapping", progress)
+    )
 
   # Calculate original estimates
   t0 <- calc_stat_by_group(
@@ -274,14 +274,16 @@ bootstrap_cube <- function(
     fun = fun,
     ...,
     grouping_var = grouping_var,
-    ref_group = ref_group)
+    ref_group = ref_group
+  )
 
   # Take difference with reference group if specified
   if (!is.na(ref_group)) {
     # Calculate group_var columns for matching
     matching_col <- grouping_var[
       sapply(data_cube_data %>% dplyr::select(dplyr::all_of(grouping_var)),
-             function(col) ref_group %in% col)]
+             function(col) ref_group %in% col)
+    ]
 
     # Get bootstrap samples as a list
     bootstrap_samples_list <- lapply(bootstrap_samples_list_raw, function(df) {
@@ -310,7 +312,8 @@ bootstrap_cube <- function(
     dplyr::mutate(
       est_boot = mean(.data$rep_boot),
       se_boot = stats::sd(.data$rep_boot),
-      .by = dplyr::all_of(grouping_var)) %>%
+      .by = dplyr::all_of(grouping_var)
+    ) %>%
     dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
     dplyr::arrange(dplyr::across(grouping_var)) %>%
     dplyr::select("sample", dplyr::all_of(grouping_var), "est_original",

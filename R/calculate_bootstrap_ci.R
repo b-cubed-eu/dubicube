@@ -177,16 +177,8 @@
 #' @importFrom stats pnorm qnorm setNames
 #'
 #' @examples
-#' # Get example data
-#' # install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
-#' library(b3gbi)
-#' cube_path <- system.file(
-#'   "extdata", "denmark_mammals_cube_eqdgc.csv",
-#'   package = "b3gbi")
-#' denmark_cube <- process_cube(
-#'   cube_path,
-#'   first_year = 2014,
-#'   last_year = 2020)
+#' \dontrun{
+#' # After processing a data cube with b3gbi::process_cube()
 #'
 #' # Function to calculate statistic of interest
 #' # Mean observations per year
@@ -195,17 +187,17 @@
 #'   names(out_df) <- c("year", "diversity_val") # Rename columns
 #'   return(out_df)
 #' }
-#' mean_obs(denmark_cube$data)
+#' mean_obs(processed_cube$data)
 #'
 #' # Perform bootstrapping
-#' \donttest{
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = denmark_cube$data,
+#'   data_cube = processed_cube$data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
 #'   seed = 123,
-#'   progress = FALSE)
+#'   progress = FALSE
+#' )
 #' head(bootstrap_mean_obs)
 #'
 #' # Calculate confidence limits
@@ -215,7 +207,8 @@
 #'   grouping_var = "year",
 #'   type = "perc",
 #'   conf = 0.95,
-#'   aggregate = TRUE)
+#'   aggregate = TRUE
+#' )
 #' ci_mean_obs1
 #'
 #' # All intervals
@@ -225,9 +218,10 @@
 #'   type = c("perc", "bca", "norm", "basic"),
 #'   conf = 0.95,
 #'   aggregate = TRUE,
-#'   data_cube = denmark_cube$data, # Required for BCa
-#'   fun = mean_obs,                # Required for BCa
-#'   progress = FALSE)
+#'   data_cube = processed_cube$data, # Required for BCa
+#'   fun = mean_obs,                  # Required for BCa
+#'   progress = FALSE
+#' )
 #' ci_mean_obs2
 #' }
 # nolint end
@@ -262,12 +256,17 @@ calculate_bootstrap_ci <- function(
   # Check if "rep_boot", "est_original" and grouping_var columns are present
   colname_message <- paste(
     "`bootstrap_samples_df` should contain columns: 'rep_boot', 'est_original'",
-    "and `grouping_var`.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            all(c(grouping_var, "rep_boot", "est_original") %in%
-                  names(bootstrap_samples_df))),
-            colname_message)
+    "and `grouping_var`."
+  )
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        all(c(grouping_var, "rep_boot", "est_original") %in%
+              names(bootstrap_samples_df))
+      ),
+      colname_message
+    )
   )
 
   # Check if interval type is correct
@@ -291,7 +290,8 @@ calculate_bootstrap_ci <- function(
       rep_boot = ifelse(
         no_bias,
         .data$rep_boot - .data$bias_boot,
-        .data$rep_boot)
+        .data$rep_boot
+      )
     ) %>%
     dplyr::ungroup()
 
@@ -336,8 +336,10 @@ calculate_bootstrap_ci <- function(
         "`data_cube` and `fun` must be provided to calculate BCa interval." =
           rlang::inherits_any(
             data_cube,
-            c("processed_cube", "sim_cube", "data.frame")) &
-          is.function(fun))
+            c("processed_cube", "sim_cube", "data.frame")
+          ) &
+          is.function(fun)
+      )
 
       # Calculate acceleration values per grouping_var
       acceleration_df <- calculate_acceleration(
@@ -347,7 +349,8 @@ calculate_bootstrap_ci <- function(
         grouping_var = grouping_var,
         ref_group = ref_group,
         influence_method = influence_method,
-        progress = progress)
+        progress = progress
+      )
 
       # Calculate confidence limits per group
       intervals_list <- bootstrap_samples_df %>%
@@ -467,15 +470,16 @@ calculate_bootstrap_ci <- function(
 
   # Combine dataframes from all interval types
   conf_df_full <- dplyr::bind_rows(out_list) %>%
-      # Revert bias if required
-      dplyr::rowwise() %>%
-      dplyr::mutate(
-        rep_boot = ifelse(
-          no_bias,
-          .data$rep_boot + .data$bias_boot,
-          .data$rep_boot)
-      ) %>%
-      dplyr::ungroup()
+    # Revert bias if required
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      rep_boot = ifelse(
+        no_bias,
+        .data$rep_boot + .data$bias_boot,
+        .data$rep_boot
+      )
+    ) %>%
+    dplyr::ungroup()
 
   # Aggregate if requested
   if (aggregate) {

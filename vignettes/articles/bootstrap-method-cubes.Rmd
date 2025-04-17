@@ -241,6 +241,7 @@ if (file.exists(bootstrap_results_ref_path)) {
     fun = mean_obs,
     grouping_var = "year",
     samples = 1000,
+    ref_group = 2011,
     seed = 123
   )
   saveRDS(bootstrap_results_ref, bootstrap_results_ref_path)

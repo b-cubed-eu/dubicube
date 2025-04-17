@@ -33,6 +33,8 @@ Imports:
     tidyr
 Suggests:
     b3gbi,
+    frictionless,
+    ggplot2,
     testthat (>= 3.0.0)
 Remotes: 
     github::b-cubed-eu/b3gbi,

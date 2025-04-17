@@ -1,5 +1,7 @@
 ---
 title: "Group-Level Sensitivity Analysis"
+resource_files:
+  - cache/cv_results.Rds
 editor_options: 
   chunk_output_type: console
 ---
@@ -177,7 +179,27 @@ We use the `cross_validate_cube()` function to do this. It relies on the followi
 - **progress**:  
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
-```{r, cache=TRUE}
+```{r, echo=FALSE, message=FALSE}
+# Create cache directory
+cache_path <- here::here("vignettes", "articles", "cache")
+dir.create(cache_path, showWarnings = FALSE, recursive = TRUE)
+cv_results_path <- file.path(cache_path, "cv_results.Rds")
+
+# Cross-validation
+if (file.exists(cv_results_path)) {
+  cv_results <- readRDS(cv_results_path)
+} else {
+  cv_results <- cross_validate_cube(
+    data_cube = processed_cube$data,
+    fun = mean_obs,
+    grouping_var = "year",
+    out_var = "taxonKey"
+  )
+  saveRDS(cv_results, cv_results_path)
+}
+```
+
+```r
 cv_results <- cross_validate_cube(
   data_cube = processed_cube$data,
   fun = mean_obs,

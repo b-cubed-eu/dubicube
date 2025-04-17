@@ -1,5 +1,8 @@
 ---
 title: "Bootstrap Method for Data Cubes"
+resource_files:
+  - cache/bootstrap_results.Rds
+  - cache/bootstrap_results_ref.Rds
 editor_options: 
   chunk_output_type: console
 ---
@@ -74,10 +77,12 @@ $$
    - The standard deviation of the bootstrap replications, which estimates
    the variability of the statistic.
    
-```{r}
+```{r, echo=FALSE, eval=FALSE}
 #| fig.alt: >
 #|   Bootstrap resampling a data cube.
-knitr::include_graphics("../../man/figures/bootstrapping.png")
+knitr::include_graphics(
+  here::here("vignettes", "articles", "figures", "bootstrapping.png")
+)
 ```
 
 ## Getting started with dubicube
@@ -172,7 +177,27 @@ We use the `bootstrap_cube()` function to do this. It relies on the following ar
 - **progress**:  
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
-```{r, cache=TRUE}
+```{r, echo=FALSE, message=FALSE}
+# Create cache directory
+cache_path <- here::here("vignettes", "articles", "cache")
+dir.create(cache_path, showWarnings = FALSE, recursive = TRUE)
+
+bootstrap_results_path <- file.path(cache_path, "bootstrap_results.Rds")
+if (file.exists(bootstrap_results_path)) {
+  bootstrap_results <- readRDS(bootstrap_results_path)
+} else {
+  bootstrap_results <- bootstrap_cube(
+    data_cube = processed_cube$data,
+    fun = mean_obs,
+    grouping_var = "year",
+    samples = 1000,
+    seed = 123
+  )
+  saveRDS(bootstrap_results, bootstrap_results_path)
+}
+```
+
+```r
 bootstrap_results <- bootstrap_cube(
   data_cube = processed_cube$data,
   fun = mean_obs,
@@ -180,6 +205,9 @@ bootstrap_results <- bootstrap_cube(
   samples = 1000,
   seed = 123
 )
+```
+
+```{r}
 head(bootstrap_results)
 ```
 
@@ -187,7 +215,23 @@ head(bootstrap_results)
 
 ## Comparison with a reference group
 
-```{r, cache=TRUE}
+```{r, echo=FALSE, message=FALSE}
+bootstrap_results_ref_path <- file.path(cache_path, "bootstrap_results_ref.Rds")
+if (file.exists(bootstrap_results_ref_path)) {
+  bootstrap_results_ref <- readRDS(bootstrap_results_ref_path)
+} else {
+  bootstrap_results_ref <- bootstrap_cube(
+    data_cube = processed_cube$data,
+    fun = mean_obs,
+    grouping_var = "year",
+    samples = 1000,
+    seed = 123
+  )
+  saveRDS(bootstrap_results_ref, bootstrap_results_ref_path)
+}
+```
+
+```r
 bootstrap_results_ref <- bootstrap_cube(
   data_cube = processed_cube$data,
   fun = mean_obs,
@@ -196,6 +240,9 @@ bootstrap_results_ref <- bootstrap_cube(
   ref_group = 2011,
   seed = 123
 )
+```
+
+```{r}
 head(bootstrap_results_ref)
 ```
 

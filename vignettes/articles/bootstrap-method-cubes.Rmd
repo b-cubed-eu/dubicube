@@ -77,7 +77,11 @@ $$
    - The standard deviation of the bootstrap replications, which estimates
    the variability of the statistic.
    
-![Bootstrap resampling a data cube.](figures/bootstrapping.png)
+```{r echo= FALSE, fig.align="center", out.width="65%"}
+#| fig.alt: >
+#|   Bootstrap resampling a data cube in tabular format.
+knitr::include_graphics("figures/bootstrapping.png")
+```
 
 ## Getting started with dubicube
 

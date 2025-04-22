@@ -162,17 +162,23 @@ processed_cube
 Let's say we are interested in the mean number of observations per grid cell per year.
 We create a function to calculate this.
 
+```{r, echo=FALSE}
+# nolint start: object_usage_linter.
+```
+
 ```{r}
 # Function to calculate statistic of interest
 # Mean observations per grid cell per year
 mean_obs <- function(data) {
-  obs <- x <- NULL
-
   data %>%
     dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
     dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
     as.data.frame()
 }
+```
+
+```{r, echo=FALSE}
+# nolint end
 ```
 
 We get the following results:
@@ -517,10 +523,12 @@ processed_cube_even <- process_cube(
 
 We create a custom function to calculate evenness:
 
+```{r, echo=FALSE}
+# nolint start: object_usage_linter.
+```
+
 ```{r}
 calc_evenness <- function(data) {
-  p <- diversity_val <- NULL
-
   data %>%
     # Calculate number of observations
     dplyr::group_by(year, scientificName) %>%
@@ -537,6 +545,10 @@ calc_evenness <- function(data) {
     # Get distinct values
     dplyr::distinct(year, diversity_val)
 }
+```
+
+```{r, echo=FALSE}
+# nolint end
 ```
 
 We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_even` using the **b3gbi** function `pielou_evenness_ts()`.
@@ -693,6 +705,10 @@ bootstrap_results_evenness %>%
 Consider the calculation of observed species richness on the same subset used in the previous subsection.
 We create a custom function to calculate richness:
 
+```{r, echo=FALSE}
+# nolint start: object_usage_linter.
+```
+
 ```{r}
 calc_richness <- function(data) {
   data %>%
@@ -700,6 +716,10 @@ calc_richness <- function(data) {
     dplyr::summarise(diversity_val = n_distinct(scientificName),
                      .groups = "drop")
 }
+```
+
+```{r, echo=FALSE}
+# nolint end
 ```
 
 We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `obs_richness_ts()`.

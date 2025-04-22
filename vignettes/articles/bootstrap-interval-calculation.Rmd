@@ -112,7 +112,7 @@ Implementation of these jackknife algorithms can be explored in the future.
 In case of the BCa interval, `calculate_bootstrap_ci()` uses the function `calculate_acceleration()` to calculate acceleration.
 The latter can also be used on its own to calculate acceleration values to quantify the sensitivity
 of a statistic’s variability to changes in the dataset.
-For jackknifing, the it uses the `perform_jackknifing()` function which is not exported by **dubicube**.
+For jackknifing, it uses the `perform_jackknifing()` function which is not exported by **dubicube**.
 
 ## Getting started with dubicube
 
@@ -259,7 +259,7 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
 - **progress**:
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
-> **Note:** The BCa interval (`type = "bca"`) is currently not calculated in this tutorial due to its high computational cost. We are actively exploring options to improve its performance and enable faster computation in future releases.
+> **Note:** The BCa interval (`type = "bca"`) is not computed in this tutorial due to its high computational cost. Consequently, the `data_cube` and `fun` arguments are not required for the interval types used here (`"perc"`, `"norm"`, `"basic"`) and will not have any effect on these interval calculations. However, we include them in the example to illustrate their usage in case BCa intervals are desired. We are actively working on optimizing BCa computations for improved performance in future versions.
 
 ```{r, echo=FALSE, message=FALSE}
 ci_mean_obs_path <- file.path(cache_path, "ci_mean_obs.Rds")
@@ -271,8 +271,8 @@ if (file.exists(ci_mean_obs_path)) {
     grouping_var = "year",
     type = c("perc", "norm", "basic"),
     conf = 0.95,
-    data_cube = processed_cube$data,
-    fun = mean_obs
+    data_cube = processed_cube$data,   # Required for BCa
+    fun = mean_obs                     # Required for BCa
   )
   saveRDS(ci_mean_obs, ci_mean_obs_path)
 }
@@ -284,8 +284,8 @@ ci_mean_obs <- calculate_bootstrap_ci(
   grouping_var = "year",
   type = c("perc", "norm", "basic"),
   conf = 0.95,
-  data_cube = processed_cube$data,
-  fun = mean_obs
+  data_cube = processed_cube$data,   # Required for BCa
+  fun = mean_obs                     # Required for BCa
 )
 ```
   
@@ -344,9 +344,43 @@ bootstrap_results %>%
 ## Advanced usage of `calculate_bootstrap_ci()`
 ### Comparison with a reference group
 
-...
+As discussed in the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html), we can also  compare indicator values to a reference group. In time series analyses, this often means comparing each year’s indicator to a baseline year (e.g., the first or last year in the series).
+To do this, we perform bootstrapping over the difference between indicator values.
+This process yields bootstrap replicate distributions of differences in indicator values.
 
-If a reference group is used, jackknifing is implemented in a different way.
+```{r, echo=FALSE, message=FALSE}
+bootstrap_results_ref_path <- file.path(cache_path, "bootstrap_results_ref.Rds")
+if (file.exists(bootstrap_results_ref_path)) {
+  bootstrap_results_ref <- readRDS(bootstrap_results_ref_path)
+} else {
+  bootstrap_results_ref <- bootstrap_cube(
+    data_cube = processed_cube$data,
+    fun = mean_obs,
+    grouping_var = "year",
+    samples = 1000,
+    ref_group = 2011,
+    seed = 123
+  )
+  saveRDS(bootstrap_results_ref, bootstrap_results_ref_path)
+}
+```
+
+```r
+bootstrap_results_ref <- bootstrap_cube(
+  data_cube = processed_cube$data,
+  fun = mean_obs,
+  grouping_var = "year",
+  samples = 1000,
+  ref_group = 2011,
+  seed = 123
+)
+```
+
+```{r}
+head(bootstrap_results_ref)
+```
+
+If the BCa interval is calculated and a reference group is used, jackknifing is implemented in a different way.
 Consider $\hat{\theta} = \hat{\theta}_1 - \hat{\theta}_2$ where $\hat{\theta}_1$ is the estimate for the indicator value of a non-reference period (sample size $n_1$) and $\hat{\theta}_2$ is the estimate for the indicator value of a reference period (sample size $n_2$).
 The acceleration is now calculated as follows:
 
@@ -359,6 +393,107 @@ $I_i$ can be calculated using the negative or positive jackknife. Such that
 $\hat{\theta}_{-i} = \hat{\theta}_{1,-i} - \hat{\theta}_2 \text{ for } i = 1, \ldots, n_1$, and
 
 $\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1 + 1, \ldots, n_1 + n_2$
+
+Therefore, if we want to calculate the BCa intervals using `calculate_bootstrap_ci()`, we also need to provide the `ref_group = 2011` argumetn.
+
+> **Note:** The BCa interval (`type = "bca"`) is not computed in this tutorial due to its high computational cost. Consequently, the `data_cube` and `fun` arguments are not required for the interval types used here (`"perc"`, `"norm"`, `"basic"`) and will not have any effect on these interval calculations. However, we include them in the example to illustrate their usage in case BCa intervals are desired. We are actively working on optimizing BCa computations for improved performance in future versions.
+
+```{r, echo=FALSE, message=FALSE}
+ci_mean_obs_ref_path <- file.path(cache_path, "ci_mean_obs_ref.Rds")
+if (file.exists(ci_mean_obs_ref_path)) {
+  ci_mean_obs_ref <- readRDS(ci_mean_obs_ref_path)
+} else {
+  ci_mean_obs_ref <- calculate_bootstrap_ci(
+    bootstrap_samples_df = bootstrap_results_ref,
+    grouping_var = "year",
+    type = c("perc", "norm", "basic"),
+    conf = 0.95,
+    data_cube = processed_cube$data,   # Required for BCa
+    fun = mean_obs,                    # Required for BCa
+    ref_group = 2011                   # Required for BCa
+  )
+  saveRDS(ci_mean_obs_ref, ci_mean_obs_ref_path)
+}
+```
+
+```r
+ci_mean_obs_ref <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results_ref,
+  grouping_var = "year",
+  type = c("perc", "norm", "basic"),
+  conf = 0.95,
+  data_cube = processed_cube$data,   # Required for BCa
+  fun = mean_obs,                    # Required for BCa
+  ref_group = 2011                   # Required for BCa
+)
+```
+  
+```{r}
+head(ci_mean_obs_ref)
+```
+
+We see that the mean number of observations is much lower in later years compared to 2011.
+Because the intervals are lower than zero from 2014 onwards, we might even say it is significant.
+This will be further explored in the [effect classification tutorial](https://b-cubed-eu.github.io/dubicube/articles/effect-classification.html).
+
+```{r}
+# Make interval type factor
+ci_mean_obs_ref <- ci_mean_obs_ref %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("norm", "basic", "perc", "bca")
+    )
+  )
+```
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals for mean number of occurrences over time (ref).
+# Get bias vales
+bias_mean_obs <- bootstrap_results_ref %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
+                      names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+# Visualise
+bootstrap_results_ref %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_mean_obs_ref,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell",
+       x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_ref$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
+
+Note that the choice of the reference year should be well considered.
+Keep in mind which comparisons should be made, and what the motivation is behind the reference period.
+A high or low value in the reference period relative to other periods, e.g. an exceptional bad or good year, can affect the magnitude and direction of the calculated differences.
+Whether this should be avoided or not, depends on the motivation behind the choice and the research question.
+A reference period can be determined by legislation, or by the start of a monitoring campaign.
+A specific research question can determine the periods that need to be compared.
+Furthermore, the variability of the estimate of reference period affects the width of confidence intervals for the differences.
+A more variable reference period will propagate greater uncertainty.
+In the case of GBIF data, more data will be available in recent years than in earlier years.
+If this is the case, it could make sense to select the last period as a reference period.
+In a way, this also avoids the arbitrariness of choice for the reference period.
+You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
+Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability
 
 ### Transformations and bias correction options
 

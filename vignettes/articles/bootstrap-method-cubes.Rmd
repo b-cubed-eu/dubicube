@@ -266,7 +266,7 @@ bootstrap_results_evenness <- bootstrap_cube(
 )
 ```
 
-## Comparison with a reference group
+### Comparison with a reference group
 
 A particularly insightful approach is comparing indicator values to a reference group. In time series analyses, this often means comparing each year’s indicator to a baseline year (e.g., the first or last year in the series).
 

@@ -49,7 +49,7 @@ $$
 
 where $\#$ is the counting operator and $\Phi^{-1}$ is the inverse cumulative density function of the standard normal distribution.
 
-**Acceleration** quantifies how sensitive the variability of the statistic is to changes in the data. See `calculate_acceleration()` for how this is calculated:
+**Acceleration** quantifies how sensitive the variability of the statistic is to changes in the data. See further for how this is calculated:
 
 - $a = 0$: The statistic's variability does not depend on the data (e.g., symmetric distribution)
 - $a > 0$: Small changes in the data have a large effect on the statistic's variability (e.g., positive skew)
@@ -93,6 +93,26 @@ CI_{\text{basic}} = \left[ 2\hat{\theta} - \hat{\theta}^*_{(1-\alpha/2)},
 $$
 
 where $\hat{\theta}^*_{(\alpha/2)}$ and $\hat{\theta}^*_{(1-\alpha/2)}$ are the $\alpha/2$ and $1-\alpha/2$ percentiles of the bootstrap distribution, respectively.
+
+## Calculating acceleration
+
+The acceleration is calculated as follows:
+
+$$
+\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n}(I_i^3)}{\left( \sum_{i = 1}^{n}(I_i^2) \right)^{3/2}}
+$$
+
+where $I_i$ denotes the influence of data point $x_i$ on the estimation of $\theta$.
+$I_i$ can be estimated using jackknifing.
+Examples are (1) the negative jackknife: $I_i = (n-1)(\hat{\theta} - \hat{\theta}_{-i})$, and (2) the positive jackknife $I_i = (n+1)(\hat{\theta}_{-i} - \hat{\theta})$ (Frangos & Schucany, [1990](https://doi.org/10.1016/0167-9473(90)90109-U)).
+Here, $\hat{\theta}_{-i}$ is the estimated value leaving out the $i$’th data point $x_i$.
+The **boot** package (Canty & Ripley, [1999](https://CRAN.R-project.org/package=boot)) also offers infinitesimal jackknife and regression estimation.
+Implementation of these jackknife algorithms can be explored in the future.
+
+In case of the BCa interval, `calculate_bootstrap_ci()` uses the function `calculate_acceleration()` to calculate acceleration.
+The latter can also be used on its own to calculate acceleration values to quantify the sensitivity
+of a statistic’s variability to changes in the dataset.
+For jackknifing, the it uses the `perform_jackknifing()` function which is not exported by **dubicube**.
 
 ## Getting started with dubicube
 
@@ -215,6 +235,20 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
 ### Comparison with a reference group
 
 ...
+
+If a reference group is used, jackknifing is implemented in a different way.
+Consider $\hat{\theta} = \hat{\theta}_1 - \hat{\theta}_2$ where $\hat{\theta}_1$ is the estimate for the indicator value of a non-reference period (sample size $n_1$) and $\hat{\theta}_2$ is the estimate for the indicator value of a reference period (sample size $n_2$).
+The acceleration is now calculated as follows:
+
+$$
+\hat{a} = \frac{1}{6} \frac{\sum_{i = 1}^{n_1 + n_2}(I_i^3)}{\left( \sum_{i = 1}^{n_1 + n_2}(I_i^2) \right)^{3/2}}
+$$
+
+$I_i$ can be calculated using the negative or positive jackknife. Such that
+
+$\hat{\theta}_{-i} = \hat{\theta}_{1,-i} - \hat{\theta}_2 \text{ for } i = 1, \ldots, n_1$, and
+
+$\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1 + 1, \ldots, n_1 + n_2$
 
 ### Transformations and bias correction options
 

@@ -228,8 +228,116 @@ head(bootstrap_results)
 
 ### Interval calculation
 
-Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits.
+Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits. It relies on the following arguments:
 
+- **`bootstrap_samples_df`**:
+  A dataframe containing the bootstrap replicates, where each row represents a bootstrap sample. As returned by `bootstrap_cube()`.
+
+- **`grouping_var`**:
+  The column(s) used for grouping the output of `fun()`. For example, if `fun()` returns one value per year, use `grouping_var = "year"`.
+
+- **`type`**:
+  A character vector specifying the type(s) of confidence intervals to compute. Options include:
+    - `"perc"`: Percentile interval
+    - `"bca"`: Bias-corrected and accelerated interval
+    - `"norm"`: Normal interval
+    - `"basic"`: Basic interval
+    - `"all"`: Compute all available interval types (default)
+
+- **`conf`**:
+  The confidence level of the intervals. Default is `0.95` (95 % confidence level).
+
+- **`aggregate`**:
+  Logical. If `TRUE` (default), the function returns confidence limits per group. If `FALSE`, the confidence limits are added to the original bootstrap dataframe `bootstrap_samples_df`.
+
+- **`data_cube`**:
+  Only used when `type = "bca"`. The input data, either as a processed data cube (from `b3gbi::process_cube()`), or simply the dataframe inside it (i.e. `processed_cube$data`). For faster computation, passing just the dataframe is recommended.
+
+- **`fun`**:
+  Only used when `type = "bca"`. A user-defined function that computes the statistic(s) of interest from `data_cube`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
+
+- **progress**:
+  Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
+
+> **Note:** The BCa interval (`type = "bca"`) is currently not calculated in this tutorial due to its high computational cost. We are actively exploring options to improve its performance and enable faster computation in future releases.
+
+```{r, echo=FALSE, message=FALSE}
+ci_mean_obs_path <- file.path(cache_path, "ci_mean_obs.Rds")
+if (file.exists(ci_mean_obs_path)) {
+  ci_mean_obs <- readRDS(ci_mean_obs_path)
+} else {
+  ci_mean_obs <- calculate_bootstrap_ci(
+    bootstrap_samples_df = bootstrap_results,
+    grouping_var = "year",
+    type = c("perc", "norm", "basic"),
+    conf = 0.95,
+    data_cube = processed_cube$data,
+    fun = mean_obs
+  )
+  saveRDS(ci_mean_obs, ci_mean_obs_path)
+}
+```
+
+```r
+ci_mean_obs <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results,
+  grouping_var = "year",
+  type = c("perc", "norm", "basic"),
+  conf = 0.95,
+  data_cube = processed_cube$data,
+  fun = mean_obs
+)
+```
+  
+```{r}
+head(ci_mean_obs)
+```
+
+We visualise the distribution of the bootstrap replicates and the confidence intervals.
+Since we have nice symmetrical distribution, all confidence intervals are very similar.
+
+```{r}
+# Make interval type factor
+ci_mean_obs <- ci_mean_obs %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("norm", "basic", "perc", "bca")
+    )
+  )
+```
+
+```{r}
+# Get bias vales
+bias_mean_obs <- bootstrap_results %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
+                      names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+# Visualise
+bootstrap_results %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_mean_obs,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell",
+       x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
 
 ## Advanced usage of `calculate_bootstrap_ci()`
 ### Comparison with a reference group

@@ -1,6 +1,6 @@
 Package: dubicube
 Title: Calculation and Interpretation of Data Cube Indicator Uncertainty
-Version: 0.6.0
+Version: 0.7.0
 Authors@R: c(
     person("Ward", "Langeraert", , "ward.langeraert@inbo.be", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5900-8109", affiliation = "Research Institute for Nature and Forest (INBO)")),
@@ -33,6 +33,8 @@ Imports:
     tidyr
 Suggests:
     b3gbi,
+    frictionless,
+    ggplot2,
     testthat (>= 3.0.0)
 Remotes: 
     github::b-cubed-eu/b3gbi,
@@ -42,6 +44,7 @@ Additional_repositories: https://inbo.r-universe.dev,
 Config/checklist/communities: b3; inbo
 Config/checklist/keywords: uncertainty quantification; uncertainty
     visualisation; biodiversity indicators; data cubes
+Config/Needs/website: rmarkdown
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-GB

@@ -115,9 +115,11 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       cl_columns = c("ll", "ul"),
       threshold = c(0.5, 1.5),
       reference = 1,
-      coarse = FALSE),
+      coarse = FALSE
+    ),
     "`cl_columns` columns are not present in `df`.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     add_effect_classification(
@@ -125,9 +127,11 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       cl_columns = c("lcl", "ucl"),
       threshold = 1:3,
       reference = 1,
-      coarse = FALSE),
+      coarse = FALSE
+    ),
     "`threshold` must be a numeric vector of length 1 or 2.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     add_effect_classification(
@@ -135,9 +139,11 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       cl_columns = c("lcl", "ucl"),
       threshold = c(0.5, 1.5),
       reference = "1",
-      coarse = FALSE),
+      coarse = FALSE
+    ),
     "`reference` must be a numeric vector of length 1.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 
   expect_error(
     add_effect_classification(
@@ -145,7 +151,9 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
       cl_columns = c("lcl", "ucl"),
       threshold = c(0.5, 1.5),
       reference = 1,
-      coarse = "FALSE"),
+      coarse = "FALSE"
+    ),
     "`coarse` must be a logical vector of length 1.",
-    fixed = TRUE)
+    fixed = TRUE
+  )
 })

@@ -105,16 +105,8 @@
 #' @importFrom stats setNames
 #'
 #' @examples
-#' # Get example data
-#' # install.packages("b3gbi", repos = "https://b-cubed-eu.r-universe.dev")
-#' library(b3gbi)
-#' cube_path <- system.file(
-#'   "extdata", "denmark_mammals_cube_eqdgc.csv",
-#'   package = "b3gbi")
-#' denmark_cube <- process_cube(
-#'   cube_path,
-#'   first_year = 2014,
-#'   last_year = 2020)
+#' \dontrun{
+#' # After processing a data cube with b3gbi::process_cube()
 #'
 #' # Function to calculate statistic of interest
 #' # Mean observations per year
@@ -123,25 +115,26 @@
 #'   names(out_df) <- c("year", "diversity_val") # Rename columns
 #'   return(out_df)
 #' }
-#' mean_obs(denmark_cube$data)
+#' mean_obs(processed_cube$data)
 #'
 #' # Perform bootstrapping
-#' \donttest{
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = denmark_cube$data,
+#'   data_cube = processed_cube$data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
 #'   seed = 123,
-#'   progress = FALSE)
+#'   progress = FALSE
+#' )
 #' head(bootstrap_mean_obs)
 #'
 #' # Calculate acceleration
 #' acceleration_df <- calculate_acceleration(
-#'   data_cube = denmark_cube$data,
+#'   data_cube = processed_cube$data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
-#'   progress = FALSE)
+#'   progress = FALSE
+#' )
 #' acceleration_df
 #' }
 # nolint end
@@ -165,11 +158,15 @@ calculate_acceleration <- function(
   # Check data_cube input
   cube_message <- paste("`data_cube` must be a data cube object (class",
                         "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(stopifnot,
-          stats::setNames(list(
-            rlang::inherits_any(data_cube,
-                                c("processed_cube", "sim_cube", "data.frame"))),
-            cube_message)
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(
+        rlang::inherits_any(data_cube,
+                            c("processed_cube", "sim_cube", "data.frame"))
+      ),
+      cube_message
+    )
   )
 
   # Check fun input
@@ -179,8 +176,9 @@ calculate_acceleration <- function(
   stopifnot(
     "`ref_group` must be a numeric/character vector of length 1 or NA." =
       (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-         is.na(ref_group)) &
-      length(ref_group) == 1)
+       is.na(ref_group)) &
+      length(ref_group) == 1
+  )
 
   # Check if influence_method is 'usual' or 'pos'
   influence_method <- tryCatch({
@@ -202,7 +200,8 @@ calculate_acceleration <- function(
     ...,
     grouping_var = grouping_var,
     ref_group = ref_group,
-    progress = progress)
+    progress = progress
+  )
 
   # Calculate original estimates
   t0 <- calc_stat_by_group(
@@ -210,7 +209,8 @@ calculate_acceleration <- function(
     fun = fun,
     ...,
     grouping_var = grouping_var,
-    ref_group = ref_group)
+    ref_group = ref_group
+  )
 
   # Calculate influence values
   influence_df <- jackknife_df %>%
@@ -218,7 +218,8 @@ calculate_acceleration <- function(
     dplyr::mutate(n = dplyr::n(),
                   .by = dplyr::all_of(grouping_var)) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(influence = ifelse(
+    dplyr::mutate(
+      influence = ifelse(
         influence_method == "usual",
         (.data$n - 1) * (.data$diversity_val - .data$jack_rep),
         (.data$n + 1) * (.data$jack_rep - .data$diversity_val)

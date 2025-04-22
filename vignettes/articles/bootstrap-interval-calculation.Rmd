@@ -394,7 +394,7 @@ $\hat{\theta}_{-i} = \hat{\theta}_{1,-i} - \hat{\theta}_2 \text{ for } i = 1, \l
 
 $\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1 + 1, \ldots, n_1 + n_2$
 
-Therefore, if we want to calculate the BCa intervals using `calculate_bootstrap_ci()`, we also need to provide the `ref_group = 2011` argumetn.
+Therefore, if we want to calculate the BCa intervals using `calculate_bootstrap_ci()`, we also need to provide `ref_group = 2011`.
 
 > **Note:** The BCa interval (`type = "bca"`) is not computed in this tutorial due to its high computational cost. Consequently, the `data_cube` and `fun` arguments are not required for the interval types used here (`"perc"`, `"norm"`, `"basic"`) and will not have any effect on these interval calculations. However, we include them in the example to illustrate their usage in case BCa intervals are desired. We are actively working on optimizing BCa computations for improved performance in future versions.
 

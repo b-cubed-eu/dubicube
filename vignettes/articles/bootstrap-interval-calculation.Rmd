@@ -35,8 +35,6 @@ $$
 
 where $\hat{\theta}^*_{(\alpha/2)}$ and $\hat{\theta}^*_{(1-\alpha/2)}$ are the $\alpha/2$ and $1-\alpha/2$ percentiles of the bootstrap distribution, respectively.
 
----
-
 ### 2. **Bias-Corrected and Accelerated (BCa)**
 
 Adjusts for bias and acceleration.
@@ -68,8 +66,6 @@ $$
 CI_{\text{bca}} = \left[ \hat{\theta}^*_{(\alpha_1)}, \hat{\theta}^*_{(\alpha_2)} \right]
 $$
 
----
-
 ### 3. **Normal**
 
 Assumes the bootstrap distribution of the statistic is approximately normal:
@@ -80,8 +76,6 @@ CI_{\text{norm}} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} - \text{SE}_{\
 $$
 
 where $z_{1-\alpha/2}$ is the $1-\alpha/2$ quantile of the standard normal distribution.
-
----
 
 ### 4. **Basic**
 
@@ -131,6 +125,7 @@ library(b3gbi)        # Process occurrence cubes
 # General
 library(ggplot2)      # Data visualisation
 library(dplyr)        # Data wrangling
+library(tidyr)        # Data wrangling
 ```
 
 ### Loading and processing the data
@@ -301,7 +296,7 @@ Since we have nice symmetrical distribution, all confidence intervals are very s
 ci_mean_obs <- ci_mean_obs %>%
   mutate(
     int_type = factor(
-      int_type, levels = c("norm", "basic", "perc", "bca")
+      int_type, levels = c("perc", "bca", "norm", "basic")
     )
   )
 ```
@@ -315,8 +310,8 @@ bias_mean_obs <- bootstrap_results %>%
 
 # Get estimate values
 estimate_mean_obs <- bias_mean_obs %>%
-  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
-                      names_to = "Legend", values_to = "value") %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 # Visualise
@@ -407,7 +402,6 @@ if (file.exists(ci_mean_obs_ref_path)) {
     bootstrap_samples_df = bootstrap_results_ref,
     grouping_var = "year",
     type = c("perc", "norm", "basic"),
-    conf = 0.95,
     data_cube = processed_cube$data,   # Required for BCa
     fun = mean_obs,                    # Required for BCa
     ref_group = 2011                   # Required for BCa
@@ -421,7 +415,6 @@ ci_mean_obs_ref <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_ref,
   grouping_var = "year",
   type = c("perc", "norm", "basic"),
-  conf = 0.95,
   data_cube = processed_cube$data,   # Required for BCa
   fun = mean_obs,                    # Required for BCa
   ref_group = 2011                   # Required for BCa
@@ -441,7 +434,7 @@ This will be further explored in the [effect classification tutorial](https://b-
 ci_mean_obs_ref <- ci_mean_obs_ref %>%
   mutate(
     int_type = factor(
-      int_type, levels = c("norm", "basic", "perc", "bca")
+      int_type, levels = c("perc", "bca", "norm", "basic")
     )
   )
 ```
@@ -455,8 +448,8 @@ bias_mean_obs <- bootstrap_results_ref %>%
 
 # Get estimate values
 estimate_mean_obs <- bias_mean_obs %>%
-  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
-                      names_to = "Legend", values_to = "value") %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 # Visualise
@@ -495,6 +488,205 @@ In a way, this also avoids the arbitrariness of choice for the reference period.
 You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
 Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability
 
-### Transformations and bias correction options
+### Transformations
 
-...
+Consider the calculation of Pielou's evenness on a random subset of the data from 2011-2015.
+We take only a small subset of the dataset and we artificially create a community with high evenness.
+This is an indicator that has values between 0 and 1.
+Higher evenness values indicate a more balanced community (a value of 1 means that all species are equally abundant), while low values indicate a more unbalanced community (a value of 0 means that one species dominates completely).
+
+```{r}
+set.seed(123)
+
+# Make dataset smaller
+rows <- sample(nrow(bird_cube_belgium), 1000)
+bird_cube_belgium_extreme <- bird_cube_belgium[rows, ]
+
+# Make dataset even
+bird_cube_belgium_extreme$n <- rnbinom(nrow(bird_cube_belgium_extreme),
+                                       size = 2, mu = 100)
+
+# Process cube
+processed_cube_small <- process_cube(
+  bird_cube_belgium_extreme,
+  first_year = 2011,
+  last_year = 2015,
+  cols_occurrences = "n"
+)
+```
+
+We create a custom function to calculate evenness:
+
+```{r}
+calc_evenness <- function(data) {
+  year <- scientificName <- obs <- tot <- p_ln_p <- ln_S <- NULL
+  
+  data %>%
+    # Calculate number of observations
+    dplyr::group_by(year, scientificName) %>%
+    dplyr::summarise(obs = sum(obs), .groups = "drop_last") %>%
+    # Calculate evenness by year
+    dplyr::mutate(
+      tot = sum(obs),
+      p = obs / tot,
+      p_ln_p = p * log(p),
+      ln_S = log(dplyr::n_distinct(scientificName)),
+      diversity_val = (-sum(p_ln_p)) / ln_S
+    ) %>%
+    dplyr::ungroup() %>%
+    # Get distinct values
+    dplyr::distinct(year, diversity_val)
+}
+```
+
+We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `pielou_evenness_ts()`.
+
+```{r}
+bootstrap_results_evenness <- bootstrap_cube(
+  data_cube = processed_cube_small$data,
+  fun = calc_evenness,
+  grouping_var = "year",
+  samples = 1000,
+  seed = 123
+)
+```
+
+We calculate the percentile, BCa, normal and basic intervals with `calculate_bootstrap_ci()`.
+We get a warning message because we now have a relatively small dataset.
+
+```{r}
+ci_evenness <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results_evenness,
+  grouping_var = "year",
+  type = c("perc", "bca", "norm", "basic"),
+  data_cube = processed_cube_small$data,
+  fun = calc_evenness
+)
+```
+
+We notice that the normal and basic intervals have limits larger than 1 which is an impossible value for evenness.
+This is because there intervals are symmetrical around $\hat{\theta} - \text{Bias}_{\text{boot}}$.
+
+```{r}
+# Make interval type factor
+ci_evenness <- ci_evenness %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("perc", "bca", "norm", "basic")
+    )
+  )
+```
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals for evenness over time.
+# Get bias vales
+bias_mean_obs <- bootstrap_results_evenness %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+# Visualise
+bootstrap_results_evenness %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_evenness,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Settings
+  labs(y = "Evenness", x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_evenness$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
+
+We can use transformation functions to account for this.
+The intervals are calculated on the scale of `h` and the inverse function `hinv` are applied to the resulting intervals.
+For values between 0 and 1, we can use the logit and expit functions:
+
+```{r}
+# Logit transformation
+logit <- function(p) {
+  log(p / (1 - p))
+}
+
+# Inverse logit transformation
+inv_logit <- function(l) {
+  exp(l) / (1 + exp(l))
+}
+```
+
+We enter them via `calculate_bootstrap_ci()`.
+
+```{r}
+ci_evenness_trans <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results_evenness,
+  grouping_var = "year",
+  type = c("perc", "bca", "norm", "basic"),
+  h = logit,
+  hinv = inv_logit,
+  data_cube = processed_cube_small$data,
+  fun = calc_evenness
+)
+```
+
+Now we see that all intervals fall nicely within the expected range.
+
+```{r}
+# Make interval type factor
+ci_evenness_trans <- ci_evenness_trans %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("perc", "bca", "norm", "basic")
+    )
+  )
+```
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals for evenness over time.
+# Get bias vales
+bias_mean_obs <- bootstrap_results_evenness %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+# Visualise
+bootstrap_results_evenness %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_evenness_trans,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Settings
+  labs(y = "Evenness", x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_y_continuous(limits = c(NA, 1)) +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_evenness$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
+
+### Bias correction
+

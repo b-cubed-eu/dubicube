@@ -102,6 +102,7 @@ library(b3gbi)        # Process occurrence cubes
 # General
 library(ggplot2)      # Data visualisation
 library(dplyr)        # Data wrangling
+library(tidyr)        # Data wrangling
 ```
 
 ### Loading and processing the data
@@ -227,8 +228,8 @@ bias_mean_obs <- bootstrap_results %>%
 
 # Get estimate values
 estimate_mean_obs <- bias_mean_obs %>%
-  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
-                      names_to = "Legend", values_to = "value") %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 
@@ -324,8 +325,8 @@ bias_mean_obs <- bootstrap_results_ref %>%
 
 # Get estimate values
 estimate_mean_obs <- bias_mean_obs %>%
-  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
-                      names_to = "Legend", values_to = "value") %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 

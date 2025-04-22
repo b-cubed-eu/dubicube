@@ -519,8 +519,8 @@ We create a custom function to calculate evenness:
 
 ```{r}
 calc_evenness <- function(data) {
-  year <- scientificName <- obs <- tot <- p_ln_p <- ln_S <- NULL
-  
+  p <- diversity_val <- NULL
+
   data %>%
     # Calculate number of observations
     dplyr::group_by(year, scientificName) %>%
@@ -552,7 +552,7 @@ bootstrap_results_evenness <- bootstrap_cube(
 ```
 
 We calculate the percentile, BCa, normal and basic intervals with `calculate_bootstrap_ci()`.
-We get a warning message because we now have a relatively small dataset.
+We get a warning message for BCa calculation because we are using a relatively small dataset.
 
 ```{r}
 ci_evenness <- calculate_bootstrap_ci(
@@ -613,7 +613,7 @@ bootstrap_results_evenness %>%
 
 We can use transformation functions to account for this.
 The intervals are calculated on the scale of `h` and the inverse function `hinv` are applied to the resulting intervals.
-For values between 0 and 1, we can use the logit and expit functions:
+For values between 0 and 1, we can use the logit function and its inverse (expit):
 
 ```{r}
 # Logit transformation
@@ -627,7 +627,7 @@ inv_logit <- function(l) {
 }
 ```
 
-We enter them via `calculate_bootstrap_ci()`.
+We enter them through `calculate_bootstrap_ci()`.
 
 ```{r}
 ci_evenness_trans <- calculate_bootstrap_ci(

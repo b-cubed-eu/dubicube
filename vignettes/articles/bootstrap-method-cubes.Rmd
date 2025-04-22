@@ -55,7 +55,7 @@ This process is repeated $B$ times, and each resample yields a new estimate $\ha
 
 ### Derivation of bootstrap statistics
 
-The set of bootstrap replications forms the bootstrap distribution, which can be used to estimate bootstrap statistics and construct confidence intervals.
+The set of bootstrap replications forms the bootstrap distribution, which can be used to estimate bootstrap statistics and construct confidence intervals (see the [interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-interval-calculation.html)).
 
 - **Bootstrap Estimate of the Statistic**: $\hat{\theta}_{\text{boot}}$
   - The average of the bootstrap replications:
@@ -85,7 +85,7 @@ Our method can be used on any dataframe from which a statistic is calculated and
 For this tutorial, we focus on occurrence cubes.
 Therefore, we will use the **b3gbi** package for processing the raw data before we go over to bootstrapping.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # Load packages
 library(dubicube)
 
@@ -95,6 +95,8 @@ library(b3gbi)        # Process occurrence cubes
 
 # General
 library(ggplot2)      # Data visualisation
+library(dplyr)        # Data wrangling
+library(tidyr)        # Data wrangling
 ```
 
 ### Loading and processing the data
@@ -128,16 +130,19 @@ processed_cube
 
 ### Analysis of the data
 
-Let's say we are interested in the mean number of observations per year.
+Let's say we are interested in the mean number of observations per grid cell per year.
 We create a function to calculate this.
 
 ```{r}
 # Function to calculate statistic of interest
-# Mean observations per year
+# Mean observations per grid cell per year
 mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
-  names(out_df) <- c("year", "diversity_val") # Rename columns
-  return(out_df)
+  obs <- x <- NULL
+
+  data %>%
+    dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
+    dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
+    as.data.frame()
 }
 ```
 
@@ -205,7 +210,40 @@ bootstrap_results <- bootstrap_cube(
 head(bootstrap_results)
 ```
 
-...
+We can visualise the bootstrap distributions using a violin plot.
+The distributions are symmetric indicating a low bootstrap bias (true estimate and bootstrap estimate are close to each other), which can be expected for a mean.
+
+```{r, warning=FALSE}
+#| fig.alt: >
+#|   Bootstrap distributions for mean number of occurrences over time.
+# Get bias vales
+bias_mean_obs <- bootstrap_results %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+
+# Visualise bootrap distributions
+bootstrap_results %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2.5) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell",
+       x = "", shape = "Legend:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
 
 ## Advanced usage of `bootstrap_cube()`
 ### Cross-validate **b3gbi** functions
@@ -223,7 +261,18 @@ bootstrap_results_evenness <- bootstrap_cube(
 )
 ```
 
-## Comparison with a reference group
+### Comparison with a reference group
+
+A particularly insightful approach is comparing indicator values to a reference group. In time series analyses, this often means comparing each year’s indicator to a baseline year (e.g., the first or last year in the series).
+
+To do this, we perform bootstrapping over the difference between indicator values:
+
+1. Resample the dataset with replacement  
+2. Calculate the indicator for each group (e.g., each year)  
+3. For each non-reference group, compute the difference between its indicator value and that of the reference group  
+4. Repeat steps 1–3 across all bootstrap iterations  
+
+This process yields bootstrap replicate distributions of differences in indicator values.
 
 ```{r, echo=FALSE, message=FALSE}
 bootstrap_results_ref_path <- file.path(cache_path, "bootstrap_results_ref.Rds")
@@ -257,4 +306,57 @@ bootstrap_results_ref <- bootstrap_cube(
 head(bootstrap_results_ref)
 ```
 
-...
+We see that the mean number of observations is much lower in later years compared to 2011.
+Because the full bootstrap distribution is lower than zero, we might even say it is significantly lower.
+This will be further explored in the [effect classification tutorial](https://b-cubed-eu.github.io/dubicube/articles/effect-classification.html).
+
+```{r, warning=FALSE}
+#| fig.alt: >
+#|   Bootstrap distributions for mean number of occurrences over time (ref).
+# Get bias vales
+bias_mean_obs <- bootstrap_results_ref %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+
+# Visualise bootrap distributions
+bootstrap_results_ref %>%
+  ggplot(aes(x = year)) +
+  # Reference line
+  geom_hline(yintercept = 0, colour = "black", linetype = "dashed") +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_segment(data = bias_mean_obs,
+               aes(xend = year, y = estimate, yend = `bootstrap estimate`),
+               colour = "darkblue", linewidth = 0.8, linetype = "dashed") +
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2) +
+  # Settings
+  labs(y = "Mean Number of Observations per Grid Cell\nCompared to 2011",
+       x = "", shape = "Legend:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_ref$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
+
+Note that the choice of the reference year should be well considered.
+Keep in mind which comparisons should be made, and what the motivation is behind the reference period.
+A high or low value in the reference period relative to other periods, e.g. an exceptional bad or good year, can affect the magnitude and direction of the calculated differences.
+Whether this should be avoided or not, depends on the motivation behind the choice and the research question.
+A reference period can be determined by legislation, or by the start of a monitoring campaign.
+A specific research question can determine the periods that need to be compared.
+Furthermore, the variability of the estimate of reference period affects the width of confidence intervals for the differences.
+A more variable reference period will propagate greater uncertainty.
+In the case of GBIF data, more data will be available in recent years than in earlier years.
+If this is the case, it could make sense to select the last period as a reference period.
+In a way, this also avoids the arbitrariness of choice for the reference period.
+You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
+Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability

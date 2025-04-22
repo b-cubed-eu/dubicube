@@ -105,6 +105,7 @@ library(b3gbi)        # Process occurrence cubes
 
 # General
 library(ggplot2)      # Data visualisation
+library(dplyr)        # Data wrangling
 ```
 
 ### Loading and processing the data
@@ -138,22 +139,25 @@ processed_cube
 
 ### Analysis of the data
 
-Let's say we are interested in the mean number of observations per year.
+Let's say we are interested in the mean number of observations per grid cell per year.
 We create a function to calculate this.
 
 ```{r}
 # Function to calculate statistic of interest
-# Mean observations per year
+# Mean observations per grid cell per year
 mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
-  names(out_df) <- c("year", "diversity_val") # Rename columns
-  return(out_df)
+  obs <- x <- NULL
+
+  data %>%
+    dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
+    dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
+    as.data.frame()
 }
 ```
 
 We get the following results:
 
-```{r}
+```{r, message=FALSE}
 mean_obs(processed_cube$data)
 ```
 
@@ -206,11 +210,14 @@ cv_results <- cross_validate_cube(
   grouping_var = "year",
   out_var = "taxonKey"
 )
+```
+
+```{r}
 head(cv_results)
 ```
 
 The RMSE is an average error measure we get for each year.
-We see that it becomes larger for later years.
+It looks very similar over the years.
 
 ```{r}
 #| fig.alt: >
@@ -226,8 +233,8 @@ ggplot(cv_results, aes(x = as.factor(year))) +
   theme_minimal()
 ```
 
-Indeed, looking at the individual error values reveals more outliers in later years.
-A species key 2481139 in year 2015 with error -4 means that without species 2481139, the average number of occurrences would be 4 lower than the estimate based on the full dataset (in this case around 51 instead of 55).
+Indeed, looking at the individual error values reveals similar patterns for every year.
+A species key 2481174 in year 2011 with error -2 means that without species 2481174, the average number of occurrences per grid cell would be 2 lower than the estimate based on the full dataset (in this case around 46.8 instead of 48.8).
 
 ```{r}
 #| fig.alt: >
@@ -267,7 +274,7 @@ index <- match("bird_cube_belgium_mgrs10", resources(b3data_package))
 b3data_package$resources[[index]]$sources
 ```
 
-This suggests that the two species are overrepresented in the data cube, likely due to targeted monitoring efforts. Their disproportionate influence inflates indicator values in certain years, distorting the true diversity signal. Group-level sensitivity analysis like this helps uncover such sampling biases, ensuring that biodiversity indicators better reflect ecological reality rather than data artifacts.
+This suggests that the two species are overrepresented in the data cube, likely due to targeted monitoring efforts. Their disproportionate influence inflates indicator values, potentially distorting the true diversity signal. Group-level sensitivity analysis like this helps uncover such sampling biases, ensuring that biodiversity indicators better reflect ecological reality rather than data artifacts.
 
 ## Advanced usage of `cross_validate_cube()`
 ### Cross-validate **b3gbi** functions

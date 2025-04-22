@@ -227,8 +227,8 @@ bias_mean_obs <- bootstrap_results %>%
 
 # Get estimate values
 estimate_mean_obs <- bias_mean_obs %>%
-  pivot_longer(cols = c("estimate", "bootstrap estimate"),
-               names_to = "Legend", values_to = "value") %>%
+  tidyr::pivot_longer(cols = c("estimate", "bootstrap estimate"),
+                      names_to = "Legend", values_to = "value") %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 

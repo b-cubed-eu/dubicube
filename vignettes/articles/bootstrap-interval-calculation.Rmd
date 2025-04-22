@@ -307,6 +307,8 @@ ci_mean_obs <- ci_mean_obs %>%
 ```
 
 ```{r}
+#| fig.alt: >
+#|   Confidence intervals for mean number of occurrences over time.
 # Get bias vales
 bias_mean_obs <- bootstrap_results %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)

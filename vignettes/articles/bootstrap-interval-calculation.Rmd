@@ -500,15 +500,15 @@ set.seed(123)
 
 # Make dataset smaller
 rows <- sample(nrow(bird_cube_belgium), 1000)
-bird_cube_belgium_extreme <- bird_cube_belgium[rows, ]
+bird_cube_belgium_even <- bird_cube_belgium[rows, ]
 
 # Make dataset even
-bird_cube_belgium_extreme$n <- rnbinom(nrow(bird_cube_belgium_extreme),
-                                       size = 2, mu = 100)
+bird_cube_belgium_even$n <- rnbinom(nrow(bird_cube_belgium_even),
+                                    size = 2, mu = 100)
 
 # Process cube
-processed_cube_small <- process_cube(
-  bird_cube_belgium_extreme,
+processed_cube_even <- process_cube(
+  bird_cube_belgium_even,
   first_year = 2011,
   last_year = 2015,
   cols_occurrences = "n"
@@ -539,11 +539,11 @@ calc_evenness <- function(data) {
 }
 ```
 
-We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `pielou_evenness_ts()`.
+We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_even` using the **b3gbi** function `pielou_evenness_ts()`.
 
 ```{r}
 bootstrap_results_evenness <- bootstrap_cube(
-  data_cube = processed_cube_small$data,
+  data_cube = processed_cube_even$data,
   fun = calc_evenness,
   grouping_var = "year",
   samples = 1000,
@@ -559,7 +559,7 @@ ci_evenness <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_evenness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
-  data_cube = processed_cube_small$data,
+  data_cube = processed_cube_even$data,
   fun = calc_evenness
 )
 ```
@@ -636,7 +636,7 @@ ci_evenness_trans <- calculate_bootstrap_ci(
   type = c("perc", "bca", "norm", "basic"),
   h = logit,
   hinv = inv_logit,
-  data_cube = processed_cube_small$data,
+  data_cube = processed_cube_even$data,
   fun = calc_evenness
 )
 ```
@@ -690,3 +690,159 @@ bootstrap_results_evenness %>%
 
 ### Bias correction
 
+Consider the calculation of observed species richness on the same subset used in the previous subsection.
+We create a custom function to calculate richness:
+
+```{r}
+calc_richness <- function(data) {
+  data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarise(diversity_val = n_distinct(scientificName),
+                     .groups = "drop")
+}
+```
+
+We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `obs_richness_ts()`.
+
+```{r}
+bootstrap_results_richness <- bootstrap_cube(
+  data_cube = processed_cube_even$data,
+  fun = calc_richness,
+  grouping_var = "year",
+  samples = 1000,
+  seed = 123
+)
+```
+
+We calculate the percentile, BCa, normal and basic intervals with `calculate_bootstrap_ci()`.
+We get a warning message for BCa calculation.
+The bias is infinite such that the BCa intervals cannot be calculated.
+
+```{r}
+ci_richness <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results_richness,
+  grouping_var = "year",
+  type = c("perc", "bca", "norm", "basic"),
+  data_cube = processed_cube_even$data,
+  fun = calc_richness
+)
+```
+
+We notice that none of the intervals cover the estimate. The percentile interval does not account for bias, the BCa interval cannot be calculated because the bias is too large and the normal and basic intervals have overcompensated because of the large bootstrap bias.
+
+```{r}
+# Make interval type factor
+ci_richness <- ci_richness %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("perc", "bca", "norm", "basic")
+    )
+  )
+```
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals for richness over time.
+# Get bias vales
+bias_mean_obs <- bootstrap_results_richness %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+# Visualise
+bootstrap_results_richness %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_richness,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Settings
+  labs(y = "richness", x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_richness$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
+
+This issue arises because bootstrap resampling cannot introduce new species that were not present in the original sample (Dixon, [2001, p. 287](https://doi.org/10.1093/oso/9780195131871.003.0014)).
+As a result, the observed species richness — which is simply the count of unique species — tends to be negatively biased in bootstrap replicates.
+This leads to an extreme mismatch between the original estimate and the distribution of bootstrap replicates.
+In such cases, the BCa intervals may fail altogether (e.g., due to infinite bias correction factors), and other bootstrap intervals (normal, basic) may overcorrect.
+
+There is an option within `calculate_bootstrap_ci()` to center the confidence limits around the original estimate (`no_bias = TRUE`).
+This means the bootstrap distribution is used to calculate confidence intervals, except for the bootstrap bias.
+While it may "solve" technical problems with interval calculation (like infinite or undefined corrections), it does so at the cost of ignoring bootstrap bias.
+This approach should only be used with caution and clear justification, such as when the bootstrap bias is known to be an artifact of a sampling limitation and not of the underlying data structure.
+
+Because of this inherent limitation, alternative richness estimators that account for undetected species are preferred when uncertainty quantification is needed.
+The **vegan** (Oksanen et al., [2024](https://cran.r-project.org/web/packages/vegan/index.html)) and **iNEXT** (Hsieh et al., [2016](https://doi.org/10.1111/2041-210X.12613)) R packages provide such estimators, including **Chao1**, **Jackknife**, and coverage-based rarefaction/extrapolation, all of which are designed to handle unseen species and provide meaningful uncertainty estimates.
+
+Some of these estimators are also implemented directly for occurrence cubes in recent versions of **b3gbi** (≥ v0.4.0), offering integration into existing cube-based workflows.
+However, it is important to note that these are alternative estimators — they are not equivalent to observed richness and will yield different values by design.
+
+```{r}
+ci_richness_no_bias <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results_richness,
+  grouping_var = "year",
+  type = c("perc", "bca", "norm", "basic"),
+  no_bias = TRUE,
+  data_cube = processed_cube_even$data,
+  fun = calc_richness
+)
+```
+
+Indeed, the intervals are now centered around the original estimate.
+
+```{r}
+# Make interval type factor
+ci_richness_no_bias <- ci_richness_no_bias %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("perc", "bca", "norm", "basic")
+    )
+  )
+```
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals for richness over time.
+# Get bias vales
+bias_mean_obs <- bootstrap_results_richness %>%
+  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
+
+# Get estimate values
+estimate_mean_obs <- bias_mean_obs %>%
+  pivot_longer(cols = c("estimate", "bootstrap estimate"),
+               names_to = "Legend", values_to = "value") %>%
+  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
+                         ordered = TRUE))
+# Visualise
+bootstrap_results_richness %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_richness_no_bias,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Settings
+  labs(y = "richness", x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_richness$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```

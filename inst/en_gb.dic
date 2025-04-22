@@ -2,12 +2,15 @@ BCa
 CMD
 Canty
 Centers
+Chao
 DiCiccio
 Frangos
+Hsieh
 LOSO
 Larus
 MGRS
 MRE
+Oksanen
 Onkelinx
 Perc
 Pielou's
@@ -16,6 +19,7 @@ Rel
 Schucany
 Tibshirani
 argentatus
+artifact
 artifacts
 bca
 center
@@ -25,6 +29,8 @@ ed
 expit
 fuscus
 gbi
+iNEXT
+overcorrect
 perc
 runtimes
 sim

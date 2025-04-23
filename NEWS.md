@@ -1,3 +1,7 @@
+# dubicube 0.7.1
+
+* Fix bug pkgdown site
+
 # dubicube 0.7.0
 
 * Add tutorials #30

@@ -1,4 +1,4 @@
-# dubicube0.7.2
+# dubicube 0.7.2
 
 * Use ROR for copyright holder, drop email #40
 * Use DOI for funding #41

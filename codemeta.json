@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -34,14 +34,13 @@
   "copyrightHolder": [
     {
       "@type": "Organization",
-      "name": "Research Institute for Nature and Forest (INBO)",
-      "email": "info@inbo.be"
+      "name": "Research Institute for Nature and Forest (INBO)"
     }
   ],
   "funder": [
     {
       "@type": "Organization",
-      "name": "European Union's Horizon Europe Research and Innovation Programme (ID No 101059592)"
+      "name": "European Union"
     }
   ],
   "maintainer": [
@@ -215,7 +214,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "246.952KB",
+  "fileSize": "247.113KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -232,7 +231,7 @@
           "familyName": "Van Daele"
         }
       },
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.7.1",
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.7.2",
       "identifier": "10.5281/zenodo.14850237",
       "url": "https://b-cubed-eu.github.io/dubicube/",
       "@id": "https://doi.org/10.5281/zenodo.14850237",

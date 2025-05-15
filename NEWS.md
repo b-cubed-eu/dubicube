@@ -1,3 +1,7 @@
+# dubicube 0.7.3
+
+* Update README #39 and #45
+
 # dubicube 0.7.2
 
 * Use ROR for copyright holder, drop email #40

@@ -34,7 +34,7 @@ occurrence cubes.
 Install **dubicube** in R:
 
 ``` r
-install.packages("dubicube", repos = "https://b-cubed-eu.r-universe.dev")
+install.packages("dubicube"", repos = c("https://b-cubed-eu.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 You can install the development version from

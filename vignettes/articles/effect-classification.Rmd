@@ -148,6 +148,8 @@ fine_colour <- scale_colour_manual(
 The following plot shows point estimates and their 90% confidence intervals, coloured by the **coarse** effect classification.
 
 ```{r}
+#| fig.alt: >
+#|   Visualising coarse effect classification.
 ggplot(data = result, aes(x = rownames(result))) +
   geom_hline(yintercept = 0, linetype = "longdash", colour = "black") +
   geom_hline(yintercept = c(-1, 1), linetype = "dotdash") +
@@ -162,6 +164,8 @@ ggplot(data = result, aes(x = rownames(result))) +
 The plot below provides a more detailed view using the **fine-grained** classification.
 
 ```{r}
+#| fig.alt: >
+#|   Visualising fine effect classification.
 ggplot(data = result, aes(x = rownames(result))) +
   geom_hline(yintercept = 0, linetype = "longdash", colour = "black") +
   geom_hline(yintercept = c(-1, 1), linetype = "dotdash") +

@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This tutorial shows how to use the `add_effect_classification()` function to classify effect sizes based on confidence intervals. This is useful when you want to interpret uncertainty in trends or treatment effects using a transparent and rule-based approach.
+This tutorial demonstrates how to use the `add_effect_classification()` function to classify effect sizes based on confidence intervals. This is useful when you want to interpret uncertainty in trends or treatment effects using a transparent and rule-based approach.
 
 ## About effect classification
 
@@ -25,11 +25,11 @@ The `add_effect_classification()` function takes a dataframe with confidence lim
 It uses the [**effectclass**](https://inbo.github.io/effectclass/) package internally to perform the classification logic.
 Classification is based on:
 
-1. the lower and upper **confidence limits** of an effect estimate
+1. the lower and upper **confidence limits** around an effect estimate
 2. a **reference value** (e.g., 0 for no effect)
 3. and a **threshold** or range of thresholds that define what counts as a meaningful effect
 
-The reference and thresholds should be chosen based on scientific or practical relevance — for instance, what constitutes a biologically meaningful change in an indicator.
+Thresholds and reference values should reflect scientifically or practically meaningful changes — e.g., a biologically relevant increase or decline in a biodiversity indicator.
 
 See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/classification.html) for a more elaborate overview.
 
@@ -47,16 +47,19 @@ See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/class
 | `?`  | unknown effect / unknown | unknown effect / unknown | confidence interval contains the lower and upper threshold |
 
 ## Getting started with dubicube
-### Example data
+
+```{r}
+# Load packages
+library(dubicube)
+
+# General
+library(ggplot2)      # Data visualisation
+```
 
 Your dataframe must contain **lower and upper confidence limits**, e.g. `"lcl"` and `"ucl"`.
 Let’s start with a synthetic dataset of 10 observations.
 
 ```{r}
-# Load required packages
-library(dplyr)
-library(effectclass)
-
 # Simulated means and standard deviations
 ds <- data.frame(
   mean = c(0, 0.5, -0.5, 1, -1, 1.5, -1.5, 0.5, -0.5, 0),
@@ -73,13 +76,28 @@ ds
 
 ### Add effect classifications
 
-* An optional **threshold** to define what counts as a meaningful effect.
-* An optional **reference value**, often 0 (null hypothesis).
-* An optional `coarse = TRUE` flag to add a simplified classification.
+We use the `add_effect_classification()` for effect classification. It relies on the following arguments:
 
-Let’s classify the effects using a threshold of `1` and a reference of `0`.
+- **`df`**:
+  The input data, a dataframe containing confidence limits, e.g. the result of [bootstrap confidence interval calculation](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-interval-calculation.html).
 
-```r
+- **`cl_columns`**:
+  A character vector of length 2 specifying the column names in `df` that contain the **lower** and **upper** confidence limits. For example: `cl_columns = c("lcl", "ucl")`.
+
+- **`threshold`**:
+  A numeric vector defining the effect size threshold(s) used to distinguish between "no effect" and meaningful increases or decreases. This can be either one number (interpreted symmetrically around the reference) or two (explicit lower and upper thresholds).
+
+- **`reference`**:
+  A single numeric value representing the **null hypothesis** or **no-effect** level (e.g. 0). The position of the confidence interval relative to this value determines the direction of the effect.
+
+- **`coarse`**:
+  A logical flag indicating whether a simplified classification should also be added. If `TRUE` (default), additional columns `effect_code_coarse` and `effect_coarse` are included, summarizing effects into broader categories (increase, decrease, stable, unknown).
+
+
+Let’s classify the effects using a threshold of `1` (will be expanded to `[-1, 1]` around the reference) and a reference of `0`.
+
+```{r}
+# Perform effect classification
 result <- add_effect_classification(
   df = ds,
   cl_columns = c("lcl", "ucl"),
@@ -89,37 +107,67 @@ result <- add_effect_classification(
 )
 
 # View the result
-result %>% select(mean, sd, lcl, ucl, effect_code, effect, effect_code_coarse, effect_coarse)
+result
 ```
 
+### Visualising the result
 
+Detailed guidance on best practices for visualising effect classifications is provided in the tutorials for [temporal trends](https://b-cubed-eu.github.io/dubicube/articles/visualising-temporal-trends.html) and [spatial trends](https://b-cubed-eu.github.io/dubicube/articles/visualising-spatial-trends.html).
+Below, we demonstrate a simple and direct way to visualise classified effects using **ggplot2**.
 
-### Interpreting the Output
+```{r}
+# Define coarse colour palette
+coarse_colour <- scale_colour_manual(
+  values =  c(
+    "chartreuse3",
+    "gold",
+    "firebrick1",
+    "skyblue"),
+  drop = FALSE
+)
 
-Your dataframe now includes:
+# Define fine colour palette
+fine_colour <- scale_colour_manual(
+  values =  c(
+    "darkgreen",
+    "chartreuse3",
+    "darkolivegreen1",
+    "gold",
+    "orange",
+    "firebrick1",
+    "darkred",
+    "gray80",
+    "gray30",
+    "grey55"
+  ),
+  drop = FALSE
+)
+```
 
-| Column               | Description                                                        |
-| -------------------- | ------------------------------------------------------------------ |
-| `effect_code`        | Fine-grained symbol: `++`, `+~`, `-`, `?`, etc.                    |
-| `effect`             | Human-readable label: *moderate decrease*, *strong increase*, etc. |
-| `effect_code_coarse` | Coarse symbol: `+`, `~`, `-`, `?`                                  |
-| `effect_coarse`      | Coarse description: *increase*, *stable*, *unknown*, etc.          |
+The following plot shows point estimates and their 90% confidence intervals, coloured by the **coarse** effect classification.
 
-### Example Output
+```{r}
+ggplot(data = result, aes(x = rownames(result))) +
+  geom_hline(yintercept = 0, linetype = "longdash", colour = "black") +
+  geom_hline(yintercept = c(-1, 1), linetype = "dotdash") +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl, colour = effect_coarse),
+                linewidth = 1.5, show.legend = TRUE) +
+  geom_point(aes(y = mean), colour = "black", size = 3.5) +
+  labs(x = "Observation", y = "Effect estimate", colour = "Effect (coarse)") +
+  coarse_colour +
+  theme_minimal()
+```
 
-| mean | sd   | lcl   | ucl   | effect\_code | effect             | effect\_code\_coarse | effect\_coarse |
-| ---- | ---- | ----- | ----- | ------------ | ------------------ | -------------------- | -------------- |
-| 1.5  | 0.25 | 1.09  | 1.91  | `++`         | strong increase    | `+`                  | increase       |
-| -1.5 | 0.25 | -1.91 | -1.09 | `--`         | strong decrease    | `-`                  | decrease       |
-| 0.5  | 0.5  | -0.32 | 1.32  | `?+`         | potential increase | `?`                  | unknown        |
+The plot below provides a more detailed view using the **fine-grained** classification.
 
----
-
-## How thresholds work
-
-You can provide either:
-
-* a **single threshold**, e.g. `1`, which will be expanded to `[-1, 1]` around the reference, or
-* **two thresholds**, e.g. `c(-0.8, 1.2)`.
-
-This gives you flexibility in defining what you consider a meaningful effect.
+```{r}
+ggplot(data = result, aes(x = rownames(result))) +
+  geom_hline(yintercept = 0, linetype = "longdash", colour = "black") +
+  geom_hline(yintercept = c(-1, 1), linetype = "dotdash") +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl, colour = effect),
+                linewidth = 1.5, show.legend = TRUE) +
+  geom_point(aes(y = mean), colour = "black", size = 3.5) +
+  labs(x = "Observation", y = "Effect estimate", colour = "Effect (fine)") +
+  fine_colour +
+  theme_minimal()
+```

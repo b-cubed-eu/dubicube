@@ -11,4 +11,115 @@ knitr::opts_chunk$set(
 )
 ```
 
-> Coming soon!
+## Introduction
+
+This tutorial shows how to use the `add_effect_classification()` function to classify effect sizes based on confidence intervals. This is useful when you want to interpret uncertainty in trends or treatment effects using a transparent and rule-based approach.
+
+## About effect classification
+
+The `add_effect_classification()` function takes a dataframe with confidence limits and adds classification columns that describe:
+
+- the **direction** and **strength** of the effect (e.g., *strong increase*, *moderate decrease*, *unknown*)
+- both **fine-grained** and **coarse** interpretations.
+
+It uses the [**effectclass**](https://inbo.github.io/effectclass/) package internally to perform the classification logic.
+Classification is based on:
+
+1. the lower and upper **confidence limits** of an effect estimate
+2. a **reference value** (e.g., 0 for no effect)
+3. and a **threshold** or range of thresholds that define what counts as a meaningful effect
+
+The reference and thresholds should be chosen based on scientific or practical relevance — for instance, what constitutes a biologically meaningful change in an indicator.
+
+See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/classification.html) for a more elaborate overview.
+
+| Symbol | Fine effect / trend | Coarse effect / trend | Rule |
+| :---: | --- | --- | --- |
+| `++` | strong positive effect / strong increase | positive effect / increase | confidence interval above the upper threshold |
+| `+`  | positive effect / increase | positive effect / increase | confidence interval above reference and contains the upper threshold |
+| `+~` | moderate positive effect / moderate increase | positive effect / increase | confidence interval between reference and the upper threshold |
+| `~`  | no effect / stable | no effect / stable | confidence interval between thresholds and contains reference |
+| `-~` | moderate negative effect / moderate decrease | negative effect / decrease | confidence interval between reference and the lower threshold |
+| `-`  | negative effect / decrease | negative effect / decrease | confidence interval below reference and contains the lower threshold |
+| `--` | strong negative effect / strong decrease | negative effect / decrease | confidence interval below the lower threshold |
+| `?+` | potential positive effect / potential increase | unknown effect / unknown | confidence interval contains reference and the upper threshold |
+| `?-` | potential negative effect / potential decrease | unknown effect / unknown | confidence interval contains reference and the lower threshold |
+| `?`  | unknown effect / unknown | unknown effect / unknown | confidence interval contains the lower and upper threshold |
+
+## Getting started with dubicube
+### Example data
+
+Your dataframe must contain **lower and upper confidence limits**, e.g. `"lcl"` and `"ucl"`.
+Let’s start with a synthetic dataset of 10 observations.
+
+```{r}
+# Load required packages
+library(dplyr)
+library(effectclass)
+
+# Simulated means and standard deviations
+ds <- data.frame(
+  mean = c(0, 0.5, -0.5, 1, -1, 1.5, -1.5, 0.5, -0.5, 0),
+  sd = c(1, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5)
+)
+
+# Compute 90% confidence intervals
+ds$lcl <- qnorm(0.05, ds$mean, ds$sd)
+ds$ucl <- qnorm(0.95, ds$mean, ds$sd)
+
+# View the dataset
+ds
+```
+
+### Add effect classifications
+
+* An optional **threshold** to define what counts as a meaningful effect.
+* An optional **reference value**, often 0 (null hypothesis).
+* An optional `coarse = TRUE` flag to add a simplified classification.
+
+Let’s classify the effects using a threshold of `1` and a reference of `0`.
+
+```r
+result <- add_effect_classification(
+  df = ds,
+  cl_columns = c("lcl", "ucl"),
+  threshold = 1,
+  reference = 0,
+  coarse = TRUE
+)
+
+# View the result
+result %>% select(mean, sd, lcl, ucl, effect_code, effect, effect_code_coarse, effect_coarse)
+```
+
+
+
+### Interpreting the Output
+
+Your dataframe now includes:
+
+| Column               | Description                                                        |
+| -------------------- | ------------------------------------------------------------------ |
+| `effect_code`        | Fine-grained symbol: `++`, `+~`, `-`, `?`, etc.                    |
+| `effect`             | Human-readable label: *moderate decrease*, *strong increase*, etc. |
+| `effect_code_coarse` | Coarse symbol: `+`, `~`, `-`, `?`                                  |
+| `effect_coarse`      | Coarse description: *increase*, *stable*, *unknown*, etc.          |
+
+### Example Output
+
+| mean | sd   | lcl   | ucl   | effect\_code | effect             | effect\_code\_coarse | effect\_coarse |
+| ---- | ---- | ----- | ----- | ------------ | ------------------ | -------------------- | -------------- |
+| 1.5  | 0.25 | 1.09  | 1.91  | `++`         | strong increase    | `+`                  | increase       |
+| -1.5 | 0.25 | -1.91 | -1.09 | `--`         | strong decrease    | `-`                  | decrease       |
+| 0.5  | 0.5  | -0.32 | 1.32  | `?+`         | potential increase | `?`                  | unknown        |
+
+---
+
+## How thresholds work
+
+You can provide either:
+
+* a **single threshold**, e.g. `1`, which will be expanded to `[-1, 1]` around the reference, or
+* **two thresholds**, e.g. `c(-0.8, 1.2)`.
+
+This gives you flexibility in defining what you consider a meaningful effect.

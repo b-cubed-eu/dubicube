@@ -122,7 +122,8 @@ coarse_colour <- scale_colour_manual(
     "chartreuse3",
     "gold",
     "firebrick1",
-    "skyblue"),
+    "skyblue"
+  ),
   drop = FALSE
 )
 

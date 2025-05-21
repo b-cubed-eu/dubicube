@@ -38,7 +38,7 @@ The **dubicube** package aims to deliver measures for assessing the applicabilit
 Install **dubicube** in R:
 
 ```r
-install.packages("dubicube", repos = "https://b-cubed-eu.r-universe.dev")
+install.packages("dubicube"", repos = c("https://b-cubed-eu.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 You can install the development version from [GitHub](https://github.com/) with:
@@ -48,6 +48,34 @@ You can install the development version from [GitHub](https://github.com/) with:
 remotes::install_github("b-cubed-eu/dubicube")
 ```
 
-## Example
+## Key features of **dubicube**
 
-Basic example coming soon.
+The **dubicube** package provides a set of tools for assessing, interpreting, and visualising uncertainty in biodiversity indicators derived from occurrence data cubes. Its functionality is organised into three main areas:
+
+### 1. Data exploration and variability assessment
+
+**dubicube** includes functions to evaluate the structure and sensitivity of biodiversity data cubes, helping users understand data quality and applicability.
+
+* `cross_validate_cube()`
+  Perform cross-validation (e.g. leave-one-out or k-fold) to assess group-level sensitivity of biodiversity indicators. This helps evaluate how individual categories influence biodiversity indicator values.
+
+> Additional data quality measures are under development and will be available in future updates.
+
+### 2. Estimating indicator uncertainty
+
+To quantify the uncertainty associated with biodiversity indicators derived from data cubes, **dubicube** provides bootstrap-based tools:
+
+* `bootstrap_cube()`
+  Generate bootstrap replicates of the input cube to estimate the variability, bias, and standard error of biodiversity indicators.
+
+* `calculate_bootstrap_ci()`
+  Compute confidence intervals (percentile, BCa, normal, or basic) from bootstrap distributions, optionally applying transformations or bias corrections.
+
+### 3. Interpretation and visualisation of indicators
+
+**dubicube** supports the interpretation of indicator values in the context of uncertainty and predefined reference or threshold values:
+
+* `add_effect_classification()`
+  Classify indicator results (e.g. increase, stable, decrease) by comparing confidence intervals to user-defined references and thresholds.
+
+> Tutorials on good practices for spatial and temporal indicator interpretation are coming soon!

@@ -33,18 +33,79 @@ Thresholds and reference values should reflect scientifically or practically mea
 
 See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/classification.html) for a more elaborate overview.
 
-| Symbol | Fine effect / trend | Coarse effect / trend | Rule |
-| :---: | --- | --- | --- |
-| `++` | strong positive effect / strong increase | positive effect / increase | confidence interval above the upper threshold |
-| `+`  | positive effect / increase | positive effect / increase | confidence interval above reference and contains the upper threshold |
-| `+~` | moderate positive effect / moderate increase | positive effect / increase | confidence interval between reference and the upper threshold |
-| `~`  | no effect / stable | no effect / stable | confidence interval between thresholds and contains reference |
-| `-~` | moderate negative effect / moderate decrease | negative effect / decrease | confidence interval between reference and the lower threshold |
-| `-`  | negative effect / decrease | negative effect / decrease | confidence interval below reference and contains the lower threshold |
-| `--` | strong negative effect / strong decrease | negative effect / decrease | confidence interval below the lower threshold |
-| `?+` | potential positive effect / potential increase | unknown effect / unknown | confidence interval contains reference and the upper threshold |
-| `?-` | potential negative effect / potential decrease | unknown effect / unknown | confidence interval contains reference and the lower threshold |
-| `?`  | unknown effect / unknown | unknown effect / unknown | confidence interval contains the lower and upper threshold |
+<table style="table-layout: auto; width: 100%;">
+  <thead>
+    <tr>
+      <th style="white-space: nowrap;">Symbol</th>
+      <th style="white-space: nowrap;">Fine effect / trend</th>
+      <th style="white-space: nowrap;">Coarse effect / trend</th>
+      <th style="white-space: nowrap;">Rule</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>++</code></td>
+      <td>strong positive effect / strong increase</td>
+      <td>positive effect / increase</td>
+      <td>confidence interval above the upper threshold</td>
+    </tr>
+    <tr>
+      <td><code>+</code></td>
+      <td>positive effect / increase</td>
+      <td>positive effect / increase</td>
+      <td>confidence interval above reference and contains the upper threshold</td>
+    </tr>
+    <tr>
+      <td><code>+~</code></td>
+      <td>moderate positive effect / moderate increase</td>
+      <td>positive effect / increase</td>
+      <td>confidence interval between reference and the upper threshold</td>
+    </tr>
+    <tr>
+      <td><code>~</code></td>
+      <td>no effect / stable</td>
+      <td>no effect / stable</td>
+      <td>confidence interval between thresholds and contains reference</td>
+    </tr>
+    <tr>
+      <td><code>-~</code></td>
+      <td>moderate negative effect / moderate decrease</td>
+      <td>negative effect / decrease</td>
+      <td>confidence interval between reference and the lower threshold</td>
+    </tr>
+    <tr>
+      <td><code>-</code></td>
+      <td>negative effect / decrease</td>
+      <td>negative effect / decrease</td>
+      <td>confidence interval below reference and contains the lower threshold</td>
+    </tr>
+    <tr>
+      <td><code>--</code></td>
+      <td>strong negative effect / strong decrease</td>
+      <td>negative effect / decrease</td>
+      <td>confidence interval below the lower threshold</td>
+    </tr>
+    <tr>
+      <td><code>?+</code></td>
+      <td>potential positive effect / potential increase</td>
+      <td>unknown effect / unknown</td>
+      <td>confidence interval contains reference and the upper threshold</td>
+    </tr>
+    <tr>
+      <td><code>?-</code></td>
+      <td>potential negative effect / potential decrease</td>
+      <td>unknown effect / unknown</td>
+      <td>confidence interval contains reference and the lower threshold</td>
+    </tr>
+    <tr>
+      <td><code>?</code></td>
+      <td>unknown effect / unknown</td>
+      <td>unknown effect / unknown</td>
+      <td>confidence interval contains the lower and upper threshold</td>
+    </tr>
+  </tbody>
+</table>
+
 
 ## Getting started with dubicube
 

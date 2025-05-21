@@ -108,8 +108,10 @@ get_cube_data <- function(data_cube, processed_cube = TRUE) {
       stopifnot,
       stats::setNames(
         list(
-          rlang::inherits_any(data_cube,
-                              c("processed_cube", "sim_cube"))
+          rlang::inherits_any(
+            data_cube,
+            c("processed_cube", "sim_cube")
+          )
         ),
         cube_message
       )

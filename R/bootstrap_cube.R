@@ -7,7 +7,7 @@
 #' group (`ref_group`).
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
-#' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
+#' see `b3gbi::process_cube()`) or a dataframe (cf. `$data` slot of
 #' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
 #' must be a processed or simulated data cube that contains a `$data` element.
 #' @param fun A function which, when applied to `data_cube$data` returns the

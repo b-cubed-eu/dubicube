@@ -127,7 +127,7 @@
 #'
 #' # Perform bootstrapping
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = processed_cube$data,
+#'   data_cube = processed_cube,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
@@ -146,20 +146,13 @@ bootstrap_cube <- function(
     samples = 1000,
     ref_group = NA,
     seed = NA,
+    processed_cube = TRUE,
     progress = FALSE) {
   ### Start checks
   # Check data_cube input
-  cube_message <- paste("`data_cube` must be a data cube object (class",
-                        "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(
-    stopifnot,
-    stats::setNames(
-      list(
-        rlang::inherits_any(data_cube,
-                            c("processed_cube", "sim_cube", "data.frame"))
-      ),
-      cube_message
-    )
+  data_cube <- get_cube_data(
+    data_cube = data_cube,
+    processed_cube = processed_cube
   )
 
   # Check fun input
@@ -204,42 +197,20 @@ bootstrap_cube <- function(
     set.seed(seed)
   }
 
-  # Create bootstrap functions and extract dataframes
-  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-    # Function for bootstrapping
-    bootstrap_resample <- function(x, fun, ...) {
-      resample_obj <- x$strap[[1]]
-      indices <- as.integer(resample_obj)
-      data <- resample_obj$data[indices, ]
+  # Function for bootstrapping
+  bootstrap_resample <- function(x, fun, ...) {
+    resample_obj <- x$strap[[1]]
+    indices <- as.integer(resample_obj)
+    data <- resample_obj$data[indices, ]
 
-      data_cube_copy <- data_cube
-      data_cube_copy$data <- data
-
-      fun(data_cube_copy, ...)$data %>%
-        dplyr::mutate(sample = as.integer(x$id))
-    }
-
-    # Extract data
-    data_cube_data <- data_cube$data
-  } else {
-    # Function for bootstrapping
-    bootstrap_resample <- function(x, fun, ...) {
-      resample_obj <- x$strap[[1]]
-      indices <- as.integer(resample_obj)
-      data <- resample_obj$data[indices, ]
-
-      fun(data, ...) %>%
-        dplyr::mutate(sample = as.integer(x$id))
-    }
-
-    # Extract data
-    data_cube_data <- data_cube
+    fun(data, ...) %>%
+      dplyr::mutate(sample = as.integer(x$id))
   }
 
   ### Start extra checks
   # Check if grouping_var column is present in data cube
   stopifnot("`data_cube` should contain column `grouping_var`." =
-              all(grouping_var %in% names(data_cube_data)))
+              all(grouping_var %in% names(data_cube)))
 
   # Check if ref_group is present in grouping_var
   stopifnot(
@@ -248,7 +219,7 @@ bootstrap_cube <- function(
       any(
         sapply(
           as.list(grouping_var), function(var) {
-            ref_group %in% data_cube_data[[var]]
+            ref_group %in% data_cube[[var]]
           }
         )
       )
@@ -256,7 +227,7 @@ bootstrap_cube <- function(
   ### End extra checks
 
   # Generate bootstrap replicates
-  resample_df <- modelr::bootstrap(data_cube_data, samples, id = "id")
+  resample_df <- modelr::bootstrap(data_cube, samples, id = "id")
 
   # Perform bootstrapping
   bootstrap_samples_list_raw <- resample_df %>%
@@ -281,7 +252,7 @@ bootstrap_cube <- function(
   if (!is.na(ref_group)) {
     # Calculate group_var columns for matching
     matching_col <- grouping_var[
-      sapply(data_cube_data %>% dplyr::select(dplyr::all_of(grouping_var)),
+      sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
              function(col) ref_group %in% col)
     ]
 

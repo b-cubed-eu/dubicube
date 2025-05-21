@@ -1,3 +1,7 @@
+# dubicube 0.8.0
+
+* Simplify compatibility with **b3gbi** package #48
+
 # dubicube 0.7.3
 
 * Update README #39 and #45

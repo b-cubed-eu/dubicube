@@ -45,9 +45,8 @@
 #' the original bootstrap dataframe `bootstrap_samples_df`.
 #' @param data_cube Only used when `type = "bca"`. A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
-#' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
-#' `bootstrap_cube()`. To limit runtime, we recommend using a
-#' dataframe with custom function as `fun`.
+#' (cf. `$data` slot of 'processed_cube' or 'sim_cube'). As used by
+#' `bootstrap_cube()`.
 #' @param fun Only used when `type = "bca"`. A function which, when applied to
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.
@@ -242,7 +241,7 @@ calculate_bootstrap_ci <- function(
     influence_method = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
   ### Start checks
-  # Arguments data_cube, fun, ref_group, influence_method, and progress
+  # Arguments fun, ref_group, influence_method, and progress
   # arguments are checked in the calculate_acceleration() function
 
   # Check dataframe input
@@ -331,14 +330,22 @@ calculate_bootstrap_ci <- function(
         dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "bca") {
-      # Check whether data_cube and fun are provided
-      stopifnot(
-        "`data_cube` and `fun` must be provided to calculate BCa interval." =
-          rlang::inherits_any(
-            data_cube,
-            c("processed_cube", "sim_cube", "data.frame")
-          ) &
-          is.function(fun)
+      # Check data_cube input
+      cube_message <- paste0(
+        "`data_cube` must be a data cube object (class 'processed_cube' or ",
+        "'sim_cube') or a dataframe."
+      )
+      do.call(
+        stopifnot,
+        stats::setNames(
+          list(
+            rlang::inherits_any(
+              data_cube,
+              c("processed_cube", "sim_cube", "data.frame")
+            )
+          ),
+          cube_message
+        )
       )
 
       # Calculate acceleration values per grouping_var
@@ -349,6 +356,7 @@ calculate_bootstrap_ci <- function(
         grouping_var = grouping_var,
         ref_group = ref_group,
         influence_method = influence_method,
+        processed_cube = !inherits(data_cube, "data.frame"), # shortcut
         progress = progress
       )
 

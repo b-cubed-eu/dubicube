@@ -8,18 +8,19 @@
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
 #' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
-#' 'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
-#' dataframe with custom function as `fun`.
-#' @param fun A function which, when applied to `data_cube` returns the
-#' statistic(s) of interest. This function must return a dataframe with a column
-#' `diversity_val` containing the statistic of interest.
+#' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
+#' must be a processed or simulated data cube that contains a `$data` element.
+#' @param fun A function which, when applied to `data_cube$data` returns the
+#' statistic(s) of interest (or just `data_cube` in case of a dataframe).
+#' This function must return a dataframe with a column `diversity_val`
+#' containing the statistic of interest.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
-#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
-#' a row per group. The specified variables must not be redundant, meaning they
-#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
-#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
-#' just an alternative encoding of `"year"`).
+#' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
+#' return a row per group. The specified variables must not be redundant,
+#' meaning they should not contain the same information (e.g., `"time_point"`
+#' (1, 2, 3) and `"year"` (2000, 2001, 2002) should not be used together if
+#' `"time_point"` is just an alternative encoding of `"year"`).
 #' @param samples The number of bootstrap replicates. A single positive integer.
 #' Default is 1000.
 #' @param ref_group A string indicating the reference group to compare the
@@ -28,6 +29,9 @@
 #' generation to ensure reproducibility. If `NA` (default), then `set.seed()`
 #' is not called at all. If not `NA`, then the random number generator state is
 #' reset (to the state before calling this function) upon exiting this function.
+#' @param processed_cube Logical. If `TRUE` (default), the function expects
+#' `data_cube` to be a data cube object with a `$data` slot. If `FALSE`, the
+#' function expects `data_cube` to be a dataframe.
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'

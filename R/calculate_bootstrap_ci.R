@@ -190,7 +190,7 @@
 #'
 #' # Perform bootstrapping
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = processed_cube$data,
+#'   data_cube = processed_cube,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
@@ -217,8 +217,8 @@
 #'   type = c("perc", "bca", "norm", "basic"),
 #'   conf = 0.95,
 #'   aggregate = TRUE,
-#'   data_cube = processed_cube$data, # Required for BCa
-#'   fun = mean_obs,                  # Required for BCa
+#'   data_cube = processed_cube, # Required for BCa
+#'   fun = mean_obs,             # Required for BCa
 #'   progress = FALSE
 #' )
 #' ci_mean_obs2

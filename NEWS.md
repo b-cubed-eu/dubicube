@@ -1,7 +1,7 @@
 # dubicube 0.7.3
 
 * Update README #39 and #45
-* Create vignette for effect classification
+* Create tutorial for effect classification
 
 # dubicube 0.7.2
 

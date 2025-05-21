@@ -75,6 +75,58 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
   }
 }
 
+#' Extract data from a processed data cube or from a dataframe
+#'
+#' Returns the underlying data from a processed or simulated biodiversity data
+#' cube, or directly returns the data frame if `processed_cube = FALSE`.
+#'
+#' @param data_cube An object of class `processed_cube`, `sim_cube`, or a
+#' `data.frame`. If `processed_cube = TRUE`, this must be a processed or
+#' simulated data cube (i.e., an object with class `processed_cube` or
+#' `sim_cube`) that contains a `$data` element.
+#' @param processed_cube Logical. If `TRUE` (default), the function expects
+#' `data_cube` to be a cube object and returns its `$data` slot. If `FALSE`, the
+#' function expects a plain `data.frame` and returns it as-is.
+#'
+#' @return A `data.frame` containing the underlying data from the cube or the
+#' provided dataframe itself.
+#'
+#' @noRd
+#'
+#' @importFrom stats setNames
+#' @importFrom rlang inherits_any
+
+get_cube_data <- function(data_cube, processed_cube = TRUE) {
+  if (processed_cube) {
+    # Check data_cube input
+    cube_message <- paste0(
+      "`data_cube` must be a data cube object (class 'processed_cube' or ",
+      "'sim_cube').\n",
+      "Set `processed_cube = FALSE` if you want to provide a dataframe."
+    )
+    do.call(
+      stopifnot,
+      stats::setNames(
+        list(
+          rlang::inherits_any(data_cube,
+                              c("processed_cube", "sim_cube", "data.frame"))
+        ),
+        cube_message
+      )
+    )
+
+    # Return cube data
+    return(data_cube$data)
+  }
+
+  # Check dataframe input
+  stopifnot("`df` must be a dataframe." =
+              inherits(data_cube, "data.frame"))
+
+  # Return cube data
+  return(data_cube)
+}
+
 #' Calculate Statistic Per Group
 #'
 #' This function calculates a specified statistic on a dataset, grouped by one

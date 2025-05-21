@@ -1,6 +1,8 @@
 # dubicube 0.8.0
 
 * Simplify compatibility with **b3gbi** package #48
+* Add links to tutorials in README #49
+* Make README more attractive #50 
 
 # dubicube 0.7.3
 

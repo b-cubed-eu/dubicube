@@ -33,6 +33,7 @@ Thresholds and reference values should reflect scientifically or practically mea
 
 See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/classification.html) for a more elaborate overview.
 
+<!-- spell-check: ignore:start -->
 <table style="table-layout: auto; width: 100%;">
   <thead>
     <tr>
@@ -105,7 +106,7 @@ See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/class
     </tr>
   </tbody>
 </table>
-
+<!-- spell-check: ignore:end -->
 
 ## Getting started with dubicube
 

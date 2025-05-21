@@ -29,8 +29,7 @@
 #' `grouping_var`.
 #'
 #' @import dplyr
-#' @importFrom rlang .data inherits_any
-#' @importFrom tidyr expand_grid
+#' @importFrom rlang .data
 #' @importFrom purrr map
 #'
 #' @noRd

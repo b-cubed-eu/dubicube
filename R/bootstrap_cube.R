@@ -111,10 +111,10 @@
 #'
 #' @import dplyr
 #' @import assertthat
-#' @importFrom rlang .data inherits_any
+#' @importFrom rlang .data
 #' @importFrom modelr bootstrap
 #' @importFrom purrr map
-#' @importFrom stats sd setNames
+#' @importFrom stats sd
 #'
 #' @examples
 #' \dontrun{

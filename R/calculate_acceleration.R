@@ -102,9 +102,7 @@
 #' @family indicator_uncertainty
 #'
 #' @import dplyr
-#' @import assertthat
-#' @importFrom rlang .data inherits_any
-#' @importFrom stats setNames
+#' @importFrom rlang .data
 #'
 #' @examples
 #' \dontrun{

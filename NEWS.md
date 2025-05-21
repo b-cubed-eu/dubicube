@@ -2,7 +2,8 @@
 
 * Simplify compatibility with **b3gbi** package #48
 * Add links to tutorials in README #49
-* Make README more attractive #50 
+* Make README more attractive #50
+* Improve table layout tutorial effect classification #51
 
 # dubicube 0.7.3
 

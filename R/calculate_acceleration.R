@@ -10,17 +10,18 @@
 #' see `b3gbi::process_cube()`) or a dataframe (cf. `$data` slot of
 #' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
 #' must be a processed or simulated data cube that contains a `$data` element.
-#' @param fun A function which, when applied to
-#' `data_cube` returns the statistic(s) of interest. This function must return a
-#' dataframe with a column `diversity_val` containing the statistic of interest.
+#' @param fun A function which, when applied to `data_cube$data` returns the
+#' statistic(s) of interest (or just `data_cube` in case of a dataframe).
+#' This function must return a dataframe with a column `diversity_val`
+#' containing the statistic of interest.
 #'  As used by `bootstrap_cube()`.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
-#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
-#' a row per group. The specified variables must not be redundant, meaning they
-#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
-#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
-#' just an alternative encoding of `"year"`).
+#' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
+#' return a row per group. The specified variables must not be redundant,
+#' meaning they should not contain the same information (e.g., `"time_point"`
+#' (1, 2, 3) and `"year"` (2000, 2001, 2002) should not be used together if
+#' `"time_point"` is just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' acceleration calculations.
 #' @param ref_group A string indicating the

@@ -37,13 +37,14 @@ boot_df1 <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
-  seed = 123
+  seed = 123,
+  processed_cube = FALSE
 )
 
 # Perform bootstrapping 'processed_cube'
 boot_df2 <- bootstrap_cube(
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123
@@ -56,13 +57,14 @@ boot_df3 <- bootstrap_cube(
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
-  ref_group = ref_year
+  ref_group = ref_year,
+  processed_cube = FALSE
 )
 
 # Perform bootstrapping 'processed_cube' with reference group
 boot_df4 <- bootstrap_cube(
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
@@ -113,7 +115,7 @@ result_bca3 <- calculate_bootstrap_ci(
   conf = 0.95,
   aggregate = TRUE,
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   ref_group = NA,
   influence_method = "usual"
 )
@@ -126,7 +128,7 @@ result_bca4 <- calculate_bootstrap_ci(
   conf = 0.95,
   aggregate = TRUE,
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   ref_group = ref_year,
   influence_method = "usual"
 )
@@ -267,7 +269,7 @@ test_that("Identical results for processed cube and dataframe", {
     conf = 0.95,
     aggregate = TRUE,
     data_cube = processed_cube,
-    fun = mean_obs_processed,
+    fun = mean_obs,
     ref_group = NA,
     influence_method = "pos"
   )
@@ -283,7 +285,7 @@ test_that("Identical results for processed cube and dataframe", {
     conf = 0.95,
     aggregate = TRUE,
     data_cube = processed_cube,
-    fun = mean_obs_processed,
+    fun = mean_obs,
     ref_group = NA,
     influence_method = "pos"
   )
@@ -355,7 +357,10 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       conf = 0.95,
       aggregate = TRUE
     ),
-    "`data_cube` and `fun` must be provided to calculate BCa interval.",
+    paste(
+      "`data_cube` must be a data cube object (class 'processed_cube' or",
+      "'sim_cube') or a dataframe."
+    ),
     fixed = TRUE
   )
 
@@ -384,7 +389,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
       ref_group = "twothousandtwenty",
       influence_method = "usual"
     ),
-    "`ref_group` is not present in `grouping_var` column of `data_cube`.",
+    "`ref_group` is not present in `grouping_var` column of `df`.",
     fixed = TRUE
   )
 

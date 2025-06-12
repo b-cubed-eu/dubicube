@@ -33,11 +33,11 @@ replicate)
 }}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
-for the bootstrap analysis. The function \code{fun(data_cube, ...)} should return
-a row per group. The specified variables must not be redundant, meaning they
-should not contain the same information (e.g., \code{"time_point"} (1, 2, 3) and
-\code{"year"} (2000, 2001, 2002) should not be used together if \code{"time_point"} is
-just an alternative encoding of \code{"year"}).
+for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
+return a row per group. The specified variables must not be redundant,
+meaning they should not contain the same information (e.g., \code{"time_point"}
+(1, 2, 3) and \code{"year"} (2000, 2001, 2002) should not be used together if
+\code{"time_point"} is just an alternative encoding of \code{"year"}).
 This variable is used to split the dataset into groups for separate
 confidence interval calculations.}
 
@@ -73,13 +73,14 @@ the original bootstrap dataframe \code{bootstrap_samples_df}.}
 
 \item{data_cube}{Only used when \code{type = "bca"}. A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
-(from \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
-\code{bootstrap_cube()}. To limit runtime, we recommend using a
-dataframe with custom function as \code{fun}.}
+(cf. \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
+\code{bootstrap_cube()}.}
 
-\item{fun}{Only used when \code{type = "bca"}. A function which, when applied to
-\code{data_cube} returns the statistic(s) of interest. This function must return a
-dataframe with a column \code{diversity_val} containing the statistic of interest.
+\item{fun}{Only used when \code{type = "bca"}.
+A function which, when applied to \code{data_cube$data} returns the
+statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
+This function must return a dataframe with a column \code{diversity_val}
+containing the statistic of interest.
 As used by \code{bootstrap_cube()}.}
 
 \item{...}{Additional arguments passed on to \code{fun}.}
@@ -205,7 +206,7 @@ mean_obs(processed_cube$data)
 
 # Perform bootstrapping
 bootstrap_mean_obs <- bootstrap_cube(
-  data_cube = processed_cube$data,
+  data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
@@ -232,8 +233,8 @@ ci_mean_obs2 <- calculate_bootstrap_ci(
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   aggregate = TRUE,
-  data_cube = processed_cube$data, # Required for BCa
-  fun = mean_obs,                  # Required for BCa
+  data_cube = processed_cube, # Required for BCa
+  fun = mean_obs,             # Required for BCa
   progress = FALSE
 )
 ci_mean_obs2

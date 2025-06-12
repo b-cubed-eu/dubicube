@@ -30,18 +30,6 @@ mean_obs <- function(data) {
   return(out_df)
 }
 
-mean_obs_processed <- function(data) {
-  # Initiate output variable
-  out_df <- NULL
-  out_df$meta <- "Mean number of observations per year"
-  # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ year + taxonKey, data$data, mean)
-  # Rename columns
-  names(out_df$data) <- c("year", "taxonKey", "diversity_val")
-
-  return(out_df)
-}
-
 ## Perform bootstrapping
 # Perform bootstrapping dataframe
 boot_df1 <- bootstrap_cube(

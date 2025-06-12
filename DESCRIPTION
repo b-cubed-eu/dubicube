@@ -31,13 +31,13 @@ Imports:
     modelr,
     purrr,
     rlang,
-    tibble,
-    tidyr
+    tibble
 Suggests:
     b3gbi,
     frictionless,
     ggplot2,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tidyr
 Remotes: 
     github::b-cubed-eu/b3gbi,
     github::inbo/effectclass

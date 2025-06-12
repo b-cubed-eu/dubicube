@@ -14,11 +14,11 @@
 #'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
 #'   replicate)
 #' @param grouping_var A character vector specifying the grouping variable(s)
-#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
-#' a row per group. The specified variables must not be redundant, meaning they
-#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
-#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
-#' just an alternative encoding of `"year"`).
+#' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
+#' return a row per group. The specified variables must not be redundant,
+#' meaning they should not contain the same information (e.g., `"time_point"`
+#' (1, 2, 3) and `"year"` (2000, 2001, 2002) should not be used together if
+#' `"time_point"` is just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' confidence interval calculations.
 #' @param type A character vector specifying the type(s) of confidence intervals
@@ -45,13 +45,14 @@
 #' the original bootstrap dataframe `bootstrap_samples_df`.
 #' @param data_cube Only used when `type = "bca"`. A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
-#' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
-#' `bootstrap_cube()`. To limit runtime, we recommend using a
-#' dataframe with custom function as `fun`.
-#' @param fun Only used when `type = "bca"`. A function which, when applied to
-#' `data_cube` returns the statistic(s) of interest. This function must return a
-#' dataframe with a column `diversity_val` containing the statistic of interest.
-#'  As used by `bootstrap_cube()`.
+#' (cf. `$data` slot of 'processed_cube' or 'sim_cube'). As used by
+#' `bootstrap_cube()`.
+#' @param fun Only used when `type = "bca"`.
+#' A function which, when applied to `data_cube$data` returns the
+#' statistic(s) of interest (or just `data_cube` in case of a dataframe).
+#' This function must return a dataframe with a column `diversity_val`
+#' containing the statistic of interest.
+#' As used by `bootstrap_cube()`.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param ref_group Only used when `type = "bca"`. A string indicating the
 #' reference group to compare the statistic with. Default is `NA`, meaning no
@@ -191,7 +192,7 @@
 #'
 #' # Perform bootstrapping
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = processed_cube$data,
+#'   data_cube = processed_cube,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
@@ -218,8 +219,8 @@
 #'   type = c("perc", "bca", "norm", "basic"),
 #'   conf = 0.95,
 #'   aggregate = TRUE,
-#'   data_cube = processed_cube$data, # Required for BCa
-#'   fun = mean_obs,                  # Required for BCa
+#'   data_cube = processed_cube, # Required for BCa
+#'   fun = mean_obs,             # Required for BCa
 #'   progress = FALSE
 #' )
 #' ci_mean_obs2
@@ -242,7 +243,7 @@ calculate_bootstrap_ci <- function(
     influence_method = ifelse(is.element("bca", type), "usual", NA),
     progress = FALSE) {
   ### Start checks
-  # Arguments data_cube, fun, ref_group, influence_method, and progress
+  # Arguments fun, ref_group, influence_method, and progress
   # arguments are checked in the calculate_acceleration() function
 
   # Check dataframe input
@@ -331,14 +332,22 @@ calculate_bootstrap_ci <- function(
         dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "bca") {
-      # Check whether data_cube and fun are provided
-      stopifnot(
-        "`data_cube` and `fun` must be provided to calculate BCa interval." =
-          rlang::inherits_any(
-            data_cube,
-            c("processed_cube", "sim_cube", "data.frame")
-          ) &
-          is.function(fun)
+      # Check data_cube input
+      cube_message <- paste0(
+        "`data_cube` must be a data cube object (class 'processed_cube' or ",
+        "'sim_cube') or a dataframe."
+      )
+      do.call(
+        stopifnot,
+        stats::setNames(
+          list(
+            rlang::inherits_any(
+              data_cube,
+              c("processed_cube", "sim_cube", "data.frame")
+            )
+          ),
+          cube_message
+        )
       )
 
       # Calculate acceleration values per grouping_var
@@ -349,6 +358,7 @@ calculate_bootstrap_ci <- function(
         grouping_var = grouping_var,
         ref_group = ref_group,
         influence_method = influence_method,
+        processed_cube = !inherits(data_cube, "data.frame"), # shortcut
         progress = progress
       )
 

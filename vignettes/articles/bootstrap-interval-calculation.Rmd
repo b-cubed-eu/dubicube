@@ -201,7 +201,7 @@ We use the `bootstrap_cube()` function to perform bootstrapping (see also the [b
 
 ```{r}
 bootstrap_results <- bootstrap_cube(
-  data_cube = processed_cube$data,
+  data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
@@ -238,10 +238,10 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
   Logical. If `TRUE` (default), the function returns confidence limits per group. If `FALSE`, the confidence limits are added to the original bootstrap dataframe `bootstrap_samples_df`.
 
 - **`data_cube`**:
-  Only used when `type = "bca"`. The input data, either as a processed data cube (from `b3gbi::process_cube()`), or simply the dataframe inside it (i.e. `processed_cube$data`). For faster computation, passing just the dataframe is recommended.
+  Only used when `type = "bca"`. The input data as a processed data cube (from `b3gbi::process_cube()`).
 
 - **`fun`**:
-  Only used when `type = "bca"`. A user-defined function that computes the statistic(s) of interest from `data_cube`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
+  Only used when `type = "bca"`. A user-defined function that computes the statistic(s) of interest from `data_cube$data`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
 
 - **`progress`**:
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
@@ -254,8 +254,8 @@ ci_mean_obs <- calculate_bootstrap_ci(
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
-  data_cube = processed_cube$data,   # Required for BCa
-  fun = mean_obs                     # Required for BCa
+  data_cube = processed_cube,   # Required for BCa
+  fun = mean_obs                # Required for BCa
 )
 ```
   
@@ -320,7 +320,7 @@ This process yields bootstrap replicate distributions of differences in indicato
 
 ```{r}
 bootstrap_results_ref <- bootstrap_cube(
-  data_cube = processed_cube$data,
+  data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
@@ -354,9 +354,9 @@ ci_mean_obs_ref <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_ref,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
-  data_cube = processed_cube$data,   # Required for BCa
-  fun = mean_obs,                    # Required for BCa
-  ref_group = 2011                   # Required for BCa
+  data_cube = processed_cube,   # Required for BCa
+  fun = mean_obs,               # Required for BCa
+  ref_group = 2011              # Required for BCa
 )
 ```
   
@@ -488,7 +488,7 @@ We perform bootstrapping as before. Note that you can also perform bootstrapping
 
 ```{r}
 bootstrap_results_evenness <- bootstrap_cube(
-  data_cube = processed_cube_even$data,
+  data_cube = processed_cube_even,
   fun = calc_evenness,
   grouping_var = "year",
   samples = 1000,
@@ -504,7 +504,7 @@ ci_evenness <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_evenness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
-  data_cube = processed_cube_even$data,
+  data_cube = processed_cube_even,
   fun = calc_evenness
 )
 ```
@@ -581,7 +581,7 @@ ci_evenness_trans <- calculate_bootstrap_ci(
   type = c("perc", "bca", "norm", "basic"),
   h = logit,
   hinv = inv_logit,
-  data_cube = processed_cube_even$data,
+  data_cube = processed_cube_even,
   fun = calc_evenness
 )
 ```
@@ -659,7 +659,7 @@ We perform bootstrapping as before. Note that you can also perform bootstrapping
 
 ```{r}
 bootstrap_results_richness <- bootstrap_cube(
-  data_cube = processed_cube_even$data,
+  data_cube = processed_cube_even,
   fun = calc_richness,
   grouping_var = "year",
   samples = 1000,
@@ -676,7 +676,7 @@ ci_richness <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_richness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
-  data_cube = processed_cube_even$data,
+  data_cube = processed_cube_even,
   fun = calc_richness
 )
 ```
@@ -750,7 +750,7 @@ ci_richness_no_bias <- calculate_bootstrap_ci(
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   no_bias = TRUE,
-  data_cube = processed_cube_even$data,
+  data_cube = processed_cube_even,
   fun = calc_richness
 )
 ```

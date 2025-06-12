@@ -6,22 +6,22 @@
 #' for bias-corrected and accelerated (BCa) confidence intervals in
 #' `calculate_bootstrap_ci()`.
 #'
-#' @param data_cube A data cube object (class
-#' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
-#' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
-#' `bootstrap_cube()`. To limit runtime, we recommend using a
-#' dataframe with custom function as `fun`.
-#' @param fun A function which, when applied to
-#' `data_cube` returns the statistic(s) of interest. This function must return a
-#' dataframe with a column `diversity_val` containing the statistic of interest.
+#' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
+#' see `b3gbi::process_cube()`) or a dataframe (cf. `$data` slot of
+#' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
+#' must be a processed or simulated data cube that contains a `$data` element.
+#' @param fun A function which, when applied to `data_cube$data` returns the
+#' statistic(s) of interest (or just `data_cube` in case of a dataframe).
+#' This function must return a dataframe with a column `diversity_val`
+#' containing the statistic of interest.
 #'  As used by `bootstrap_cube()`.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
-#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
-#' a row per group. The specified variables must not be redundant, meaning they
-#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
-#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
-#' just an alternative encoding of `"year"`).
+#' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
+#' return a row per group. The specified variables must not be redundant,
+#' meaning they should not contain the same information (e.g., `"time_point"`
+#' (1, 2, 3) and `"year"` (2000, 2001, 2002) should not be used together if
+#' `"time_point"` is just an alternative encoding of `"year"`).
 #' This variable is used to split the dataset into groups for separate
 #' acceleration calculations.
 #' @param ref_group A string indicating the
@@ -32,6 +32,9 @@
 #' the influence values.
 #'   - `"usual"`: Negative jackknife (default if BCa is selected).
 #'   - `"pos"`: Positive jackknife
+#' @param processed_cube Logical. If `TRUE` (default), the function expects
+#' `data_cube` to be a data cube object with a `$data` slot. If `FALSE`, the
+#' function expects `data_cube` to be a dataframe.
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
 #'
@@ -100,9 +103,7 @@
 #' @family indicator_uncertainty
 #'
 #' @import dplyr
-#' @import assertthat
-#' @importFrom rlang .data inherits_any
-#' @importFrom stats setNames
+#' @importFrom rlang .data
 #'
 #' @examples
 #' \dontrun{
@@ -117,20 +118,9 @@
 #' }
 #' mean_obs(processed_cube$data)
 #'
-#' # Perform bootstrapping
-#' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = processed_cube$data,
-#'   fun = mean_obs,
-#'   grouping_var = "year",
-#'   samples = 1000,
-#'   seed = 123,
-#'   progress = FALSE
-#' )
-#' head(bootstrap_mean_obs)
-#'
 #' # Calculate acceleration
 #' acceleration_df <- calculate_acceleration(
-#'   data_cube = processed_cube$data,
+#'   data_cube = processed_cube,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   progress = FALSE
@@ -146,38 +136,16 @@ calculate_acceleration <- function(
     grouping_var,
     ref_group = NA,
     influence_method = "usual",
+    processed_cube = TRUE,
     progress = FALSE) {
   ### Start checks
-  # Check if grouping_var is a character vector
-  stopifnot("`grouping_var` must be a character vector." =
-              is.character(grouping_var))
-
-  # Check if grouping_var contains redundant variables
-  check_redundant_grouping_vars(data_cube, grouping_var)
+  # fun, grouping_var, ref_group and progress are checked in
+  # perform_jackknifing function
 
   # Check data_cube input
-  cube_message <- paste("`data_cube` must be a data cube object (class",
-                        "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(
-    stopifnot,
-    stats::setNames(
-      list(
-        rlang::inherits_any(data_cube,
-                            c("processed_cube", "sim_cube", "data.frame"))
-      ),
-      cube_message
-    )
-  )
-
-  # Check fun input
-  stopifnot("`fun` must be a function." = is.function(fun))
-
-  # Check if ref_group is NA or a number or a string
-  stopifnot(
-    "`ref_group` must be a numeric/character vector of length 1 or NA." =
-      (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-       is.na(ref_group)) &
-      length(ref_group) == 1
+  data_cube <- get_cube_data(
+    data_cube = data_cube,
+    processed_cube = processed_cube
   )
 
   # Check if influence_method is 'usual' or 'pos'
@@ -187,15 +155,11 @@ calculate_acceleration <- function(
     stop("`influence_method` must be one of 'usual', 'pos'.",
          call. = FALSE)
   })
-
-  # Check if progress is a logical vector of length 1
-  stopifnot("`progress` must be a logical vector of length 1." =
-              assertthat::is.flag(progress))
   ### End checks
 
   # Perform jackknifing
   jackknife_df <- perform_jackknifing(
-    data_cube = data_cube,
+    df = data_cube,
     fun = fun,
     ...,
     grouping_var = grouping_var,

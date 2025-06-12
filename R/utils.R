@@ -14,7 +14,7 @@
 #' @noRd
 #'
 #' @import dplyr
-#' @importFrom rlang .data inherits_any
+#' @importFrom rlang .data
 #' @importFrom stats setNames
 #'
 #' @examples
@@ -31,10 +31,6 @@
 #' check_redundant_grouping_vars(df, c("year", "region"))
 
 check_redundant_grouping_vars <- function(data, grouping_var) {
-  if (rlang::inherits_any(data, c("processed_cube", "sim_cube"))) {
-    data <- data$data
-  }
-
   if (length(grouping_var) > 1) {
     # Subset the data to keep only the specified grouping variables
     grouping_data <- data[, grouping_var, drop = FALSE]
@@ -75,16 +71,85 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
   }
 }
 
+#' Extract data from a processed data cube or from a dataframe
+#'
+#' Returns the underlying data from a processed or simulated biodiversity data
+#' cube, or directly returns the data frame if `processed_cube = FALSE`.
+#'
+#' @param data_cube An object of class `processed_cube`, `sim_cube`, or a
+#' `data.frame`. If `processed_cube = TRUE`, this must be a processed or
+#' simulated data cube (i.e., an object with class `processed_cube` or
+#' `sim_cube`) that contains a `$data` element.
+#' @param processed_cube Logical. If `TRUE` (default), the function expects
+#' `data_cube` to be a cube object and returns its `$data` slot. If `FALSE`, the
+#' function expects a plain `data.frame` and returns it as-is.
+#'
+#' @return A `data.frame` containing the underlying data from the cube or the
+#' provided dataframe itself.
+#'
+#' @noRd
+#'
+#' @importFrom stats setNames
+#' @importFrom rlang inherits_any
+
+get_cube_data <- function(data_cube, processed_cube = TRUE) {
+  # Check if processed_cube is a logical vector of length 1
+  stopifnot("`processed_cube` must be a logical vector of length 1." =
+              assertthat::is.flag(processed_cube))
+
+  if (processed_cube) {
+    # Check data_cube input
+    cube_message <- paste0(
+      "`data_cube` must be a data cube object (class 'processed_cube' or ",
+      "'sim_cube').\n",
+      "Set `processed_cube = FALSE` if you want to provide a dataframe."
+    )
+    do.call(
+      stopifnot,
+      stats::setNames(
+        list(
+          rlang::inherits_any(
+            data_cube,
+            c("processed_cube", "sim_cube")
+          )
+        ),
+        cube_message
+      )
+    )
+
+    # Return cube data
+    return(data_cube$data)
+  }
+
+  # Check dataframe input
+  df_message <- paste0(
+    "`df` must be a dataframe.\n",
+    "Set `processed_cube = TRUE` if you want to provide a data cube object ",
+    "(class 'processed_cube' or 'sim_cube')"
+  )
+  do.call(
+    stopifnot,
+    stats::setNames(
+      list(inherits(data_cube, "data.frame")),
+      df_message
+    )
+  )
+
+  stopifnot("`df` must be a dataframe. " =
+              inherits(data_cube, "data.frame"))
+
+  # Return cube data
+  return(data_cube)
+}
+
 #' Calculate Statistic Per Group
 #'
 #' This function calculates a specified statistic on a dataset, grouped by one
 #' or more grouping variables. It applies the user-defined function to the data
 #' and returns the statistic for each group.
 #'
-#' @param data_cube A data cube object (class
-#' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
-#' (from `$data` slot of 'processed_cube' or 'sim_cube'). As used by
-#' `bootstrap_cube()`.
+#' @param data_cube A dataframe returning the data cube data. As returned by
+#' `get_cube_data()`.
 #' @param fun A function which, when applied to
 #' `data_cube` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.
@@ -103,7 +168,7 @@ check_redundant_grouping_vars <- function(data, grouping_var) {
 #' @noRd
 #'
 #' @import dplyr
-#' @importFrom rlang .data inherits_any
+#' @importFrom rlang .data
 
 calc_stat_by_group <- function(
     data_cube,
@@ -112,33 +177,18 @@ calc_stat_by_group <- function(
     grouping_var = NA,
     ref_group = NA) {
   if (!is.na(ref_group)) {
-    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      # Check if ref_group is present in grouping_var
-      matching_col <- grouping_var[
-        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)
-      ]
+    # Check if ref_group is present in grouping_var
+    matching_col <- grouping_var[
+      sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
+             function(col) ref_group %in% col)
+    ]
 
-      stopifnot(
-        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
-      )
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
+        is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
+    )
 
-      t0_full <- fun(data_cube, ...)$data
-    } else {
-      # Check if ref_group is present in grouping_var
-      matching_col <- grouping_var[
-        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)
-      ]
-
-      stopifnot(
-        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
-      )
-
-      t0_full <- fun(data_cube, ...)
-    }
+    t0_full <- fun(data_cube, ...)
 
     # Calculate reference value
     ref_val <- t0_full %>%
@@ -146,19 +196,16 @@ calc_stat_by_group <- function(
       dplyr::rename("ref_val" = "diversity_val") %>%
       dplyr::select(-matching_col)
 
+    # Calculate true statistic
     t0 <- t0_full %>%
       dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
       dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
       dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
       dplyr::select(-"ref_val")
-  } else {
-    # Calculate true statistic
-    if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-      t0 <- fun(data_cube, ...)$data
-    } else {
-      t0 <- fun(data_cube, ...)
-    }
+
+    return(t0)
   }
 
-  return(t0)
+  # Calculate true statistic
+  return(fun(data_cube, ...))
 }

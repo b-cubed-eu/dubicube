@@ -7,19 +7,20 @@
 #' group (`ref_group`).
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
-#' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
-#' 'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
-#' dataframe with custom function as `fun`.
-#' @param fun A function which, when applied to `data_cube` returns the
-#' statistic(s) of interest. This function must return a dataframe with a column
-#' `diversity_val` containing the statistic of interest.
+#' see `b3gbi::process_cube()`) or a dataframe (cf. `$data` slot of
+#' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
+#' must be a processed or simulated data cube that contains a `$data` element.
+#' @param fun A function which, when applied to `data_cube$data` returns the
+#' statistic(s) of interest (or just `data_cube` in case of a dataframe).
+#' This function must return a dataframe with a column `diversity_val`
+#' containing the statistic of interest.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
-#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
-#' a row per group. The specified variables must not be redundant, meaning they
-#' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
-#' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
-#' just an alternative encoding of `"year"`).
+#' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
+#' return a row per group. The specified variables must not be redundant,
+#' meaning they should not contain the same information (e.g., `"time_point"`
+#' (1, 2, 3) and `"year"` (2000, 2001, 2002) should not be used together if
+#' `"time_point"` is just an alternative encoding of `"year"`).
 #' @param samples The number of bootstrap replicates. A single positive integer.
 #' Default is 1000.
 #' @param ref_group A string indicating the reference group to compare the
@@ -28,6 +29,9 @@
 #' generation to ensure reproducibility. If `NA` (default), then `set.seed()`
 #' is not called at all. If not `NA`, then the random number generator state is
 #' reset (to the state before calling this function) upon exiting this function.
+#' @param processed_cube Logical. If `TRUE` (default), the function expects
+#' `data_cube` to be a data cube object with a `$data` slot. If `FALSE`, the
+#' function expects `data_cube` to be a dataframe.
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
@@ -107,10 +111,10 @@
 #'
 #' @import dplyr
 #' @import assertthat
-#' @importFrom rlang .data inherits_any
+#' @importFrom rlang .data
 #' @importFrom modelr bootstrap
 #' @importFrom purrr map
-#' @importFrom stats sd setNames
+#' @importFrom stats sd
 #'
 #' @examples
 #' \dontrun{
@@ -127,7 +131,7 @@
 #'
 #' # Perform bootstrapping
 #' bootstrap_mean_obs <- bootstrap_cube(
-#'   data_cube = processed_cube$data,
+#'   data_cube = processed_cube,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
@@ -146,20 +150,13 @@ bootstrap_cube <- function(
     samples = 1000,
     ref_group = NA,
     seed = NA,
+    processed_cube = TRUE,
     progress = FALSE) {
   ### Start checks
   # Check data_cube input
-  cube_message <- paste("`data_cube` must be a data cube object (class",
-                        "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(
-    stopifnot,
-    stats::setNames(
-      list(
-        rlang::inherits_any(data_cube,
-                            c("processed_cube", "sim_cube", "data.frame"))
-      ),
-      cube_message
-    )
+  data_cube <- get_cube_data(
+    data_cube = data_cube,
+    processed_cube = processed_cube
   )
 
   # Check fun input
@@ -204,42 +201,20 @@ bootstrap_cube <- function(
     set.seed(seed)
   }
 
-  # Create bootstrap functions and extract dataframes
-  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-    # Function for bootstrapping
-    bootstrap_resample <- function(x, fun, ...) {
-      resample_obj <- x$strap[[1]]
-      indices <- as.integer(resample_obj)
-      data <- resample_obj$data[indices, ]
+  # Function for bootstrapping
+  bootstrap_resample <- function(x, fun, ...) {
+    resample_obj <- x$strap[[1]]
+    indices <- as.integer(resample_obj)
+    data <- resample_obj$data[indices, ]
 
-      data_cube_copy <- data_cube
-      data_cube_copy$data <- data
-
-      fun(data_cube_copy, ...)$data %>%
-        dplyr::mutate(sample = as.integer(x$id))
-    }
-
-    # Extract data
-    data_cube_data <- data_cube$data
-  } else {
-    # Function for bootstrapping
-    bootstrap_resample <- function(x, fun, ...) {
-      resample_obj <- x$strap[[1]]
-      indices <- as.integer(resample_obj)
-      data <- resample_obj$data[indices, ]
-
-      fun(data, ...) %>%
-        dplyr::mutate(sample = as.integer(x$id))
-    }
-
-    # Extract data
-    data_cube_data <- data_cube
+    fun(data, ...) %>%
+      dplyr::mutate(sample = as.integer(x$id))
   }
 
   ### Start extra checks
   # Check if grouping_var column is present in data cube
   stopifnot("`data_cube` should contain column `grouping_var`." =
-              all(grouping_var %in% names(data_cube_data)))
+              all(grouping_var %in% names(data_cube)))
 
   # Check if ref_group is present in grouping_var
   stopifnot(
@@ -248,7 +223,7 @@ bootstrap_cube <- function(
       any(
         sapply(
           as.list(grouping_var), function(var) {
-            ref_group %in% data_cube_data[[var]]
+            ref_group %in% data_cube[[var]]
           }
         )
       )
@@ -256,7 +231,7 @@ bootstrap_cube <- function(
   ### End extra checks
 
   # Generate bootstrap replicates
-  resample_df <- modelr::bootstrap(data_cube_data, samples, id = "id")
+  resample_df <- modelr::bootstrap(data_cube, samples, id = "id")
 
   # Perform bootstrapping
   bootstrap_samples_list_raw <- resample_df %>%
@@ -281,7 +256,7 @@ bootstrap_cube <- function(
   if (!is.na(ref_group)) {
     # Calculate group_var columns for matching
     matching_col <- grouping_var[
-      sapply(data_cube_data %>% dplyr::select(dplyr::all_of(grouping_var)),
+      sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
              function(col) ref_group %in% col)
     ]
 

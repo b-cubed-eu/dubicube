@@ -6,16 +6,13 @@
 #' (`calculate_acceleration()`), which in turn is used in
 #' `calculate_bootstrap_ci()`.
 #'
-#' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
-#' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
-#' 'processed_cube' or 'sim_cube'). As used by `bootstrap_cube()`.
+#' @param df A dataframe.
 #' @param fun A function which, when applied to
-#' `data_cube` returns the statistic(s) of interest. This function must return a
+#' `df` returns the statistic(s) of interest. This function must return a
 #' dataframe with a column `diversity_val` containing the statistic of interest.
-#'  As used by `bootstrap_cube()`.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
-#' for the bootstrap analysis. The function `fun(data_cube, ...)` should return
+#' for the bootstrap analysis. The function `fun(df, ...)` should return
 #' a row per group. The specified variables must not be redundant, meaning they
 #' should not contain the same information (e.g., `"time_point"` (1, 2, 3) and
 #' `"year"` (2000, 2001, 2002) should not be used together if `"time_point"` is
@@ -32,127 +29,92 @@
 #' `grouping_var`.
 #'
 #' @import dplyr
-#' @importFrom rlang .data inherits_any
-#' @importFrom tidyr expand_grid
+#' @importFrom rlang .data
 #' @importFrom purrr map
 #'
 #' @noRd
 
 perform_jackknifing <- function(
-    data_cube,
+    df,
     fun,
     ...,
     grouping_var,
     ref_group = NA,
     progress = FALSE) {
+  ### Start checks
+  # Check fun input
+  stopifnot("`fun` must be a function." = is.function(fun))
+
+  # Check if grouping_var is a character vector
+  stopifnot("`grouping_var` must be a character vector." =
+              is.character(grouping_var))
+
+  # Check if grouping_var contains redundant variables
+  check_redundant_grouping_vars(df, grouping_var)
+
+  # Check if ref_group is NA or a number or a string
+  stopifnot(
+    "`ref_group` must be a numeric/character vector of length 1 or NA." =
+      (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
+       is.na(ref_group)) &
+      length(ref_group) == 1
+  )
+
+  # Check if ref_group is present in grouping_var
+  stopifnot(
+    "`ref_group` is not present in `grouping_var` column of `df`." =
+      is.na(ref_group) |
+      any(
+        sapply(
+          as.list(grouping_var), function(var) {
+            ref_group %in% df[[var]]
+          }
+        )
+      )
+  )
+
+  # Check if progress is a logical vector of length 1
+  stopifnot("`progress` must be a logical vector of length 1." =
+              assertthat::is.flag(progress))
+  ### End checks
+
   # Perform jackknifing
-  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-    # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
-                all(grouping_var %in% names(data_cube$data)))
+  jackknife_estimates <- purrr::map(
+    seq_len(nrow(df)),
+    function(i) {
+      # Identify group
+      group <- df[i, ] %>%
+        dplyr::select(dplyr::all_of(grouping_var))
 
-    # Check if ref_group is present in grouping_var
-    stopifnot(
-      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-        is.na(ref_group) |
-        any(
-          sapply(
-            as.list(grouping_var), function(var) {
-              ref_group %in% data_cube$data[[var]]
-            }
-          )
-        )
-    )
+      # Calculate indicator value without i'th observation
+      fun(df[-i, ], ...) %>%
+        dplyr::inner_join(group, by = grouping_var) %>%
+        dplyr::pull(.data$diversity_val)
+    },
+    .progress = ifelse(progress, "Jackknife estimation", progress)
+  ) %>%
+    unlist()
 
-    jackknife_estimates <- purrr::map(
-      seq_len(nrow(data_cube$data)),
-      function(i) {
-        # Identify group
-        group <- data_cube$data[i, ] %>%
-          dplyr::select(dplyr::all_of(grouping_var))
-
-        # Remove i'th observation
-        data <- data_cube$data[-i, ]
-        data_cube_copy <- data_cube
-        data_cube_copy$data <- data
-
-        # Calculate indicator value without i'th observation
-        fun(data_cube_copy, ...)$data %>%
-          dplyr::inner_join(group, by = grouping_var) %>%
-          dplyr::pull(.data$diversity_val)
-      },
-      .progress = ifelse(progress, "Jackknife estimation", progress)
-    ) %>%
-      unlist()
-
-    jackknife_df <- data_cube$data %>%
-      dplyr::mutate(jack_rep = jackknife_estimates) %>%
-      dplyr::select(dplyr::all_of(grouping_var), "jack_rep")
-  } else {
-    # Check if ref_group is present in grouping_var
-    stopifnot(
-      "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-        is.na(ref_group) |
-        any(
-          sapply(
-            as.list(grouping_var), function(var) {
-              ref_group %in% data_cube[[var]]
-            }
-          )
-        )
-    )
-
-    jackknife_estimates <- purrr::map(
-      seq_len(nrow(data_cube)),
-      function(i) {
-        # Identify group
-        group <- data_cube[i, ] %>%
-          dplyr::select(dplyr::all_of(grouping_var))
-
-        # Calculate indicator value without i'th observation
-        fun(data_cube[-i, ], ...) %>%
-          dplyr::inner_join(group, by = grouping_var) %>%
-          dplyr::pull(.data$diversity_val)
-      },
-      .progress = ifelse(progress, "Jackknife estimation", progress)
-    ) %>%
-      unlist()
-
-    jackknife_df <- data_cube %>%
-      dplyr::mutate(jack_rep = jackknife_estimates) %>%
-      dplyr::select(dplyr::all_of(grouping_var), "jack_rep")
-  }
+  # Create dataframe
+  jackknife_df <- df %>%
+    dplyr::mutate(jack_rep = jackknife_estimates) %>%
+    dplyr::select(dplyr::all_of(grouping_var), "jack_rep")
 
   # Calculate differences in presence of reference group
   if (!is.na(ref_group)) {
+    # Check if ref_group is present in grouping_var
+    matching_col <- grouping_var[
+      sapply(df %>% dplyr::select(dplyr::all_of(grouping_var)),
+             function(col) ref_group %in% col)
+    ]
+
+    stopifnot(
+      "`ref_group` is not present in `grouping_var` column of `df`." =
+        is.na(ref_group) | ref_group %in% df[[matching_col]]
+    )
+
     # Get group-specific estimates
-    if (inherits(data_cube, "processed_cube")) {
-      # Check if ref_group is present in grouping_var
-      matching_col <- grouping_var[
-        sapply(data_cube$data %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)
-      ]
-
-      stopifnot(
-        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) | ref_group %in% data_cube$data[[matching_col]]
-      )
-
-      group_estimates <- fun(data_cube, ...)$data
-    } else {
-      # Check if ref_group is present in grouping_var
-      matching_col <- grouping_var[
-        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
-               function(col) ref_group %in% col)
-      ]
-
-      stopifnot(
-        "`ref_group` is not present in `grouping_var` column of `data_cube`." =
-          is.na(ref_group) | ref_group %in% data_cube[[matching_col]]
-      )
-
-      group_estimates <- fun(data_cube, ...)
-    }
+    group_estimates <- fun(df, ...)
 
     # Get estimate for reference group
     ref_val <- group_estimates %>%

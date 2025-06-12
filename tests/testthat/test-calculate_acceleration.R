@@ -30,31 +30,20 @@ mean_obs <- function(data) {
   return(out_df)
 }
 
-mean_obs_processed <- function(data) {
-  # Initiate output variable
-  out_df <- NULL
-  out_df$meta <- "Mean number of observations per year"
-  # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ year + taxonKey, data$data, mean)
-  # Rename columns
-  names(out_df$data) <- c("year", "taxonKey", "diversity_val")
-
-  return(out_df)
-}
-
 ## Calculate acceleration
 # Input dataframe
 acceleration_df1 <- calculate_acceleration(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
-  influence_method = "usual"
+  influence_method = "usual",
+  processed_cube = FALSE
 )
 
 # Input 'processed_cube'
 acceleration_df2 <- calculate_acceleration(
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   influence_method = "pos"
 )
@@ -65,13 +54,14 @@ acceleration_df3 <- calculate_acceleration(
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   ref_group = ref_year,
-  influence_method = "pos"
+  influence_method = "pos",
+  processed_cube = FALSE
 )
 
 # Input 'processed_cube' with reference group
 acceleration_df4 <- calculate_acceleration(
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   ref_group = ref_year,
   influence_method = "usual"
@@ -110,13 +100,14 @@ test_that("Identical results for processed cube and dataframe", {
     data_cube = cube_df,
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
-    influence_method = "pos"
+    influence_method = "pos",
+    processed_cube = FALSE
   )
 
   # Input 'processed_cube'
   acceleration_df22 <- calculate_acceleration(
     data_cube = processed_cube,
-    fun = mean_obs_processed,
+    fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
     influence_method = "usual"
   )
@@ -127,13 +118,14 @@ test_that("Identical results for processed cube and dataframe", {
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
     ref_group = ref_year,
-    influence_method = "usual"
+    influence_method = "usual",
+    processed_cube = FALSE
   )
 
   # Input 'processed_cube' with reference group
   acceleration_df42 <- calculate_acceleration(
     data_cube = processed_cube,
-    fun = mean_obs_processed,
+    fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
     ref_group = ref_year,
     influence_method = "pos"

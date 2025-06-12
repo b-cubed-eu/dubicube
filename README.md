@@ -45,48 +45,55 @@ You can install the development version from
 remotes::install_github("b-cubed-eu/dubicube")
 ```
 
-## Key features of **dubicube**
+## Key Features
 
-The **dubicube** package provides a set of tools for assessing,
-interpreting, and visualising uncertainty in biodiversity indicators
-derived from occurrence data cubes. Its functionality is organised into
-three main areas:
+The **dubicube** package offers:
 
-### 1. Data exploration and variability assessment
+### 🔍 1. Data Exploration & Variability Assessment
 
-**dubicube** includes functions to evaluate the structure and
-sensitivity of biodiversity data cubes, helping users understand data
-quality and applicability.
+Gain insights into the structure and sensitivity of biodiversity data
+cubes.
 
-- `cross_validate_cube()` Perform cross-validation (e.g. leave-one-out
-  or k-fold) to assess group-level sensitivity of biodiversity
-  indicators. This helps evaluate how individual categories influence
-  biodiversity indicator values.
+- `cross_validate_cube()` Perform cross-validation (leave-one-out or
+  k-fold) to assess group-level sensitivity of indicators and evaluate
+  how individual categories influence results.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/group-level-sensitivity.html)
 
-> Additional data quality measures are under development and will be
-> available in future updates.
+> 🛠️ Additional data quality diagnostics are on the way!
 
-### 2. Estimating indicator uncertainty
+### 📈 2. Estimating Indicator Uncertainty
 
-To quantify the uncertainty associated with biodiversity indicators
-derived from data cubes, **dubicube** provides bootstrap-based tools:
+Use bootstrap methods to understand variability, bias, and confidence in
+your indicators.
 
-- `bootstrap_cube()` Generate bootstrap replicates of the input cube to
-  estimate the variability, bias, and standard error of biodiversity
-  indicators.
+- `bootstrap_cube()` Create bootstrap replicates to estimate indicator
+  variability, bias, and standard error.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)
 
 - `calculate_bootstrap_ci()` Compute confidence intervals (percentile,
-  BCa, normal, or basic) from bootstrap distributions, optionally
-  applying transformations or bias corrections.
+  BCa, normal, basic), with optional transformations and bias
+  correction.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-interval-calculation.html)
 
-### 3. Interpretation and visualisation of indicators
+### 🧠 3. Interpretation & Visualisation
 
-**dubicube** supports the interpretation of indicator values in the
-context of uncertainty and predefined reference or threshold values:
+Put your results in context with reference values and uncertainty
+thresholds.
 
-- `add_effect_classification()` Classify indicator results
+- `add_effect_classification()` Classify indicator trends
   (e.g. increase, stable, decrease) by comparing confidence intervals to
-  user-defined references and thresholds.
+  thresholds.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/effect-classification.html)
 
-> Tutorials on good practices for spatial and temporal indicator
-> interpretation are coming soon!
+> 📚 Tutorials on best practices for spatial and temporal interpretation
+> are coming soon!
+
+------------------------------------------------------------------------
+
+🔗 Learn more at our [website](https://b-cubed-eu.github.io/dubicube/)
+or explore the
+[documentation](https://b-cubed-eu.github.io/dubicube/reference/).

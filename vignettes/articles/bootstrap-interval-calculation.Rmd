@@ -320,7 +320,7 @@ This process yields bootstrap replicate distributions of differences in indicato
 
 ```{r}
 bootstrap_results_ref <- bootstrap_cube(
-  data_cube = processed_cube$data,
+  data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,

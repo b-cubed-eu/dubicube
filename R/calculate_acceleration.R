@@ -159,7 +159,7 @@ calculate_acceleration <- function(
 
   # Perform jackknifing
   jackknife_df <- perform_jackknifing(
-    data_cube = data_cube,
+    df = data_cube,
     fun = fun,
     ...,
     grouping_var = grouping_var,

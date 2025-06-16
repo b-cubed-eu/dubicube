@@ -110,7 +110,7 @@ See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/class
 
 ## Getting started with dubicube
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # Load packages
 library(dubicube)
 

@@ -1,3 +1,8 @@
+# dubicube 0.8.1
+
+* Silence package warnings in vignettes
+* Set repo status to active
+
 # dubicube 0.8.0
 
 * Simplify compatibility with **b3gbi** package #48

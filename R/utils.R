@@ -125,7 +125,7 @@ get_cube_data <- function(data_cube, processed_cube = TRUE) {
   df_message <- paste0(
     "`df` must be a dataframe.\n",
     "Set `processed_cube = TRUE` if you want to provide a data cube object ",
-    "(class 'processed_cube' or 'sim_cube')"
+    "(class 'processed_cube' or 'sim_cube')."
   )
   do.call(
     stopifnot,

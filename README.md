@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![repo
-status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Release](https://img.shields.io/github/release/b-cubed-eu/dubicube.svg)](https://github.com/b-cubed-eu/dubicube/releases)
 [![dubicube status
 badge](https://b-cubed-eu.r-universe.dev/dubicube/badges/version)](https://b-cubed-eu.r-universe.dev/dubicube)

@@ -47,17 +47,6 @@ mean_obs <- function(data) {
   return(out_df)
 }
 
-mean_obs_processed <- function(data) {
-  out_df <- NULL
-  out_df$meta <- "Mean number of observations per year"
-
-  # Calculate mean obs per year
-  out_df$data <- aggregate(obs ~ year, data$data, mean)
-  names(out_df$data) <- c("year", "diversity_val") # Rename columns
-
-  return(out_df)
-}
-
 ## Perform Cross-Validation
 # Perform LOO CV dataframe
 result1 <- cross_validate_cube(
@@ -66,13 +55,14 @@ result1 <- cross_validate_cube(
   grouping_var = "year",
   out_var = "taxonKey",
   crossv_method = "loo",
+  processed_cube = FALSE,
   progress = FALSE
 )
 
 # Perform LOO CV 'processed_cube'
 result2 <- cross_validate_cube(
   data_cube = processed_cube,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   grouping_var = "year",
   out_var = "taxonKey",
   crossv_method = "loo",
@@ -115,13 +105,14 @@ result3 <- cross_validate_cube(
   out_var = "taxonKey",
   crossv_method = "kfold",
   k = 3,
+  processed_cube = FALSE,
   progress = FALSE
 )
 
 # Perform kfold CV 'processed_cube'
 result4 <- cross_validate_cube(
   data_cube = processed_cube2,
-  fun = mean_obs_processed,
+  fun = mean_obs,
   grouping_var = "year",
   out_var = "taxonKey",
   crossv_method = "kfold",
@@ -159,6 +150,7 @@ test_that("cross_validate_cube returns a dataframe with expected structure", {
     grouping_var = "year",
     out_var = "Taxon key",
     crossv_method = "loo",
+    processed_cube = FALSE,
     progress = FALSE
   )
 
@@ -214,6 +206,7 @@ test_that("loo and k-fold return same results", {
     grouping_var = "year",
     out_var = "taxonKey",
     crossv_method = "loo",
+    processed_cube = FALSE,
     progress = FALSE
   )
 
@@ -225,6 +218,7 @@ test_that("loo and k-fold return same results", {
     out_var = "taxonKey",
     crossv_method = "kfold",
     k = length(species),
+    processed_cube = FALSE,
     progress = FALSE
   )
   # Adjust sorting and rownames
@@ -251,6 +245,7 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxonKey",
       crossv_method = "loo",
+      processed_cube = FALSE,
       progress = FALSE,
       max_out_cats = 2
     ),
@@ -261,7 +256,7 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
   expect_error(
     cross_validate_cube(
       data_cube = processed_cube,
-      fun = mean_obs_processed,
+      fun = mean_obs,
       grouping_var = "year",
       out_var = "taxonKey",
       crossv_method = "loo",
@@ -287,6 +282,7 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxonKey",
       crossv_method = "loo",
+      processed_cube = FALSE,
       progress = FALSE,
       max_out_cats = 2000
     ),
@@ -303,6 +299,7 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxon_key",
       crossv_method = "loo",
+      processed_cube = FALSE,
       progress = FALSE
     ),
     "`data_cube` should contain column `out_var`.",
@@ -318,8 +315,29 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       crossv_method = "loo",
       progress = FALSE
     ),
-    paste("`data_cube` must be a data cube object (class 'processed_cube' or",
-          "'sim_cube') or a dataframe."),
+    paste0(
+      "`data_cube` must be a data cube object (class 'processed_cube' or ",
+      "'sim_cube').\n",
+      "Set `processed_cube = FALSE` if you want to provide a dataframe."
+    ),
+    fixed = TRUE
+  )
+
+  expect_error(
+    cross_validate_cube(
+      data_cube = NULL,
+      fun = mean_obs,
+      grouping_var = "year",
+      out_var = "taxonKey",
+      crossv_method = "loo",
+      processed_cube = FALSE,
+      progress = FALSE
+    ),
+    paste0(
+      "`df` must be a dataframe.\n",
+      "Set `processed_cube = TRUE` if you want to provide a data cube object ",
+      "(class 'processed_cube' or 'sim_cube')."
+    ),
     fixed = TRUE
   )
 
@@ -330,6 +348,7 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       grouping_var = "year",
       out_var = "taxonKey",
       crossv_method = "LOO",
+      processed_cube = FALSE,
       progress = FALSE
     ),
     "`crossv_method` must be one of 'loo', 'kfold'.",
@@ -344,6 +363,7 @@ test_that("cross_validate_cube handles invalid inputs gracefully", {
       out_var = "taxonKey",
       crossv_method = "kfold",
       k = 7,
+      processed_cube = FALSE,
       progress = FALSE
     ),
     "`k` must be smaller than the number of categories in `out_var`.",
@@ -369,6 +389,7 @@ test_that("grouping_var length > 1", {
     grouping_var = c("year", "id"),
     out_var = "taxonKey",
     crossv_method = "loo",
+    processed_cube = FALSE,
     progress = FALSE
   )
 

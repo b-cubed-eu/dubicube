@@ -12,27 +12,29 @@ bootstrap_cube(
   samples = 1000,
   ref_group = NA,
   seed = NA,
+  processed_cube = TRUE,
   progress = FALSE
 )
 }
 \arguments{
 \item{data_cube}{A data cube object (class 'processed_cube' or 'sim_cube',
-see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
-'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
-dataframe with custom function as \code{fun}.}
+see \code{b3gbi::process_cube()}) or a dataframe (cf. \verb{$data} slot of
+'processed_cube' or 'sim_cube'). If \code{processed_cube = TRUE} (default), this
+must be a processed or simulated data cube that contains a \verb{$data} element.}
 
-\item{fun}{A function which, when applied to \code{data_cube} returns the
-statistic(s) of interest. This function must return a dataframe with a column
-\code{diversity_val} containing the statistic of interest.}
+\item{fun}{A function which, when applied to \code{data_cube$data} returns the
+statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
+This function must return a dataframe with a column \code{diversity_val}
+containing the statistic of interest.}
 
 \item{...}{Additional arguments passed on to \code{fun}.}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
-for the bootstrap analysis. The function \code{fun(data_cube, ...)} should return
-a row per group. The specified variables must not be redundant, meaning they
-should not contain the same information (e.g., \code{"time_point"} (1, 2, 3) and
-\code{"year"} (2000, 2001, 2002) should not be used together if \code{"time_point"} is
-just an alternative encoding of \code{"year"}).}
+for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
+return a row per group. The specified variables must not be redundant,
+meaning they should not contain the same information (e.g., \code{"time_point"}
+(1, 2, 3) and \code{"year"} (2000, 2001, 2002) should not be used together if
+\code{"time_point"} is just an alternative encoding of \code{"year"}).}
 
 \item{samples}{The number of bootstrap replicates. A single positive integer.
 Default is 1000.}
@@ -44,6 +46,10 @@ statistic with. Default is \code{NA}, meaning no reference group is used.}
 generation to ensure reproducibility. If \code{NA} (default), then \code{set.seed()}
 is not called at all. If not \code{NA}, then the random number generator state is
 reset (to the state before calling this function) upon exiting this function.}
+
+\item{processed_cube}{Logical. If \code{TRUE} (default), the function expects
+\code{data_cube} to be a data cube object with a \verb{$data} slot. If \code{FALSE}, the
+function expects \code{data_cube} to be a dataframe.}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
@@ -148,7 +154,7 @@ mean_obs(processed_cube$data)
 
 # Perform bootstrapping
 bootstrap_mean_obs <- bootstrap_cube(
-  data_cube = processed_cube$data,
+  data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,

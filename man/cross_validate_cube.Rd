@@ -13,18 +13,20 @@ cross_validate_cube(
   crossv_method = c("loo", "kfold"),
   k = ifelse(crossv_method == "kfold", 5, NA),
   max_out_cats = 1000,
+  processed_cube = TRUE,
   progress = FALSE
 )
 }
 \arguments{
 \item{data_cube}{A data cube object (class 'processed_cube' or 'sim_cube',
-see \code{b3gbi::process_cube()}) or a dataframe (from \verb{$data} slot of
-'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
-dataframe with custom function as \code{fun}.}
+see \code{b3gbi::process_cube()}) or a dataframe (cf. \verb{$data} slot of
+'processed_cube' or 'sim_cube'). If \code{processed_cube = TRUE} (default), this
+must be a processed or simulated data cube that contains a \verb{$data} element.}
 
-\item{fun}{A function which, when applied to \code{data_cube} returns the
-statistic(s) of interest. This function must return a dataframe with a column
-\code{diversity_val} containing the statistic of interest.}
+\item{fun}{A function which, when applied to \code{data_cube$data} returns the
+statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
+This function must return a dataframe with a column \code{diversity_val}
+containing the statistic of interest.}
 
 \item{...}{Additional arguments passed on to \code{fun}.}
 
@@ -50,6 +52,10 @@ experimental and results should be interpreted with caution.}
 categories in \code{out_var} to leave out iteratively. Default is \code{1000}.
 This can be increased if needed, but keep in mind that a high number of
 categories in \code{out_var} may significantly increase runtime.}
+
+\item{processed_cube}{Logical. If \code{TRUE} (default), the function expects
+\code{data_cube} to be a data cube object with a \verb{$data} slot. If \code{FALSE}, the
+function expects \code{data_cube} to be a dataframe.}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
@@ -169,7 +175,7 @@ mean_obs(processed_cube$data)
 
 # Perform leave-one-species-out CV
 cv_mean_obs <- cross_validate_cube(
-  data_cube = processed_cube$data,
+  data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   out_var = "taxonKey",

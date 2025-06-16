@@ -9,12 +9,13 @@
 #' on the final result.
 #'
 #' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
-#' see `b3gbi::process_cube()`) or a dataframe (from `$data` slot of
-#' 'processed_cube' or 'sim_cube'). To limit runtime, we recommend using a
-#' dataframe with custom function as `fun`.
-#' @param fun A function which, when applied to `data_cube` returns the
-#' statistic(s) of interest. This function must return a dataframe with a column
-#' `diversity_val` containing the statistic of interest.
+#' see `b3gbi::process_cube()`) or a dataframe (cf. `$data` slot of
+#' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
+#' must be a processed or simulated data cube that contains a `$data` element.
+#' @param fun A function which, when applied to `data_cube$data` returns the
+#' statistic(s) of interest (or just `data_cube` in case of a dataframe).
+#' This function must return a dataframe with a column `diversity_val`
+#' containing the statistic of interest.
 #' @param ... Additional arguments passed on to `fun`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for `fun`. The output of `fun(data_cube)` returns a row per group.
@@ -30,12 +31,15 @@
 #' experimental and results should be interpreted with caution.
 #' @param k Number of folds (an integer). Used only if
 #' `crossv_method = "kfold"`. Default 5.
-#' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
-#' display a progress bar, `FALSE` (default) to suppress it.
 #' @param max_out_cats An integer specifying the maximum number of unique
 #' categories in `out_var` to leave out iteratively. Default is `1000`.
 #' This can be increased if needed, but keep in mind that a high number of
 #' categories in `out_var` may significantly increase runtime.
+#' @param processed_cube Logical. If `TRUE` (default), the function expects
+#' `data_cube` to be a data cube object with a `$data` slot. If `FALSE`, the
+#' function expects `data_cube` to be a dataframe.
+#' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
+#' display a progress bar, `FALSE` (default) to suppress it.
 #'
 #' @returns A dataframe containing the cross-validation results with the
 #' following columns:
@@ -144,7 +148,7 @@
 #'
 #' # Perform leave-one-species-out CV
 #' cv_mean_obs <- cross_validate_cube(
-#'   data_cube = processed_cube$data,
+#'   data_cube = processed_cube,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   out_var = "taxonKey",
@@ -164,22 +168,13 @@ cross_validate_cube <- function(
     crossv_method = c("loo", "kfold"),
     k = ifelse(crossv_method == "kfold", 5, NA),
     max_out_cats = 1000,
+    processed_cube = TRUE,
     progress = FALSE) {
   ### Start checks
   # Check data_cube input
-  cube_message <- paste("`data_cube` must be a data cube object (class",
-                        "'processed_cube' or 'sim_cube') or a dataframe.")
-  do.call(
-    stopifnot,
-    stats::setNames(
-      list(
-        rlang::inherits_any(
-          data_cube,
-          c("processed_cube", "sim_cube", "data.frame")
-        )
-      ),
-      cube_message
-    )
+  data_cube <- get_cube_data(
+    data_cube = data_cube,
+    processed_cube = processed_cube
   )
 
   # Check fun input
@@ -192,6 +187,14 @@ cross_validate_cube <- function(
   # Check if out_var is a character vector of length 1
   stopifnot("`out_var` must be a character vector of length 1." =
               assertthat::is.string(out_var))
+
+  # Check if grouping_var column is present in data cube
+  stopifnot("`data_cube` should contain column `grouping_var`." =
+              all(grouping_var %in% names(data_cube)))
+
+  # Check if out_var column is present in data cube
+  stopifnot("`data_cube` should contain column `out_var`." =
+              out_var %in% names(data_cube))
 
   # Check if crossv_method is loo or kfold
   crossv_method <- tryCatch({
@@ -218,48 +221,16 @@ cross_validate_cube <- function(
               assertthat::is.flag(progress))
   ### End checks
 
-  if (rlang::inherits_any(data_cube, c("processed_cube", "sim_cube"))) {
-    # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column(s) `grouping_var`." =
-                all(grouping_var %in% names(data_cube$data)))
-
-    # Check if out_var column is present in data cube
-    stopifnot("`data_cube` should contain column `out_var`." =
-                out_var %in% names(data_cube$data))
-
-    # Define cross-validation function
-    cross_validate_f <- function(x, fun, ...) {
-      data_cube_copy <- data_cube
-      data_cube_copy$data <- x
-
-      fun(data_cube_copy, ...)$data
-    }
-
-    # Calculate true statistic
-    t0 <- fun(data_cube, ...)$data
-
-    # Save data cube data
-    data_cube_df <- tibble::as_tibble(data_cube$data)
-  } else {
-    # Check if grouping_var column is present in data cube
-    stopifnot("`data_cube` should contain column `grouping_var`." =
-                all(grouping_var %in% names(data_cube)))
-
-    # Check if out_var column is present in data cube
-    stopifnot("`data_cube` should contain column `out_var`." =
-                out_var %in% names(data_cube))
-
-    # Define cross-validation function
-    cross_validate_f <- function(x, fun, ...) {
-      fun(x, ...)
-    }
-
-    # Calculate true statistic
-    t0 <- fun(data_cube, ...)
-
-    # Save data cube data
-    data_cube_df <- tibble::as_tibble(data_cube)
+  # Define cross-validation function
+  cross_validate_f <- function(x, fun, ...) {
+    fun(x, ...)
   }
+
+  # Calculate true statistic
+  t0 <- fun(data_cube, ...)
+
+  # Save data cube data
+  data_cube_df <- tibble::as_tibble(data_cube)
 
   # Checks for number of categories in out_var
   num_cats <- ifelse(crossv_method == "loo",

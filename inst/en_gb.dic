@@ -25,6 +25,7 @@ artifacts
 bca
 center
 centered
+cf
 codecov
 ed
 expit
@@ -39,3 +40,4 @@ sim
 st
 th
 ’th
+️

@@ -4,6 +4,7 @@
 * Add links to tutorials in README #49
 * Make README more attractive #50
 * Improve table layout tutorial effect classification #51
+* Include bootstrap figure in tutorial #37
 
 # dubicube 0.7.3
 

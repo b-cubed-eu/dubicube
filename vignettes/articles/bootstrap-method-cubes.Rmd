@@ -241,7 +241,8 @@ bootstrap_results_df <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  seed = 123
+  seed = 123,
+  processed_cube = FALSE
 )
 ```
 

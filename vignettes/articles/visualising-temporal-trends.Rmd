@@ -174,7 +174,7 @@ ci_mean_obs %>%
 ```
 
 However, the question remains which interval types should be calculated and/or reported.
-A good idea is to compare different interval types next to each other together with the bootstrap distribution and the bootstrap bias (the difference between the estimate and the bootstrap estimate). 
+A good idea is to compare different interval types next to each other together with the bootstrap distribution and the bootstrap bias (the difference between the estimate and the bootstrap estimate).
 
 ```{r}
 #| fig.alt: >
@@ -201,7 +201,7 @@ bootstrap_results %>%
   # Intervals
   geom_errorbar(data = ci_mean_obs,
                 aes(ymin = ll, ymax = ul, colour = int_type),
-                position = position_dodge(0.8), linewidth = 0.8) +
+                position = position_dodge(0.8), linewidth = 0.6) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
@@ -211,6 +211,117 @@ bootstrap_results %>%
         legend.title = element_text(face = "bold"))
 ```
 
+This informs us about the shape of the bootstrap distribution and the amount of bootstrap bias.
+In combination with bootstrap interval theory, it can be decided which interval type(s) should be reported.
+In general, because of the wide range of biodiversity indicator types, we recommend the use of percentile or BCa intervals, because they have no strong assumptions regarding the bootstrap distribution.
+The BCa interval is recommended as it accounts for bias and skewness.
+However, due to the jackknife estimation of the acceleration parameter, the calculation time is significantly longer.
+The use of the normal and basic confidence intervals is not recommended, but could be used in combination with truncations or transformations.
+The assumption of normality can be checked by making a Q-Q plot of the bootstrap replications (see further) (Davison & Hinkley, 1997).
+An overview of the recommendations is provided in the table below.
+This is not an exhaustive review of the topic, but based on existing literature and our preliminary results, these recommendations provide a useful starting point for selecting appropriate interval types.
+
+<!-- spell-check: ignore:start -->
+<table style="table-layout: auto; width: 100%;">
+  <thead>
+    <tr>
+      <th style="white-space: nowrap;">Interval type</th>
+      <th>Advantages</th>
+      <th>Disadvantages</th>
+      <th>References</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Normal</strong></td>
+      <td>
+        <ul>
+          <li>Simplicity</li>
+          <li>Understanding of bootstrap and CI theory</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Assumes bootstrap distribution is normal</li>
+          <li>Often, transformation needed for more accurate results</li>
+          <li>Erratic coverage error in practice</li>
+        </ul>
+      </td>
+      <td>
+        Davison & Hinkley (1997, Ch. 5);<br>
+        Efron & Tibshirani (1994, Ch. 13);<br>
+        Hesterberg (2015)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Basic</strong></td>
+      <td>
+        <ul>
+          <li>Simplicity</li>
+          <li>Understanding of bootstrap and CI theory</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Assumes symmetric bootstrap distribution</li>
+          <li>Typically substantial coverage error</li>
+        </ul>
+      </td>
+      <td>
+        Carpenter & Bithell (2000);<br>
+        Davison & Hinkley (1997, Ch. 5);<br>
+        Hesterberg (2015)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Percentile</strong></td>
+      <td>
+        <ul>
+          <li>Simplicity</li>
+          <li>No assumptions about bootstrap distribution</li>
+          <li>Implicitly uses the existence of a good transformation</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Does not take bias into account</li>
+          <li>Substantial coverage error if the distribution is not nearly symmetric</li>
+        </ul>
+      </td>
+      <td>
+        Carpenter & Bithell (2000);<br>
+        Davison & Hinkley (1997, Ch. 5);<br>
+        Efron & Tibshirani (1994, Ch. 13)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>BCa</strong></td>
+      <td>
+        <ul>
+          <li>No assumptions about bootstrap distribution</li>
+          <li>Implicitly uses the existence of a good transformation</li>
+          <li>Adjusts for bias</li>
+          <li>Adjusts for skewness</li>
+          <li>Smaller coverage error than the other methods</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Involved calculation of acceleration parameter <code>a</code></li>
+          <li>Unstable coverage when sample size is small or <code>a</code> is small</li>
+        </ul>
+      </td>
+      <td>
+        Carpenter & Bithell (2000);<br>
+        Davison & Hinkley (1997, Ch. 5);<br>
+        Dixon (2001);<br>
+        Efron & Tibshirani (1994, Ch. 14)
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- spell-check: ignore:end -->
+
 
 ### Smooth trends
 
@@ -218,8 +329,11 @@ bootstrap_results %>%
 
 ### Fan plots
 
-
+*check normality with qq plot*
 
 ## Visualising effects
+
+
+## References
 
 

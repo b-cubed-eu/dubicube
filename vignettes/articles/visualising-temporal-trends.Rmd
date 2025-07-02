@@ -159,13 +159,12 @@ The use of error bars is an easy and straightforward way to visualise uncertaint
 #| fig.alt: >
 #|   Confidence intervals for mean number of occurrences over time.
 ci_mean_obs %>%
-  ggplot(aes(x = year)) +
+  ggplot(aes(x = year, y = est_original)) +
   # Intervals
   geom_errorbar(aes(ymin = ll, ymax = ul),
                 position = position_dodge(0.8), linewidth = 0.8) +
   # Estimates
-  geom_point(aes(y = est_original),
-             colour = "firebrick", size = 2) +
+  geom_point(colour = "firebrick", size = 2) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell") +
   scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
@@ -178,7 +177,8 @@ A good idea is to compare different interval types next to each other together w
 
 ```{r}
 #| fig.alt: >
-#|   Confidence intervals with bootstrap distribution for mean number of occurrences over time.
+#|   Confidence intervals with bootstrap distribution for mean number of
+#|   occurrences over time.
 # Get bias vales
 bias_mean_obs <- bootstrap_results %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
@@ -322,18 +322,101 @@ This is not an exhaustive review of the topic, but based on existing literature 
 </table>
 <!-- spell-check: ignore:end -->
 
-
 ### Smooth trends
 
+To create a more continuous representation of change over time, we can apply LOESS (Locally Estimated Scatterplot Smoothing) to the estimates and confidence limits.
+This smoothing technique fits local regressions across subsets of the data, producing a flexible trend line that helps visualize broader patterns while retaining important details.
 
+It should be noted that this may complicate interpretation of the results.
+Occurrence cubes are by definition categorical over time (in this case by year), so smoothing things out over time while the data have been aggregated might lead to different results compared to a similar analysis on the original data (before the cube was made and aggregation occurred).
+Therefore, we recommend this visualisation for long time series to make general interpretations of the trend over time.
+In our example, we actually have a small time frame so we only show this for the sake of the tutorial.
+
+Based on the discussion above, we select the BCa interval as we see some asymmetry and bias in the bootstrap distribution of later years.
+Note that this is probably due to the selection 2000 random rows from the original dataset to reduce the computation time for this tutorial.
+Otherwise we would expect a more symmetrical distribution for this indicator.
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals with loess smoother.
+ci_mean_obs %>%
+  filter(int_type == "bca") %>%
+  ggplot(aes(x = year, y = est_original)) +
+  geom_smooth(
+    colour = alpha("blue", 0.5),
+    linetype = "solid",
+    method = "loess",
+    formula = "y ~ x",
+    se = FALSE
+  ) +
+  geom_smooth(
+    aes(y = ul),
+    colour = alpha("lightsteelblue1", 1),
+    linetype = "dashed",
+    method = "loess",
+    formula = "y ~ x",
+    se = FALSE
+  ) +
+  geom_smooth(
+    aes(y = ll),
+    colour = alpha("lightsteelblue1", 1),
+    linetype = "dashed",
+    method = "loess",
+    formula = "y ~ x",
+    se = FALSE
+  ) +
+  geom_ribbon(
+    aes(ymin = predict(loess(ll ~ year)), ymax = predict(loess(ul ~ year))),
+    alpha = 0.2, fill = "lightsteelblue1"
+  ) +
+  # Intervals
+  geom_errorbar(aes(ymin = ll, ymax = ul),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Estimates
+  geom_point(colour = "firebrick", size = 3) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal()
+```
 
 ### Fan plots
 
-*check normality with qq plot*
+The **effectclass** package provides the `stat_fan()` function to create fan plot intervals (see also this [**effectclass** tutorial](https://inbo.github.io/effectclass/articles/visualisation.html#stat_fan)).
+
+```{r, message=FALSE, warning=FALSE}
+library(effectclass)
+```
+
+These intervals are based on a normal distribution or a transformation via the `link` argument.
+Therefore, we check the assumption of normality by making a Q-Q plot of the bootstrap replications.
+
+```{r, fig.height=10}
+#| fig.alt: >
+#|   Q-Q plot of bootstrap replications.
+ggplot(bootstrap_results, aes(sample = rep_boot)) +
+  # Q-Q plot
+  stat_qq() +
+  stat_qq_line(col = "red") +
+  # Settings
+  labs(x = "Theoretical Quantiles (Standard Normal)",
+       y = "Sample Quantiles (Bootstrap Replicates)") +
+  facet_wrap(~ year, ncol = 2, scales = "free") +
+  theme_minimal()
+```
+
 
 ## Visualising effects
 
 
 ## References
 
+Carpenter, J., & Bithell, J. (2000). Bootstrap confidence intervals: When, which, what? A practical guide for medical statisticians. *Statistics in Medicine, 19*(9), 1141–1164. [https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9<1141::AID-SIM479>3.0.CO;2-F](https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9<1141::AID-SIM479>3.0.CO;2-F)
 
+Davison, A. C., & Hinkley, D. V. (1997). *Bootstrap Methods and their Application* (1st ed.). Cambridge University Press. https://doi.org/10.1017/CBO9780511802843
+
+Dixon, P. M. (2001). The Bootstrap and the Jackknife: Describing the Precision of Ecological Indices. In S. M. Scheiner & J. Gurevitch (Eds.), *Design and Analysis of Ecological Experiments* (Second Edition, pp. 267–288). Oxford University PressNew York, NY. https://doi.org/10.1093/oso/9780195131871.003.0014
+
+Efron, B., & Tibshirani, R. J. (1994). *An Introduction to the Bootstrap* (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429246593
+
+Hesterberg, T. C. (2015). What Teachers Should Know About the Bootstrap: Resampling in the Undergraduate Statistics Curriculum. *The American Statistician, 69*(4), 371–386. https://doi.org/10.1080/00031305.2015.1089789

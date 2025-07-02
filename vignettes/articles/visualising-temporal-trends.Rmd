@@ -431,9 +431,7 @@ ci_mean_obs_lognorm <- calculate_bootstrap_ci(
   type = c("norm"),
   conf = 0.95,
   h = log,
-  hinv = exp,
-  data_cube = processed_cube,   # Required for BCa
-  fun = mean_obs                # Required for BCa
+  hinv = exp
 )
 ```
 
@@ -484,9 +482,152 @@ bootstrap_results %>%
   # Get unique estimates per year
   distinct(year, est_original, se_boot_log) %>%
   # Visualise
-  ggplot(aes(x = year, y = est_original, link_sd = se_boot_log)) +
-  effectclass::stat_fan(link = "log", fill = "cornflowerblue") +
-  geom_line() +
+  ggplot(aes(x = year, y = est_original)) +
+  effectclass::stat_fan(aes(link_sd = se_boot_log),
+                        link = "log", max_prob = 0.95, fill = "cornflowerblue") +
+  geom_errorbar(data = ci_mean_obs_lognorm,
+              aes(ymin = ll, ymax = ul),
+              position = position_dodge(0.8), linewidth = 0.6) +
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal()
+```
+
+However, we see that the log-normal bootstrap intervals do not agree with the fans.
+This is because the fan plot does not account for bias.
+
+```{r}
+max_prob <- 0.95
+step <- 0.1
+coverages <- seq(max_prob, 1e-3, by = -step)
+
+out_ci_list <- vector(mode = "list", length = length(coverages))
+
+for (i in seq_along(coverages)) {
+  cov <- coverages[i]
+  
+  ci_cov <- calculate_bootstrap_ci(
+    bootstrap_samples_df = bootstrap_results,
+    grouping_var = "year",
+    type = c("norm"),
+    conf = cov,
+    h = log,
+    hinv = exp
+  )
+  
+  out_ci_list[[i]] <- ci_cov
+}
+out_ci <- bind_rows(out_ci_list)
+
+alpha_levels <- sapply(coverages, function(i) 1 - i / (i + step))
+names(alpha_levels) <- as.character(coverages)
+# Optional: define alpha levels for each conf level manually
+alpha_levels2 <- c(
+  "0.95" = 0.1,
+  "0.85" = 0.2,
+  "0.75"  = 0.3,
+  "0.65"  = 0.4,
+  "0.55" = 0.5,
+  "0.45" = 0.6,
+  "0.35" = 0.7,
+  "0.25" = 0.8,
+  "0.15" = 0.9,
+  "0.05" = 1
+)
+
+# Convert `conf` to character so it can match alpha_levels
+out_ci <- out_ci %>%
+    mutate(conf_chr = as.character(conf))
+
+ggplot(out_ci, aes(x = year)) +
+    geom_ribbon(
+        aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr),
+        color = NA
+    ) +
+  geom_errorbar(data = ci_mean_obs_lognorm,
+              aes(ymin = ll, ymax = ul),
+              position = position_dodge(0.8), linewidth = 0.6) +
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2) +
+    scale_alpha_manual(values = alpha_levels, guide = "none") +
+    scale_fill_manual(values = rep("blue", length(alpha_levels)), guide = "none") +
+    theme_minimal() +
+    labs(
+        title = "Overlapping Confidence Intervals",
+        x = "Year",
+        y = "Estimate"
+    )
+```
+
+```{r}
+bootstrap_results %>%
+  # Calculate standard error on link scale
+  mutate(rep_boot_log = log(rep_boot),
+         est_boot_log = mean(rep_boot_log),
+         se_boot_log = sd(rep_boot_log),
+         .by = "year") %>%
+  # Get unique estimates per year
+  distinct(year, est_original, est_boot_log, se_boot_log) %>%
+  # Calculate bias factor
+  mutate(bias_log = exp(est_boot_log - log(est_original))) %>%
+  # Visualise
+  ggplot(aes(x = year)) +
+  effectclass::stat_fan(aes(y = est_original / bias_log, link_sd = se_boot_log),
+                        link = "log", fill = "cornflowerblue", max_prob = 0.95) +
+  geom_errorbar(data = ci_mean_obs_lognorm,
+              aes(ymin = ll, ymax = ul),
+              position = position_dodge(0.8), linewidth = 0.6) +
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal()
+```
+
+We can only use this function if we assume no bias and account for it in the plot:
+
+```{r}
+ci_mean_obs_lognorm2 <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results,
+  grouping_var = "year",
+  type = c("norm"),
+  conf = 0.95,
+  h = log,
+  hinv = exp,
+  no_bias = TRUE,
+  data_cube = processed_cube,   # Required for BCa
+  fun = mean_obs                # Required for BCa
+)
+```
+
+```{r}
+bootstrap_results %>%
+  # No bias
+  dplyr::rowwise() %>%
+  dplyr::mutate(rep_boot = rep_boot - bias_boot) %>%
+  dplyr::ungroup() %>%
+  # Calculate standard error on link scale
+  mutate(rep_boot_log = log(rep_boot),
+         est_boot_log = mean(rep_boot_log),
+         se_boot_log = sd(rep_boot_log),
+         .by = "year") %>%
+  # Get unique estimates per year
+  distinct(year, est_original, est_boot_log, se_boot_log) %>%
+  # Calculate bias factor
+  mutate(bias_log = exp(est_boot_log - log(est_original))) %>%
+  # Visualise
+  ggplot(aes(x = year)) +
+  effectclass::stat_fan(aes(y = est_original, link_sd = se_boot_log),
+                        link = "log", fill = "cornflowerblue", max_prob = 0.95) +
+  geom_errorbar(data = ci_mean_obs_lognorm2,
+              aes(ymin = ll, ymax = ul),
+              position = position_dodge(0.8), linewidth = 0.6) +
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
   scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +

@@ -405,6 +405,93 @@ ggplot(bootstrap_results, aes(sample = rep_boot)) +
   theme_minimal()
 ```
 
+As expected, it looks like the bootstrap distributions are not normally distributed in most years.
+If we log-transform the bootstrap replications, the Q-Q plots look better.
+
+```{r, fig.height=10}
+#| fig.alt: >
+#|   Q-Q plot of log-transformed bootstrap replications.
+ggplot(bootstrap_results, aes(sample = log(rep_boot))) +
+  # Q-Q plot
+  stat_qq() +
+  stat_qq_line(col = "red") +
+  # Settings
+  labs(x = "Theoretical Quantiles (Standard Normal)",
+       y = "Sample Quantiles (Bootstrap Replicates)") +
+  facet_wrap(~ year, ncol = 2, scales = "free") +
+  theme_minimal()
+```
+
+We therefore calculate the log-transformed normal intervals and compare them with the BCa and normal intervals.
+
+```{r}
+ci_mean_obs_lognorm <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results,
+  grouping_var = "year",
+  type = c("norm"),
+  conf = 0.95,
+  h = log,
+  hinv = exp,
+  data_cube = processed_cube,   # Required for BCa
+  fun = mean_obs                # Required for BCa
+)
+```
+
+The log-normal intervals look indeed more correct then the normal intervals, although they still differ from the BCa intervals.
+
+```{r}
+#| fig.alt: >
+#|   Compare log-normal intervals.
+# Combine interval data
+ci_mean_obs_new <- ci_mean_obs %>%
+  filter(int_type %in% c("bca", "norm")) %>%
+  bind_rows(ci_mean_obs_lognorm %>% mutate(int_type = "log_norm"))
+
+# Visualise
+bootstrap_results %>%
+  ggplot(aes(x = year)) +
+  # Distribution
+  geom_violin(aes(y = rep_boot, group = year),
+              fill = alpha("cornflowerblue", 0.2)) +
+  # Estimates and bias
+  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
+             colour = "firebrick", size = 2, alpha = 0.5) +
+  # Intervals
+  geom_errorbar(data = ci_mean_obs_new,
+                aes(ymin = ll, ymax = ul, colour = int_type),
+                position = position_dodge(0.8), linewidth = 0.6) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell",
+       x = "", shape = "Legend:", colour = "Interval type:") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
+```
+
+Finally, we can create a fan plot assuming the log-normal distribution.
+Note that for `stat_fan()`, the `link_sd` is the standard error on the link scale, while `y` is on the natural scale.
+So we have to recalculate the standard error on the log-transformed bootstrap replicates.
+
+```{r}
+#| fig.alt: >
+#|   Fan interval on log scale.
+bootstrap_results %>%
+  # Calculate standard error on link scale
+  mutate(rep_boot_log = log(rep_boot),
+         se_boot_log = sd(rep_boot_log),
+         .by = "year") %>%
+  # Get unique estimates per year
+  distinct(year, est_original, se_boot_log) %>%
+  # Visualise
+  ggplot(aes(x = year, y = est_original, link_sd = se_boot_log)) +
+  effectclass::stat_fan(link = "log", fill = "cornflowerblue") +
+  geom_line() +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal()
+```
 
 ## Visualising effects
 

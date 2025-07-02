@@ -264,7 +264,6 @@ head(ci_mean_obs)
 ```
 
 We visualise the distribution of the bootstrap replicates and the confidence intervals.
-Since we have nice symmetrical distribution, all confidence intervals are very similar.
 
 ```{r}
 # Make interval type factor

@@ -136,16 +136,7 @@ ci_mean_obs <- calculate_bootstrap_ci(
   data_cube = processed_cube,   # Required for BCa
   fun = mean_obs                # Required for BCa
 )
-```
-  
-```{r}
-head(ci_mean_obs)
-```
 
-We visualise the distribution of the bootstrap replicates and the confidence intervals.
-Since we have nice symmetrical distribution, all confidence intervals are very similar.
-
-```{r}
 # Make interval type factor
 ci_mean_obs <- ci_mean_obs %>%
   mutate(
@@ -154,10 +145,40 @@ ci_mean_obs <- ci_mean_obs %>%
     )
   )
 ```
+  
+```{r}
+head(ci_mean_obs)
+```
+
+## Visualising temporal trends
+### Error bars
+
+The use of error bars is an easy and straightforward way to visualise uncertainty around indicator estimates.
 
 ```{r}
 #| fig.alt: >
 #|   Confidence intervals for mean number of occurrences over time.
+ci_mean_obs %>%
+  ggplot(aes(x = year)) +
+  # Intervals
+  geom_errorbar(aes(ymin = ll, ymax = ul),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Estimates
+  geom_point(aes(y = est_original),
+             colour = "firebrick", size = 2) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal() +
+  facet_wrap(~int_type)
+```
+
+However, the question remains which interval types should be calculated and/or reported.
+A good idea is to compare different interval types next to each other together with the bootstrap distribution and the bootstrap bias (the difference between the estimate and the bootstrap estimate). 
+
+```{r}
+#| fig.alt: >
+#|   Confidence intervals with bootstrap distribution for mean number of occurrences over time.
 # Get bias vales
 bias_mean_obs <- bootstrap_results %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
@@ -189,10 +210,6 @@ bootstrap_results %>%
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
 ```
-
-## Visualising temporal trends
-### Error bars
-
 
 
 ### Smooth trends

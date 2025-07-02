@@ -483,11 +483,13 @@ bootstrap_results %>%
   distinct(year, est_original, se_boot_log) %>%
   # Visualise
   ggplot(aes(x = year, y = est_original)) +
-  effectclass::stat_fan(aes(link_sd = se_boot_log),
-                        link = "log", max_prob = 0.95, fill = "cornflowerblue") +
+  effectclass::stat_fan(
+    aes(link_sd = se_boot_log),
+    link = "log", max_prob = 0.95, fill = "cornflowerblue"
+  ) +
   geom_errorbar(data = ci_mean_obs_lognorm,
-              aes(ymin = ll, ymax = ul),
-              position = position_dodge(0.8), linewidth = 0.6) +
+                aes(ymin = ll, ymax = ul),
+                position = position_dodge(0.8), linewidth = 0.6) +
   geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
              colour = "firebrick", size = 2) +
   # Settings
@@ -508,7 +510,7 @@ out_ci_list <- vector(mode = "list", length = length(coverages))
 
 for (i in seq_along(coverages)) {
   cov <- coverages[i]
-  
+
   ci_cov <- calculate_bootstrap_ci(
     bootstrap_samples_df = bootstrap_results,
     grouping_var = "year",
@@ -517,7 +519,7 @@ for (i in seq_along(coverages)) {
     h = log,
     hinv = exp
   )
-  
+
   out_ci_list[[i]] <- ci_cov
 }
 out_ci <- bind_rows(out_ci_list)
@@ -540,20 +542,21 @@ alpha_levels2 <- c(
 
 # Convert `conf` to character so it can match alpha_levels
 out_ci <- out_ci %>%
-    mutate(conf_chr = as.character(conf))
+  mutate(conf_chr = as.character(conf))
 
 ggplot(out_ci, aes(x = year)) +
-    geom_ribbon(
-        aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr),
-        color = NA
-    ) +
+  geom_ribbon(
+    aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr),
+    color = NA
+  ) +
   geom_errorbar(data = ci_mean_obs_lognorm,
-              aes(ymin = ll, ymax = ul),
-              position = position_dodge(0.8), linewidth = 0.6) +
+                aes(ymin = ll, ymax = ul),
+                position = position_dodge(0.8), linewidth = 0.6) +
   geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
              colour = "firebrick", size = 2) +
-    scale_alpha_manual(values = alpha_levels, guide = "none") +
-    scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)), guide = "none") +
+  scale_alpha_manual(values = alpha_levels, guide = "none") +
+  scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)),
+                    guide = "none") +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
   scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
@@ -575,11 +578,13 @@ bootstrap_results %>%
   mutate(bias_log = exp(est_boot_log - log(est_original))) %>%
   # Visualise
   ggplot(aes(x = year)) +
-  effectclass::stat_fan(aes(y = est_original / bias_log, link_sd = se_boot_log),
-                        link = "log", fill = "cornflowerblue", max_prob = 0.95) +
+  effectclass::stat_fan(
+    aes(y = est_original / bias_log, link_sd = se_boot_log),
+    link = "log", fill = "cornflowerblue", max_prob = 0.95
+  ) +
   geom_errorbar(data = ci_mean_obs_lognorm,
-              aes(ymin = ll, ymax = ul),
-              position = position_dodge(0.8), linewidth = 0.6) +
+                aes(ymin = ll, ymax = ul),
+                position = position_dodge(0.8), linewidth = 0.6) +
   geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
              colour = "firebrick", size = 2) +
   # Settings

@@ -555,8 +555,9 @@ ggplot(out_ci, aes(x = year)) +
   theme_minimal()
 ```
 
-## Visualising effects
+## Visualising temporal effects
 
+https://inbo.github.io/effectclass/articles/visualisation.html#stat_effect-and-scale_effect
 
 ## References
 

@@ -212,7 +212,7 @@ The following plot shows point estimates and their 90% confidence intervals, col
 ```{r}
 #| fig.alt: >
 #|   Visualising coarse effect classification.
-ggplot(data = result, aes(x = rownames(result))) +
+ggplot(data = result, aes(x = as.numeric(rownames(result)))) +
   geom_hline(yintercept = 0, linetype = "longdash", colour = "black") +
   geom_hline(yintercept = c(-1, 1), linetype = "dotdash") +
   geom_errorbar(aes(ymin = lcl, ymax = ucl, colour = effect_coarse),
@@ -228,7 +228,7 @@ The plot below provides a more detailed view using the **fine-grained** classifi
 ```{r}
 #| fig.alt: >
 #|   Visualising fine effect classification.
-ggplot(data = result, aes(x = rownames(result))) +
+ggplot(data = result, aes(x = as.numeric(rownames(result)))) +
   geom_hline(yintercept = 0, linetype = "longdash", colour = "black") +
   geom_hline(yintercept = c(-1, 1), linetype = "dotdash") +
   geom_errorbar(aes(ymin = lcl, ymax = ucl, colour = effect),

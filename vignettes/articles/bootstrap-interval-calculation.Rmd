@@ -406,7 +406,7 @@ bootstrap_results_ref %>%
                 aes(ymin = ll, ymax = ul, colour = int_type),
                 position = position_dodge(0.8), linewidth = 0.8) +
   # Settings
-  labs(y = "Mean Number of Observations\nper Grid Cell compared to 2011",
+  labs(y = "Mean Number of Observations\nper Grid Cell Compared to 2011",
        x = "", shape = "Legend:", colour = "Interval type:") +
   scale_x_continuous(breaks = sort(unique(bootstrap_results_ref$year))) +
   theme_minimal() +

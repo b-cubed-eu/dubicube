@@ -664,6 +664,9 @@ result
 The **effectclass** package provides the `stat_effect()` function that visualises the effects with colours and symbols.
 
 ```{r}
+#| fig.alt: >
+#|   Effect visualisation for mean number of occurrences over per year
+#|   compared to 2011.
 ggplot(data = result, aes(x = year, y = est_original, ymin = ll, ymax = ul)) +
   effectclass::stat_effect(reference = 0, threshold = 5) +
   # Settings

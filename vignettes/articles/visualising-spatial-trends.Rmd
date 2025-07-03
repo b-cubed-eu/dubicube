@@ -99,7 +99,9 @@ mean_obs_grid <- function(data) {
 We get the following results:
 
 ```{r}
-mean_obs_grid(processed_cube$data)
+head(
+  mean_obs_grid(processed_cube$data)
+)
 ```
 
 On their own, these values don’t reveal how much uncertainty surrounds them. To better understand their variability, we use bootstrapping to estimate the distribution of the yearly means. From this, we can calculate bootstrap confidence intervals.
@@ -163,6 +165,9 @@ mgrs10_belgium <- st_read(
 ```
 
 ```{r}
+# Visualise estimates
+#| fig.alt: >
+#|   Estimates for mean number of occurrences per grid cell.
 ci_mean_obs %>%
   filter(int_type == "bca") %>%
   # Add MGRS grid
@@ -178,21 +183,9 @@ ci_mean_obs %>%
 ```
 
 ```{r}
-ci_mean_obs %>%
-  filter(int_type == "bca") %>%
-  # Add MGRS grid
-  left_join(mgrs10_belgium, by = join_by(cellCode == mgrscode)) %>%
-  st_sf(sf_column_name = "geom", crs = st_crs(mgrs10_belgium)) %>%
-  # Visualise result
-  ggplot() +
-  geom_sf(data = mgrs10_belgium) +
-  geom_sf(aes(fill = ul)) +
-  # Settings
-  labs(title = "Upper confidence limit", fill = "Legend") +
-  theme_minimal()
-```
-
-```{r}
+# Visualise lower CI's
+#| fig.alt: >
+#|   Lower CI's for mean number of occurrences per grid cell.
 ci_mean_obs %>%
   filter(int_type == "bca") %>%
   # Add MGRS grid
@@ -204,5 +197,23 @@ ci_mean_obs %>%
   geom_sf(aes(fill = ll)) +
   # Settings
   labs(title = "Lower confidence limit", fill = "Legend") +
+  theme_minimal()
+```
+
+```{r}
+# Visualise upper CI's
+#| fig.alt: >
+#|   Upper CI's for mean number of occurrences per grid cell.
+ci_mean_obs %>%
+  filter(int_type == "bca") %>%
+  # Add MGRS grid
+  left_join(mgrs10_belgium, by = join_by(cellCode == mgrscode)) %>%
+  st_sf(sf_column_name = "geom", crs = st_crs(mgrs10_belgium)) %>%
+  # Visualise result
+  ggplot() +
+  geom_sf(data = mgrs10_belgium) +
+  geom_sf(aes(fill = ul)) +
+  # Settings
+  labs(title = "Upper confidence limit", fill = "Legend") +
   theme_minimal()
 ```

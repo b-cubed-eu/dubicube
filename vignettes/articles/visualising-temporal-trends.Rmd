@@ -624,10 +624,59 @@ ggplot(out_ci, aes()) +
 
 ## Visualising temporal effects
 
-https://inbo.github.io/effectclass/articles/visualisation.html#stat_effect-and-scale_effect
+In [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/effect-classification.html), we demonstrated how to classify effect sizes based on confidence intervals. Here we give some visualisation options based on the **effectclass** package (see also this [**effectclass** tutorial](https://inbo.github.io/effectclass/articles/visualisation.html#stat_effect-and-scale_effect)).
+
+Let’s calculate the BCa interval for the mean number of observations per grid cell compared to 2011 and perform effect classification with threshold 5.
+
+```{r}
+# Bootstrapping
+bootstrap_results_ref <- bootstrap_cube(
+  data_cube = processed_cube,
+  fun = mean_obs,
+  grouping_var = "year",
+  samples = 1000,
+  ref_group = 2011,
+  seed = 123
+)
+
+# Calculate confidence intervals
+ci_mean_obs_ref <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results_ref,
+  grouping_var = "year",
+  type = "bca",
+  data_cube = processed_cube,   # Required for BCa
+  fun = mean_obs,               # Required for BCa
+  ref_group = 2011              # Required for BCa
+)
+
+# Perform effect classification
+result <- add_effect_classification(
+  df = ci_mean_obs_ref,
+  cl_columns = c("ll", "ul"),
+  threshold = 5,
+  reference = 0
+)
+
+# View the result
+result
+```
+
+The **effectclass** package provides the `stat_effect()` function that visualises the effects with colours and symbols.
+
+```{r}
+ggplot(data = result, aes(x = year, y = est_original, ymin = ll, ymax = ul)) +
+  effectclass::stat_effect(reference = 0, threshold = 5) +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell Compared to 2011",
+       x = "") +
+  scale_x_continuous(breaks = sort(unique(result$year))) +
+  theme_minimal()
+```
+
+With this function, you can also add symbols to `stat_fan()`.
 
 ## References
-
+<!-- spell-check: ignore:start -->
 Carpenter, J., & Bithell, J. (2000). Bootstrap confidence intervals: When, which, what? A practical guide for medical statisticians. *Statistics in Medicine, 19*(9), 1141–1164. [https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9<1141::AID-SIM479>3.0.CO;2-F](https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9<1141::AID-SIM479>3.0.CO;2-F)
 
 Davison, A. C., & Hinkley, D. V. (1997). *Bootstrap Methods and their Application* (1st ed.). Cambridge University Press. https://doi.org/10.1017/CBO9780511802843
@@ -637,3 +686,4 @@ Dixon, P. M. (2001). The Bootstrap and the Jackknife: Describing the Precision o
 Efron, B., & Tibshirani, R. J. (1994). *An Introduction to the Bootstrap* (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429246593
 
 Hesterberg, T. C. (2015). What Teachers Should Know About the Bootstrap: Resampling in the Undergraduate Statistics Curriculum. *The American Statistician, 69*(4), 371–386. https://doi.org/10.1080/00031305.2015.1089789
+<!-- spell-check: ignore:end -->

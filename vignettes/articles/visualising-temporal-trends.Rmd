@@ -437,7 +437,7 @@ ci_mean_obs_lognorm <- calculate_bootstrap_ci(
 
 The log-normal intervals look indeed more correct then the normal intervals, although they still differ from the BCa intervals.
 
-```{r}
+```{r, warning=FALSE}
 #| fig.alt: >
 #|   Compare log-normal intervals.
 # Combine interval data

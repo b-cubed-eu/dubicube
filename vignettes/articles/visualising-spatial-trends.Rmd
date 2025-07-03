@@ -246,6 +246,7 @@ Alternatively, we can use the bootstrap standard error as a measure of uncertain
 ### Transparency
 
 Let's visualise the relative half-width where we use a larger transparency for larger uncertainty.
+Transparency can be scaled using the `scale_alpha()` function.
 
 ```{r, warning=FALSE}
 # Visualise upper CI's
@@ -273,6 +274,7 @@ st_centroid(bca_mean_obs) %>%
 ```
 
 To make the visualisation even more clear, we can also vary size based on the uncertainty measure.
+Size can be scaled using the `scale_size()` function.
 
 ```{r, warning=FALSE}
 # Visualise upper CI's
@@ -301,3 +303,6 @@ st_centroid(bca_mean_obs) %>%
 ```
 
 ### Blur
+
+...
+

@@ -19,7 +19,7 @@ For visualisation and interpretation, we strongly rely on the functionality and 
 
 ## Calculating confidence intervals with dubicube
 
-We reuse the example introduced in [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html) where we calculate confidence limits for the mean number of observations per grid cell per year for birds in Belgium between 2000 en 2024 using the MGRS grid at 10 km scale.
+We reuse the example introduced in [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html) where we calculate confidence limits for the mean number of observations per grid cell per year for birds in Belgium between 2011 en 2020 using the MGRS grid at 10 km scale.
 
 ```{r, message=FALSE, warning=FALSE}
 # Load packages
@@ -150,7 +150,7 @@ ci_mean_obs <- ci_mean_obs %>%
 head(ci_mean_obs)
 ```
 
-## Visualising temporal trends
+## Visualising uncertainty in temporal trends
 ### Error bars
 
 The use of error bars is an easy and straightforward way to visualise uncertainty around indicator estimates.

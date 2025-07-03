@@ -162,22 +162,26 @@ mgrs10_belgium <- st_read(
   "https://zenodo.org/records/15211029/files/mgrs10_refgrid_belgium.gpkg",
   quiet = TRUE
 )
+
+# Get BCa intervals
+bca_mean_obs <- ci_mean_obs %>%
+  filter(int_type == "bca") %>%
+  # Add MGRS grid
+  left_join(mgrs10_belgium, by = join_by(cellCode == mgrscode)) %>%
+  st_sf(sf_column_name = "geom", crs = st_crs(mgrs10_belgium))
 ```
 
 ```{r}
 # Visualise estimates
 #| fig.alt: >
 #|   Estimates for mean number of occurrences per grid cell.
-ci_mean_obs %>%
-  filter(int_type == "bca") %>%
-  # Add MGRS grid
-  left_join(mgrs10_belgium, by = join_by(cellCode == mgrscode)) %>%
-  st_sf(sf_column_name = "geom", crs = st_crs(mgrs10_belgium)) %>%
+bca_mean_obs %>%
   # Visualise result
   ggplot() +
   geom_sf(data = mgrs10_belgium) +
   geom_sf(aes(fill = est_original)) +
   # Settings
+  scale_fill_viridis_c(option = "D") +
   labs(title = "Estimate", fill = "Legend") +
   theme_minimal()
 ```
@@ -186,16 +190,13 @@ ci_mean_obs %>%
 # Visualise lower CI's
 #| fig.alt: >
 #|   Lower CI's for mean number of occurrences per grid cell.
-ci_mean_obs %>%
-  filter(int_type == "bca") %>%
-  # Add MGRS grid
-  left_join(mgrs10_belgium, by = join_by(cellCode == mgrscode)) %>%
-  st_sf(sf_column_name = "geom", crs = st_crs(mgrs10_belgium)) %>%
+bca_mean_obs %>%
   # Visualise result
   ggplot() +
   geom_sf(data = mgrs10_belgium) +
   geom_sf(aes(fill = ll)) +
   # Settings
+  scale_fill_viridis_c(option = "D") +
   labs(title = "Lower confidence limit", fill = "Legend") +
   theme_minimal()
 ```
@@ -204,16 +205,99 @@ ci_mean_obs %>%
 # Visualise upper CI's
 #| fig.alt: >
 #|   Upper CI's for mean number of occurrences per grid cell.
-ci_mean_obs %>%
-  filter(int_type == "bca") %>%
-  # Add MGRS grid
-  left_join(mgrs10_belgium, by = join_by(cellCode == mgrscode)) %>%
-  st_sf(sf_column_name = "geom", crs = st_crs(mgrs10_belgium)) %>%
+bca_mean_obs %>%
   # Visualise result
   ggplot() +
   geom_sf(data = mgrs10_belgium) +
   geom_sf(aes(fill = ul)) +
   # Settings
+  scale_fill_viridis_c(option = "D") +
   labs(title = "Upper confidence limit", fill = "Legend") +
   theme_minimal()
 ```
+
+If we want to visualise estimates and uncertainty in a single figure, we need a good uncertainty measure.
+One straightforward option is the **width of the confidence interval (CI)**:
+
+$$
+\text{CI width} = \text{upper limit} - \text{lower limit}
+$$
+
+This directly reflects the uncertainty — wider intervals indicate greater uncertainty.
+
+To allow for comparisons across spatial units with different magnitudes, we may prefer a relative measure of uncertainty such as the relative CI half-width, calculated as:
+
+$$
+\frac{\text{CI width}}{2 \times \text{estimate}}
+$$
+
+This expresses the margin of error as a proportion of the estimate, which is easier to interpret. For example, a value of 0.1 implies ±10% uncertainty around the point estimate (assuming symmetric intervals).
+
+Alternatively, we can use the bootstrap standard error as a measure of uncertainty. Similar to CI width, it can be expressed in absolute or relative terms (e.g., standard error divided by the estimate) depending on whether you want to visualise raw or normalized uncertainty.
+
+| Measure                | Formula                      | Description                              |
+| ---------------------- | ---------------------------- | -----------------------------------------|
+| CI width               | `ul - ll`                    | Absolute uncertainty                     |
+| Relative CI width      | `(ul - ll) / estimate`       | Total CI width scaled by estimate        |
+| Relative CI half-width | `(ul - ll) / (2 × estimate)` | Margin of error relative to estimate     |
+| Bootstrap SE           | `sd(bootstrap replicates)`   | Standard deviation of bootstrap samples  |
+| Relative bootstrap SE  | `sd(...) / estimate`         | Standard error relative to estimate      |
+
+### Transparency
+
+Let's visualise the relative half-width where we use a larger transparency for larger uncertainty.
+
+```{r, warning=FALSE}
+# Visualise upper CI's
+#| fig.alt: >
+#|   Spatial uncertainty using transparancy.
+# Calculate center points
+st_centroid(bca_mean_obs) %>%
+  mutate(x = st_coordinates(geom)[, 1],
+         y = st_coordinates(geom)[, 2],
+         # Calculate uncertainty measure
+         uncertainty = (ul - ll) /  (2 * est_original)) %>%
+  # Visualise
+  ggplot() +
+  geom_sf(data = mgrs10_belgium) +
+  geom_point(
+    aes(x = x, y = y, colour = est_original, alpha = uncertainty),
+    size = 5
+  ) +
+  # Settings
+  scale_colour_viridis_c(option = "D") +
+  scale_alpha(range = c(1, 0.4)) +    # Scale accordingly
+  labs(colour = "Estimate", alpha = "Uncertainty",
+       x = "", y = "") +
+  theme_minimal()
+```
+
+To make the visualisation even more clear, we can also vary size based on the uncertainty measure.
+
+```{r, warning=FALSE}
+# Visualise upper CI's
+#| fig.alt: >
+#|   Spatial uncertainty using transparancy and size.
+# Calculate center points
+st_centroid(bca_mean_obs) %>%
+  mutate(x = st_coordinates(geom)[, 1],
+         y = st_coordinates(geom)[, 2],
+         # Calculate uncertainty measure
+         uncertainty = (ul - ll) /  (2 * est_original)) %>%
+  # Visualise
+  ggplot() +
+  geom_sf(data = mgrs10_belgium) +
+  geom_point(
+    aes(x = x, y = y, colour = est_original, alpha = uncertainty,
+        size = uncertainty)
+  ) +
+  # Settings
+  scale_colour_viridis_c(option = "D") +
+  scale_alpha(range = c(1, 0.4)) +    # Scale accordingly
+  scale_size(range = c(5, 2)) +       # Scale accordingly
+  labs(colour = "Estimate", alpha = "Uncertainty", size = "Uncertainty",
+       x = "", y = "") +
+  theme_minimal()
+```
+
+### Blur

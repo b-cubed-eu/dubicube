@@ -470,106 +470,15 @@ bootstrap_results %>%
 Finally, we can create a fan plot assuming the log-normal distribution.
 Note that for `stat_fan()`, the `link_sd` is the standard error on the link scale, while `y` is on the natural scale.
 So we have to recalculate the standard error on the log-transformed bootstrap replicates.
+We also need to account for bias.
 
 ```{r}
 #| fig.alt: >
-#|   Fan interval on log scale.
+#|   Fan plot of log-normal interval with effectclass.
 bootstrap_results %>%
   # Calculate standard error on link scale
   mutate(rep_boot_log = log(rep_boot),
-         se_boot_log = sd(rep_boot_log),
-         .by = "year") %>%
-  # Get unique estimates per year
-  distinct(year, est_original, se_boot_log) %>%
-  # Visualise
-  ggplot(aes(x = year, y = est_original)) +
-  effectclass::stat_fan(
-    aes(link_sd = se_boot_log),
-    link = "log", max_prob = 0.95, fill = "cornflowerblue"
-  ) +
-  geom_errorbar(data = ci_mean_obs_lognorm,
-                aes(ymin = ll, ymax = ul),
-                position = position_dodge(0.8), linewidth = 0.6) +
-  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
-             colour = "firebrick", size = 2) +
-  # Settings
-  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
-  theme_minimal()
-```
-
-However, we see that the log-normal bootstrap intervals do not agree with the fans.
-This is because the fan plot does not account for bias.
-
-```{r}
-max_prob <- 0.95
-step <- 0.1
-coverages <- seq(max_prob, 1e-3, by = -step)
-
-out_ci_list <- vector(mode = "list", length = length(coverages))
-
-for (i in seq_along(coverages)) {
-  cov <- coverages[i]
-
-  ci_cov <- calculate_bootstrap_ci(
-    bootstrap_samples_df = bootstrap_results,
-    grouping_var = "year",
-    type = c("norm"),
-    conf = cov,
-    h = log,
-    hinv = exp
-  )
-
-  out_ci_list[[i]] <- ci_cov
-}
-out_ci <- bind_rows(out_ci_list)
-
-alpha_levels <- sapply(coverages, function(i) 1 - i / (i + step))
-names(alpha_levels) <- as.character(coverages)
-# Optional: define alpha levels for each conf level manually
-alpha_levels2 <- c(
-  "0.95" = 0.1,
-  "0.85" = 0.2,
-  "0.75"  = 0.3,
-  "0.65"  = 0.4,
-  "0.55" = 0.5,
-  "0.45" = 0.6,
-  "0.35" = 0.7,
-  "0.25" = 0.8,
-  "0.15" = 0.9,
-  "0.05" = 1
-)
-
-# Convert `conf` to character so it can match alpha_levels
-out_ci <- out_ci %>%
-  mutate(conf_chr = as.character(conf))
-
-ggplot(out_ci, aes(x = year)) +
-  geom_ribbon(
-    aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr),
-    color = NA
-  ) +
-  geom_errorbar(data = ci_mean_obs_lognorm,
-                aes(ymin = ll, ymax = ul),
-                position = position_dodge(0.8), linewidth = 0.6) +
-  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
-             colour = "firebrick", size = 2) +
-  scale_alpha_manual(values = alpha_levels, guide = "none") +
-  scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)),
-                    guide = "none") +
-  # Settings
-  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
-  theme_minimal()
-```
-
-we can create the same with effectclass if we account for bias:
-
-```{r}
-bootstrap_results %>%
-  # Calculate standard error on link scale
-  mutate(rep_boot_log = log(rep_boot),
-         est_boot_log = mean(rep_boot_log),
+         est_boot_log = mean(rep_boot_log), # Needed for bias calculation
          se_boot_log = sd(rep_boot_log),
          .by = "year") %>%
   # Get unique estimates per year
@@ -582,14 +491,67 @@ bootstrap_results %>%
     aes(y = est_original / bias_log, link_sd = se_boot_log),
     link = "log", fill = "cornflowerblue", max_prob = 0.95
   ) +
-  geom_errorbar(data = ci_mean_obs_lognorm,
-                aes(ymin = ll, ymax = ul),
-                position = position_dodge(0.8), linewidth = 0.6) +
-  geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
-             colour = "firebrick", size = 2) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
   scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal()
+```
+
+We can make use of this concept to make fan plots for other interval types ourselves.
+We calculate BCA and log-normal intervals  for five coverages using a for loop and visualise with `geom_ribbon()`.
+
+```{r, warning=FALSE}
+# Set up coverage levels
+max_prob <- 0.95
+step <- 0.2
+coverages <- seq(max_prob, 1e-3, by = -step)
+
+# Loop over coverages
+out_ci_list <- vector(mode = "list", length = length(coverages))
+
+for (i in seq_along(coverages)) {
+  cov <- coverages[i]
+
+  # Calculate confidence limits for confidence level
+  ci_cov <- calculate_bootstrap_ci(
+    bootstrap_samples_df = bootstrap_results,
+    grouping_var = "year",
+    type = c("bca", "norm"),
+    conf = cov,
+    h = log,
+    hinv = exp,
+    data_cube = processed_cube,   # Required for BCa
+    fun = mean_obs                # Required for BCa
+  )
+
+  out_ci_list[[i]] <- ci_cov
+}
+out_ci <- bind_rows(out_ci_list) %>%
+  mutate(int_type = ifelse(int_type == "norm", "log_norm", int_type))
+```
+
+```{r, warning=FALSE}
+#| fig.alt: >
+#|   Fan plot of BCa and log-normal intervals.
+# For visualisation of envelopes
+alpha_levels <- sapply(coverages, function(i) 1 - i / (i + step))
+names(alpha_levels) <- as.character(coverages)
+
+# Convert conf to character so it can match alpha_levels
+out_ci <- out_ci %>%
+  mutate(conf_chr = as.character(conf))
+
+# Visualise
+ggplot(out_ci, aes(x = year)) +
+  geom_ribbon(aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr)) +
+  # Colour ribbons
+  scale_alpha_manual(values = alpha_levels, name = "conf") +
+  scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)),
+                    name = "conf") +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  facet_wrap(~int_type, ncol = 1) +
   theme_minimal()
 ```
 

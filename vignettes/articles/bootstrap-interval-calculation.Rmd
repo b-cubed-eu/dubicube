@@ -310,6 +310,8 @@ bootstrap_results %>%
         legend.title = element_text(face = "bold"))
 ```
 
+See the [visualising temporal trends tutorial](https://b-cubed-eu.github.io/dubicube/articles/visualising-temporal-trends.html) for information on which interval types should be calculated and/or reported and how temporal trends can be visualised.
+
 ## Advanced usage of `calculate_bootstrap_ci()`
 ### Comparison with a reference group
 

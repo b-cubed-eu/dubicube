@@ -3,6 +3,11 @@
 * Create tutorial for visualising uncertainty in case of temporal indicators
 * Create tutorial for visualising uncertainty in case of spatial indicators
 
+# dubicube 0.9.0
+
+* Fix mistake in installation guidelines
+* Implement feedback on tutorials
+
 # dubicube 0.8.1
 
 * Silence package warnings in vignettes

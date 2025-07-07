@@ -34,15 +34,12 @@ Imports:
     tibble
 Suggests:
     b3gbi,
-    cowplot,
     frictionless,
-    ggblur,
     ggplot2,
     testthat (>= 3.0.0),
     tidyr
 Remotes: 
     github::b-cubed-eu/b3gbi,
-    github::coolbutuseless/ggblur,
     github::inbo/effectclass
 Additional_repositories: https://inbo.r-universe.dev,
     https://b-cubed-eu.r-universe.dev/

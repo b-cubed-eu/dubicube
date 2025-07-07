@@ -307,7 +307,7 @@ st_centroid(bca_mean_obs) %>%
 Unlike transparency or point size, blurriness is not natively supported in **ggplot2**.
 Therefore, we present a custom figure using a hard-coded example that illustrates the difference between blurriness and transparency as visual indicators of spatial uncertainty.
 
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 # Create a simple 3x3 grid using sf
 grid_size <- 1  # Define cell size
 grid <- expand.grid(x = 1:3, y = 1:3) %>%
@@ -358,9 +358,7 @@ data <- data %>%
 
 # Convert data to sf points for plotting
 data_sf <- cbind(centroids, data)
-```
 
-```{r, warning=FALSE, echo=FALSE}
 # Increasing blur with increasing uncertainty
 library(ggblur)  # blurred points: https://github.com/coolbutuseless/ggblur
 
@@ -474,9 +472,7 @@ p_blur2 <- ggplot() +
     y = 2.5,
     size = 5, hjust = "center", vjust = "bottom", colour = "black", angle = 90
   )
-```
 
-```{r, warning=FALSE, echo=FALSE}
 # Increasing transparency with increasing uncertainty
 p_transparency <- ggplot() +
   geom_sf(data = grid, color = "black", alpha = 0,
@@ -564,11 +560,8 @@ p_transparency2 <- ggplot() +
     y = 2.5,
     size = 5, hjust = "center", vjust = "bottom", colour = "black", angle = 90
   )
-```
 
-```{r, fig.width=12, fig.height=8, out.width="100%", warning=FALSE, echo=FALSE}
-#| fig.alt: >
-#|   Spatial uncertainty using blurriness and transparancy.
+# Create grid plot
 library(cowplot)
 
 # Extract the legend from one of the plots with larger key and text sizes
@@ -615,6 +608,8 @@ plot_grid(
   nrow = 1
 )
 ```
+
+<img src="figures/blur-spatial-uncertainty.png" alt="Compare spatial blur and transparency." width="100%">
 
 The figure was created using the R packages **ggplot2**, **dplyr**, **sf**, and [**ggblur**](https://github.com/coolbutuseless/ggblur).
 The **ggblur** package provides a useful starting point for implementing blur effects in ggplot2 plots, but it does not fully meet our requirements.

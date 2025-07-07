@@ -30,14 +30,14 @@ occurrence cubes.
 
 Install **dubicube** in R:
 
-``` r
-install.packages("dubicube"", repos = c("https://b-cubed-eu.r-universe.dev", "https://cloud.r-project.org"))
+```r
+install.packages("dubicube", repos = c("https://b-cubed-eu.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 You can install the development version from
 [GitHub](https://github.com/) with:
 
-``` r
+```r
 # install.packages("remotes")
 remotes::install_github("b-cubed-eu/dubicube")
 ```

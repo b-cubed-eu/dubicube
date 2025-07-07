@@ -217,7 +217,7 @@ bca_mean_obs %>%
 ```
 
 If we want to visualise estimates and uncertainty in a single figure, we need a good uncertainty measure.
-One straightforward option is the **width of the confidence interval (CI)**:
+One straightforward option is the width of the confidence interval (CI):
 
 $$
 \text{CI width} = \text{upper limit} - \text{lower limit}
@@ -243,10 +243,12 @@ Alternatively, we can use the bootstrap standard error as a measure of uncertain
 | Bootstrap SE           | `sd(bootstrap replicates)`   | Standard deviation of bootstrap samples  |
 | Relative bootstrap SE  | `sd(...) / estimate`         | Standard error relative to estimate      |
 
+For visualising both the estimate and uncertainty in a single map, we can use circles within the grid cells that vary in transparency (best w.r.t. user performance ~ accuracy, speed), or in blurriness (best w.r.t. user intuitiveness) (Kinkeldey et al., 2014; MacEachren et al., 2005, 2012).
+
 ### Transparency
 
 Let's visualise the relative half-width where we use a larger transparency for larger uncertainty.
-Transparency can be scaled using the `scale_alpha()` function.
+Transparency can be scaled using the `scale_alpha()` function from **ggplot2**.
 
 ```{r, warning=FALSE}
 # Visualise upper CI's
@@ -267,14 +269,14 @@ st_centroid(bca_mean_obs) %>%
   ) +
   # Settings
   scale_colour_viridis_c(option = "D") +
-  scale_alpha(range = c(1, 0.4)) +    # Scale accordingly
+  scale_alpha(range = c(1, 0.3)) +    # Scale accordingly
   labs(colour = "Estimate", alpha = "Uncertainty",
        x = "", y = "") +
   theme_minimal()
 ```
 
 To make the visualisation even more clear, we can also vary size based on the uncertainty measure.
-Size can be scaled using the `scale_size()` function.
+Size can be scaled using the `scale_size()` function from **ggplot2**.
 
 ```{r, warning=FALSE}
 # Visualise upper CI's
@@ -295,14 +297,25 @@ st_centroid(bca_mean_obs) %>%
   ) +
   # Settings
   scale_colour_viridis_c(option = "D") +
-  scale_alpha(range = c(1, 0.4)) +    # Scale accordingly
+  scale_alpha(range = c(1, 0.3)) +    # Scale accordingly
   scale_size(range = c(5, 2)) +       # Scale accordingly
   labs(colour = "Estimate", alpha = "Uncertainty", size = "Uncertainty",
        x = "", y = "") +
   theme_minimal()
 ```
 
-### Blur
+### Blurriness
 
-...
+Visualisation of indicator estimate and uncertainty within a spatial grid. A: Blur. B: Blur
+and size. C: Transparency. D: Transparency and size. Created using R packages ggplot2 (Wickham,
+2016), dplyr (Wickham et al., 2023), sf (Pebesma, 2018) and ggblur (mikefc, 2025) (code provided in
+Langeraert et al., 2025, v1.4.0).
 
+## References
+<!-- spell-check: ignore:start -->
+Kinkeldey, C., MacEachren, A. M., & Schiewe, J. (2014). How to Assess Visual Communication of Uncertainty? A Systematic Review of Geospatial Uncertainty Visualisation User Studies. *The Cartographic Journal, 51*(4), 372–386. https://doi.org/10.1179/1743277414Y.0000000099
+
+MacEachren, A. M., Robinson, A., Hopper, S., Gardner, S., Murray, R., Gahegan, M., & Hetzler, E. (2005). Visualizing Geospatial Information Uncertainty: What We Know and What We Need to Know. *Cartography and Geographic Information Science, 32*(3), 139–160. https://doi.org/10.1559/1523040054738936
+
+MacEachren, A. M., Roth, R. E., O’Brien, J., Li, B., Swingley, D., & Gahegan, M. (2012). Visual Semiotics & Uncertainty Visualization: An Empirical Study. *IEEE Transactions on Visualization and Computer Graphics, 18*(12), 2496–2505. https://doi.org/10.1109/TVCG.2012.279
+<!-- spell-check: ignore:end -->

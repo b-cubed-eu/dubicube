@@ -303,6 +303,7 @@ st_centroid(bca_mean_obs) %>%
 ```
 
 ### Blurriness
+
 Unlike transparency or point size, blurriness is not natively supported in **ggplot2**.
 Therefore, we present a custom figure using a hard-coded example that illustrates the difference between blurriness and transparency as visual indicators of spatial uncertainty.
 

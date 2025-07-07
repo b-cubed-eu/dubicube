@@ -41,7 +41,7 @@ Suggests:
     tidyr
 Remotes: 
     github::b-cubed-eu/b3gbi,
-    github::coolbutuseless/ggblur
+    github::coolbutuseless/ggblur,
     github::inbo/effectclass
 Additional_repositories: https://inbo.r-universe.dev,
     https://b-cubed-eu.r-universe.dev/

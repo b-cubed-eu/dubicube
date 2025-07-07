@@ -558,7 +558,7 @@ out_ci <- bind_rows(out_ci_list) %>%
   mutate(int_type = ifelse(int_type == "norm", "log_norm", int_type))
 ```
 
-We can visualise this with `geom_ribbon()`.
+We can visualise this with `geom_ribbon()` from **ggplot2**.
 
 ```{r, warning=FALSE}
 #| fig.alt: >
@@ -585,7 +585,7 @@ ggplot(out_ci, aes(x = year)) +
   theme_minimal()
 ```
 
-We can visualise this in a categorical way with `geom_rect()`.
+We can visualise this in a categorical way with `geom_rect()` from **ggplot2**.
 
 ```{r, warning=FALSE}
 #| fig.alt: >

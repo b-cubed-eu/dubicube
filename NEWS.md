@@ -1,3 +1,7 @@
+# dubicube 0.9.1
+
+* Fix mistake in package versioning
+
 # dubicube 0.8.3
 
 * Fix mistake in installation guidelines

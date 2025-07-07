@@ -34,6 +34,7 @@ Imports:
     tibble
 Suggests:
     b3gbi,
+    cowplot,
     frictionless,
     ggblur,
     ggplot2,

@@ -369,15 +369,18 @@ p_blur <- ggplot() +
   geom_point_blur(
     data = data_sf %>% filter(uncertainty == "High"),
     aes(x = x, y = y, colour = estimate, blur_size = blur_size),
-    size = 1) +
+    size = 1
+  ) +
   geom_point_blur(
     data = data_sf %>% filter(uncertainty == "Medium"),
     aes(x = x, y = y, colour = estimate, blur_size = blur_size),
-    size = 15) +
+    size = 15
+  ) +
   geom_point(
     data = data_sf %>% filter(uncertainty == "Low"),
     aes(x = x, y = y, colour = estimate),
-    size = 25) +
+    size = 25
+  ) +
   scale_colour_viridis_c(option = "D") +
   scale_blur_size_continuous(range = c(10, 25)) +
   theme_minimal() +
@@ -422,15 +425,18 @@ p_blur2 <- ggplot() +
   geom_point_blur(
     data = data_sf %>% filter(uncertainty == "High"),
     aes(x = x, y = y, colour = estimate, blur_size = blur_size2),
-    size = 1) +
+    size = 1
+  ) +
   geom_point_blur(
     data = data_sf %>% filter(uncertainty == "Medium"),
     aes(x = x, y = y, colour = estimate, blur_size = blur_size2),
-    size = 10) +
+    size = 10
+  ) +
   geom_point(
     data = data_sf %>% filter(uncertainty == "Low"),
     aes(x = x, y = y, colour = estimate),
-    size = 25) +
+    size = 25
+  ) +
   scale_colour_viridis_c(option = "D") +
   scale_blur_size_continuous(range = c(15, 15)) +
   theme_minimal() +

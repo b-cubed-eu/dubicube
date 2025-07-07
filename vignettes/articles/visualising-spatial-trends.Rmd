@@ -609,7 +609,7 @@ plot_grid(
 )
 ```
 
-<img src="figures/blur_spatial_uncertainty.png" alt="Compare spatial blur and transparency." width="100%">
+<img src="figures/blur-spatial-uncertainty.png" alt="Compare spatial blur and transparency." width="100%">
 
 The figure was created using the R packages **ggplot2**, **dplyr**, **sf**, and [**ggblur**](https://github.com/coolbutuseless/ggblur).
 The **ggblur** package provides a useful starting point for implementing blur effects in ggplot2 plots, but it does not fully meet our requirements.

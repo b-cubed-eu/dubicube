@@ -1,0 +1,14 @@
+pandoc: 3.7.0.2
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  articles/bootstrap-interval-calculation: bootstrap-interval-calculation.html
+  articles/bootstrap-method-cubes: bootstrap-method-cubes.html
+  articles/effect-classification: effect-classification.html
+  articles/group-level-sensitivity: group-level-sensitivity.html
+  articles/visualising-spatial-trends: visualising-spatial-trends.html
+  articles/visualising-temporal-trends: visualising-temporal-trends.html
+last_built: 2025-07-08T14:16Z
+urls:
+  reference: https://b-cubed-eu.github.io/dubicube/reference
+  article: https://b-cubed-eu.github.io/dubicube/articles

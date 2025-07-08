@@ -1,3 +1,7 @@
+# dubicube 0.9.2
+
+* Update README #63
+
 # dubicube 0.9.1
 
 * Fix mistake in package versioning

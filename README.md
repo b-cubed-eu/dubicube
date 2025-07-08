@@ -96,7 +96,7 @@ thresholds.
   📘 [Best practices for spatial trends
   →](https://b-cubed-eu.github.io/dubicube/articles/visualising-spatial-trends.html)
 
-------------------------------------------------------------------------
+---
 
 🔗 Learn more at our [website](https://b-cubed-eu.github.io/dubicube/)
 or explore the

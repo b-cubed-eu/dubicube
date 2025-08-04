@@ -51,47 +51,47 @@ From this, we can calculate different error measures that help inform further an
 
    - The **Error** is the difference between the statistic estimated without category $j$ ($\hat{\theta}_{-s_j}$) and the statistic calculated on the complete dataset ($\hat{\theta}$).
 
-$$
-\text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}
-$$
+  $$
+  \text{Error}_{s_j} = \hat{\theta}_{-s_j} - \hat{\theta}
+  $$
 
    - The **Relative Error** is the absolute error, normalized by the true estimate $\hat{\theta}$ and a small error term $\epsilon = 10^{-8}$ to avoid division by zero.
 
-$$
-\text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}
-$$
+  $$
+  \text{Rel. Error}_{s_j} = \frac{|\hat{\theta}_{-s_j} - \hat{\theta}|}{\hat{\theta} +\epsilon}
+  $$
 
    - The **Percent Error** is the relative error expressed as a percentage.
 
-$$
-\text{Perc. Error}_{s_j} = \text{Rel. Error}_{s_j} \times 100 \%
-$$
+  $$
+  \text{Perc. Error}_{s_j} = \text{Rel. Error}_{s_j} \times 100 \%
+  $$
 
 - **Summary Measures**:
 
    - The **Mean Relative Error (MRE)** is the average of the relative errors over all categories.
 
-$$
-\text{MRE} = \frac{1}{s} \sum_{j=1}^s \text{Rel. Error}_{s_j}
-$$
+  $$
+  \text{MRE} = \frac{1}{s} \sum_{j=1}^s \text{Rel. Error}_{s_j}
+  $$
 
    - The **Mean Squared Error (MSE)** is the average of the squared errors.
 
-$$
-\text{MSE} = \frac{1}{s} \sum_{j=1}^s (\text{Error}_{s_j})^2
-$$
+  $$
+  \text{MSE} = \frac{1}{s} \sum_{j=1}^s (\text{Error}_{s_j})^2
+  $$
 
    - The **Root Mean Squared Error (RMSE)** is the square root of the MSE.
 
-$$
-\text{RMSE} = \sqrt{\text{MSE}}
-$$
+  $$
+  \text{RMSE} = \sqrt{\text{MSE}}
+  $$
 
 ## Getting started with dubicube
 
-Our method can be used on any dataframe from which a statistic is calculated and a grouping variable is present.
+The dubicube cross-validation method can be applied on any dataframe from which a statistic is calculated and for which a grouping variable is present.
 For this tutorial, we focus on occurrence cubes.
-Therefore, we will use the **b3gbi** package for processing the raw data before we go over to the cross-validation.
+Therefore, we will use the **b3gbi** package for processing the raw data before moving on to the cross-validation.
 
 ```{r, message=FALSE, warning=FALSE}
 # Load packages
@@ -137,12 +137,11 @@ processed_cube
 
 ### Analysis of the data
 
-Let's say we are interested in the mean number of observations per grid cell per year.
-We create a function to calculate this.
+Suppose we are interested in the average number of observations per grid cell per year.
+We create the function 'mean_obs' to calculate this.
 
 ```{r}
-# Function to calculate statistic of interest
-# Mean observations per grid cell per year
+# Function to calculate the mean of observations per grid cell per year
 mean_obs <- function(data) {
   obs <- x <- NULL
 
@@ -159,15 +158,15 @@ We get the following results:
 mean_obs(processed_cube$data)
 ```
 
-On their own, these values don’t tell us how reliable they are.
-Therefore, we perform leave-one-species-out cross-validation (LOSO-CV) to investigate the impact of included species on the calculation of these values.
+These values don’t tell us anything about reliability on their own.
+Therefore, we perform a leave-one-species-out cross-validation (LOSO-CV) to investigate the impact of individual species being included in the calculation.
 
 ### Leave-one-species-out cross-validation
 
 We use the `cross_validate_cube()` function to do this. It relies on the following arguments:
 
 - **`data_cube`**:  
-  The input data, either as a processed data cube (from `b3gbi::process_cube()`), or simply the dataframe inside it (i.e. `processed_cube$data`). For faster computation, passing just the dataframe is recommended.
+  The input data, either a processed data cube (from `b3gbi::process_cube()`), or just the dataframe inside (i.e. `processed_cube$data`). For faster computation, passing just the dataframe is recommended.
 
 - **`fun`**:  
   A user-defined function that computes the statistic(s) of interest from `data_cube`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.

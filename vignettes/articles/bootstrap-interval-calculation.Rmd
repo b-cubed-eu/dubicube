@@ -42,7 +42,7 @@ $$
 \hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)
 $$
 
-where $\#$ is the counting operator and $\Phi^{-1}$ is the inverse cumulative density function of the standard normal distribution.
+where $\#$ is the counting operator and $\Phi^{-1}$ is the inverse cumulative density function of the standard normal distribution. B is the number of bootstrap samples.
 
 **Acceleration** quantifies how sensitive the variability of the statistic is to changes in the data. See further for how this is calculated:
 
@@ -174,7 +174,7 @@ We create a function to calculate this.
 
 ```{r}
 # Function to calculate statistic of interest
-# Mean observations per grid cell per year
+# Mean number of observations per grid cell per year
 mean_obs <- function(data) {
   data %>%
     dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
@@ -193,7 +193,7 @@ We get the following results:
 mean_obs(processed_cube$data)
 ```
 
-On their own, these values don’t reveal how much uncertainty surrounds them. To better understand their variability, we use bootstrapping to estimate the distribution of the yearly means. From this, we can calculate bootstrap confidence intervals.
+On their own, these values don’t reveal how much uncertainty surrounds them. To better understand their variability, we use bootstrapping to estimate the distribution of the yearly means. From this distribution, we can calculate bootstrap confidence intervals.
 
 ### Bootstrapping
 
@@ -266,7 +266,7 @@ head(ci_mean_obs)
 We visualise the distribution of the bootstrap replicates and the confidence intervals.
 
 ```{r}
-# Make interval type factor
+# Make interval type a factor
 ci_mean_obs <- ci_mean_obs %>%
   mutate(
     int_type = factor(
@@ -278,7 +278,7 @@ ci_mean_obs <- ci_mean_obs %>%
 ```{r, warning=FALSE}
 #| fig.alt: >
 #|   Confidence intervals for mean number of occurrences over time.
-# Get bias vales
+# Get bias values
 bias_mean_obs <- bootstrap_results %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
@@ -334,7 +334,7 @@ bootstrap_results_ref <- bootstrap_cube(
 head(bootstrap_results_ref)
 ```
 
-If the BCa interval is calculated and a reference group is used, jackknifing is implemented in a different way.
+If the BCa interval is calculated and a reference group is used, jackknifing is implemented differently.
 Consider $\hat{\theta} = \hat{\theta}_1 - \hat{\theta}_2$ where $\hat{\theta}_1$ is the estimate for the indicator value of a non-reference period (sample size $n_1$) and $\hat{\theta}_2$ is the estimate for the indicator value of a reference period (sample size $n_2$).
 The acceleration is now calculated as follows:
 
@@ -348,7 +348,7 @@ $\hat{\theta}_{-i} = \hat{\theta}_{1,-i} - \hat{\theta}_2 \text{ for } i = 1, \l
 
 $\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1 + 1, \ldots, n_1 + n_2$
 
-Therefore, if we want to calculate the BCa intervals using `calculate_bootstrap_ci()`, we also need to provide `ref_group = 2011`.
+Therefore, if you want to calculate the BCa intervals using `calculate_bootstrap_ci()`, you also need to provide `ref_group = 2011`.
 
 ```{r, echo=FALSE, message=FALSE}
 ci_mean_obs_ref <- calculate_bootstrap_ci(
@@ -510,9 +510,6 @@ ci_evenness <- calculate_bootstrap_ci(
 )
 ```
 
-We notice that the normal and basic intervals have limits larger than 1 which is an impossible value for evenness.
-This is because there intervals are symmetrical around $\hat{\theta} - \text{Bias}_{\text{boot}}$.
-
 ```{r}
 # Make interval type factor
 ci_evenness <- ci_evenness %>%
@@ -557,9 +554,11 @@ bootstrap_results_evenness %>%
         legend.title = element_text(face = "bold"))
 ```
 
+We notice that the normal and basic intervals have limits larger than 1 which is an impossible value for evenness.
+This is because their intervals are symmetrical around $\hat{\theta} - \text{Bias}_{\text{boot}}$.
 We can use transformation functions to account for this.
 The intervals are calculated on the scale of `h` and the inverse function `hinv` are applied to the resulting intervals.
-For values between 0 and 1, we can use the logit function and its inverse (expit):
+For values between 0 and 1, we can use the logit function and its inverse (inv_logit):
 
 ```{r}
 # Logit transformation
@@ -586,8 +585,6 @@ ci_evenness_trans <- calculate_bootstrap_ci(
   fun = calc_evenness
 )
 ```
-
-Now we see that all intervals fall nicely within the expected range.
 
 ```{r}
 # Make interval type factor
@@ -634,7 +631,9 @@ bootstrap_results_evenness %>%
         legend.title = element_text(face = "bold"))
 ```
 
-### Bias correction
+Now we see that all the intervals fall within the expected range.
+
+### Issues with bias correction for species richness indicators
 
 Consider the calculation of observed species richness on the same subset used in the previous subsection.
 We create a custom function to calculate richness:

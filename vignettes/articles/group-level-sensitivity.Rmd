@@ -217,7 +217,7 @@ ggplot(cv_results, aes(x = as.factor(year))) +
 ```
 
 Indeed, looking at the individual error values reveals similar patterns for every year.
-The species with taxonkey 2481174 has an error of -2 in year 2011. This means that without this species the average number of occurrences per grid cell would be 2 untis lower than the estimate based on the full dataset (in this case around 46.8 instead of 48.8).
+The species with taxonkey 2481174 has an error of -2 in year 2011. This means that without this species the average number of occurrences per grid cell would be 2 units lower than the estimate based on the full dataset (in this case around 46.8 instead of 48.8).
 
 ```{r}
 #| fig.alt: >

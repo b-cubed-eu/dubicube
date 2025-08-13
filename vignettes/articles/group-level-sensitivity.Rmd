@@ -91,7 +91,7 @@ From this, we can calculate different error measures that help inform further an
 
 ## Getting started with dubicube
 
-The dubicube cross-validation method can be applied on any dataframe from which a statistic is calculated and for which a grouping variable is present.
+The **dubicube** cross-validation method can be applied on any dataframe from which a statistic is calculated and for which a grouping variable is present.
 For this tutorial, we focus on occurrence cubes.
 Therefore, we will use the **b3gbi** package for processing the raw data before moving on to the cross-validation.
 

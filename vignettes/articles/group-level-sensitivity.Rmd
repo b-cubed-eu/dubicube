@@ -158,7 +158,7 @@ We get the following results:
 mean_obs(processed_cube$data)
 ```
 
-These values don’t tell us anything about reliability on their own.
+These values do not tell us anything about reliability on their own.
 Therefore, we perform a leave-one-species-out cross-validation (LOSO-CV) to investigate the impact of individual species being included in the calculation.
 
 ### Leave-one-species-out cross-validation

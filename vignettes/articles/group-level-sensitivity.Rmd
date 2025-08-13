@@ -138,7 +138,7 @@ processed_cube
 ### Analysis of the data
 
 Suppose we are interested in the average number of observations per grid cell per year.
-We create the function 'mean_obs' to calculate this.
+We create the function `mean_obs()` to calculate this.
 
 ```{r}
 # Function to calculate the mean of observations per grid cell per year
@@ -217,7 +217,7 @@ ggplot(cv_results, aes(x = as.factor(year))) +
 ```
 
 Indeed, looking at the individual error values reveals similar patterns for every year.
-The species with taxonkey 2481174 has an error of -2 in year 2011. This means that without this species the average number of occurrences per grid cell would be 2 units lower than the estimate based on the full dataset (in this case around 46.8 instead of 48.8).
+The species with taxon key 2481174 has an error of -2 in year 2011. This means that without this species the average number of occurrences per grid cell would be 2 units lower than the estimate based on the full dataset (in this case around 46.8 instead of 48.8).
 
 ```{r}
 #| fig.alt: >
@@ -259,7 +259,7 @@ b3data_package$resources[[index]]$sources
 
 This suggests that the two species are overrepresented in the data cube, likely due to targeted monitoring efforts.
 Their disproportionate influence inflates indicator values, potentially distorting the true diversity signal.
-Group-level sensitivity analysis like this helps uncover such sampling biases, ensuring that biodiversity indicators reflect ecological reality rather than arctifacts in the data.
+Group-level sensitivity analysis like this helps uncover such sampling biases, ensuring that biodiversity indicators reflect ecological reality rather than artifacts in the data.
 
 ## Advanced usage of `cross_validate_cube()`
 

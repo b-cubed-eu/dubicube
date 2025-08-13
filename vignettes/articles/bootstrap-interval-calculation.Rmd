@@ -558,7 +558,7 @@ We notice that the normal and basic intervals have limits larger than 1 which is
 This is because their intervals are symmetrical around $\hat{\theta} - \text{Bias}_{\text{boot}}$.
 We can use transformation functions to account for this.
 The intervals are calculated on the scale of `h` and the inverse function `hinv` are applied to the resulting intervals.
-For values between 0 and 1, we can use the logit function and its inverse (inv_logit):
+For values between 0 and 1, we can use the logit function and its inverse:
 
 ```{r}
 # Logit transformation

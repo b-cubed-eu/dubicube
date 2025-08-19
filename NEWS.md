@@ -1,3 +1,7 @@
+# dubicube 0.9.3
+
+* Review of tutorials
+
 # dubicube 0.9.2
 
 * Update README #63

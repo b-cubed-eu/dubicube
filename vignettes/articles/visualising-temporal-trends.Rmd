@@ -217,7 +217,7 @@ In general, because of the wide range of biodiversity indicator types, we recomm
 The BCa interval is recommended as it accounts for bias and skewness.
 However, due to the jackknife estimation of the acceleration parameter, the calculation time is significantly longer.
 The use of the normal and basic confidence intervals is not recommended, but could be used in combination with truncations or transformations.
-The assumption of normality can be checked by making a Q-Q plot of the bootstrap replications (see further) (Davison & Hinkley, 1997).
+The assumption of normality can be checked by making a Q-Q plot of the bootstrap replications (see further) (Davison & Hinkley, [1997](https://doi.org/10.1017/CBO9780511802843)).
 An overview of the recommendations is provided in the table below.
 This is not an exhaustive review of the topic, but based on existing literature and our preliminary results, these recommendations provide a useful starting point for selecting appropriate interval types.
 
@@ -248,9 +248,9 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Efron & Tibshirani (1994, Ch. 13);<br>
-        Hesterberg (2015)
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Efron & Tibshirani (<a href="https://doi.org/10.1201/9780429246593">1994, Ch. 13</a>);<br>
+        Hesterberg (<a href="https://doi.org/10.1080/00031305.2015.1089789">2015</a>)
       </td>
     </tr>
     <tr>
@@ -268,9 +268,9 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Carpenter & Bithell (2000);<br>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Hesterberg (2015)
+        Carpenter & Bithell (<a href="https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9%3C1141::AID-SIM479%3E3.0.CO;2-F">2000</a>);<br>
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Hesterberg (<a href="https://doi.org/10.1080/00031305.2015.1089789">2015</a>)
       </td>
     </tr>
     <tr>
@@ -289,9 +289,9 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Carpenter & Bithell (2000);<br>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Efron & Tibshirani (1994, Ch. 13)
+        Carpenter & Bithell (<a href="https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9%3C1141::AID-SIM479%3E3.0.CO;2-F">2000</a>);<br>
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Efron & Tibshirani (<a href="https://doi.org/10.1201/9780429246593">1994, Ch. 13</a>)
       </td>
     </tr>
     <tr>
@@ -312,10 +312,10 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Carpenter & Bithell (2000);<br>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Dixon (2001);<br>
-        Efron & Tibshirani (1994, Ch. 14)
+        Carpenter & Bithell (<a href="https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9%3C1141::AID-SIM479%3E3.0.CO;2-F">2000</a>);<br>
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Dixon (<a href="https://doi.org/10.1093/oso/9780195131871.003.0014">2000</a>);<br>
+        Efron & Tibshirani (<a href="https://doi.org/10.1201/9780429246593">1994, Ch. 14</a>)
       </td>
     </tr>
   </tbody>
@@ -471,33 +471,7 @@ Finally, we can create a fan plot assuming the log-normal distribution.
 Note that for `stat_fan()`, the `link_sd` is the standard error on the link scale, while `y` is on the natural scale.
 So we have to recalculate the standard error on the log-transformed bootstrap replicates.
 We also need to account for bias.
-
-```{r}
-#| fig.alt: >
-#|   Fan plot of log-normal interval with effectclass.
-bootstrap_results %>%
-  # Calculate standard error on link scale
-  mutate(rep_boot_log = log(rep_boot),
-         est_boot_log = mean(rep_boot_log), # Needed for bias calculation
-         se_boot_log = sd(rep_boot_log),
-         .by = "year") %>%
-  # Get unique estimates per year
-  distinct(year, est_original, est_boot_log, se_boot_log) %>%
-  # Calculate bias factor
-  mutate(bias_log = exp(est_boot_log - log(est_original))) %>%
-  # Visualise
-  ggplot(aes(x = year)) +
-  effectclass::stat_fan(
-    aes(y = est_original / bias_log, link_sd = se_boot_log),
-    link = "log", fill = "cornflowerblue", max_prob = 0.95
-  ) +
-  # Settings
-  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
-  theme_minimal()
-```
-
-As also noted in the previous section, year is a discrete variable in our data cube. A more correct way might therefore be to use the `geom = "rect"` option.
+As noted in the previous section, year is a discrete variable in our data cube. We therefore use the `geom = "rect"` option.
 
 ```{r}
 #| fig.alt: >
@@ -558,41 +532,21 @@ out_ci <- bind_rows(out_ci_list) %>%
   mutate(int_type = ifelse(int_type == "norm", "log_norm", int_type))
 ```
 
-We can visualise this with `geom_ribbon()` from **ggplot2**.
+We can visualise this in a categorical way with `geom_rect()` from **ggplot2**.
 
 ```{r, warning=FALSE}
 #| fig.alt: >
-#|   Fan plot of BCa and log-normal intervals.
+#|   Categorical fan plot of BCa and log-normal intervals.
 # For visualisation of envelopes
 alpha_levels <- sapply(coverages, function(i) 1 - i / (i + step))
 names(alpha_levels) <- as.character(coverages)
 
 # Convert conf to character so it can match alpha_levels
 out_ci <- out_ci %>%
-  mutate(conf_chr = as.character(conf))
-
-# Visualise
-ggplot(out_ci, aes(x = year)) +
-  geom_ribbon(aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr)) +
-  # Colour ribbons
-  scale_alpha_manual(values = alpha_levels, name = "conf") +
-  scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)),
-                    name = "conf") +
-  # Settings
-  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
-  facet_wrap(~int_type, ncol = 1) +
-  theme_minimal()
-```
-
-We can visualise this in a categorical way with `geom_rect()` from **ggplot2**.
-
-```{r, warning=FALSE}
-#| fig.alt: >
-#|   Categorical plot of BCa and log-normal intervals.
-# Numeric version of year for xmin/xmax
-out_ci <- out_ci %>%
-  mutate(year_num = as.numeric(as.factor(year)))
+  mutate(
+    conf_chr = as.character(conf),
+    year_num = as.numeric(as.factor(year)) # Numeric year for xmin/xmax
+  )
 
 # Visualise
 bar_width <- 0.9
@@ -618,6 +572,52 @@ ggplot(out_ci, aes()) +
     breaks = unique(out_ci$year_num),
     labels = unique(out_ci$year)
   ) +
+  facet_wrap(~int_type, ncol = 1) +
+  theme_minimal()
+```
+
+We can visualise this in a continuous way with `geom_ribbon()` from **ggplot2**.
+Linear (like the default of `stat_fan()`):
+
+```{r, warning=FALSE}
+#| fig.alt: >
+#|   Linear fan plot of BCa and log-normal intervals.
+ggplot(out_ci, aes(x = year)) +
+  geom_ribbon(aes(ymin = ll, ymax = ul, fill = conf_chr, alpha = conf_chr)) +
+  # Colour ribbons
+  scale_alpha_manual(values = alpha_levels, name = "conf") +
+  scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)),
+                    name = "conf") +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  facet_wrap(~int_type, ncol = 1) +
+  theme_minimal()
+```
+
+Smooth (like in the previous paragraph):
+
+```{r, warning=FALSE}
+#| fig.alt: >
+#|   Smooth fan plot of BCa and log-normal intervals.
+# Predict smooth ymin/ymax
+out_ci %>%
+  group_by(conf_chr, int_type) %>%
+  mutate(ymin = predict(loess(ll ~ year)),
+         ymax = predict(loess(ul ~ year))) %>%
+  ungroup() %>%
+  # Visualise
+  ggplot(aes(x = year)) +
+  geom_ribbon(
+    aes(ymin = ymin, ymax = ymax, fill = conf_chr, alpha = conf_chr)
+  ) +
+  # Colour ribbons
+  scale_alpha_manual(values = alpha_levels, name = "conf") +
+  scale_fill_manual(values = rep("cornflowerblue", length(alpha_levels)),
+                    name = "conf") +
+  # Settings
+  labs(y = "Mean Number of Observations\nper Grid Cell", x = "") +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
   facet_wrap(~int_type, ncol = 1) +
   theme_minimal()
 ```
@@ -677,6 +677,20 @@ ggplot(data = result, aes(x = year, y = est_original, ymin = ll, ymax = ul)) +
 ```
 
 With this function, you can also add symbols to `stat_fan()`.
+
+Note that the choice of the reference year should be well considered.
+Keep in mind which comparisons should be made, and what the motivation is behind the reference period.
+A high or low value in the reference period relative to other periods, e.g. an exceptional bad or good year, can affect the magnitude and direction of the calculated differences.
+Whether this should be avoided or not, depends on the motivation behind the choice and the research question.
+A reference period can be determined by legislation, or by the start of a monitoring campaign.
+A specific research question can determine the periods that need to be compared.
+Furthermore, the variability of the estimate of reference period affects the width of confidence intervals for the differences.
+A more variable reference period will propagate greater uncertainty.
+In the case of GBIF data, more data will be available in recent years than in earlier years.
+If this is the case, it could make sense to select the last period as a reference period.
+In a way, this also avoids the arbitrariness of choice for the reference period.
+You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
+Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability
 
 ## References
 <!-- spell-check: ignore:start -->

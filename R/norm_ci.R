@@ -28,8 +28,12 @@
 #' @examples
 #'
 
-norm_ci <- function(t0, replicates, conf = 0.95,
-                    h = identity, hinv = identity) {
+norm_ci <- function(
+    t0,
+    replicates,
+    conf = 0.95,
+    h = function(t) t,
+    hinv = function(t) t) {
   t <- h(replicates)
   t0 <- h(t0)
 

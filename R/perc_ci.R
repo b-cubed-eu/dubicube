@@ -27,8 +27,11 @@
 #' @examples
 #'
 
-perc_ci <- function(replicates, conf = 0.95,
-                    h = identity, hinv = identity) {
+perc_ci <- function(
+    replicates,
+    conf = 0.95,
+    h = function(t) t,
+    hinv = function(t) t) {
   # Transform replicates
   t <- h(replicates)
 

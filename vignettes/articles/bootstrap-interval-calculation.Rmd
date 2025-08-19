@@ -362,7 +362,9 @@ ci_mean_obs_ref <- calculate_bootstrap_ci(
 ```
   
 ```{r}
-head(ci_mean_obs_ref)
+ci_mean_obs_ref %>%
+  filter(int_type == "bca") %>%
+  head()
 ```
 
 We see that the mean number of observations is higher in some years compared to 2011.

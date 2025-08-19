@@ -1,4 +1,5 @@
-#' Bias-Corrected and Accelerated (BCa) confidence interval (helper)
+# nolint start: line_length_linter.
+#' Calculate Bias-Corrected and Accelerated (BCa) bootstrap confidence interval
 #'
 #' @param t0 Original statistic.
 #' @param t Numeric vector of bootstrap replicates.
@@ -16,9 +17,43 @@
 #'     \item{ul}{upper confidence limit}
 #'   }
 #'
+#' @details
+#' Adjusts for bias and acceleration.
+#' Bias refers to the systematic difference between the observed statistic
+#' from the original dataset and the center of the bootstrap distribution of
+#' the statistic. The bias correction term is calculated as follows:
+#'
+#' \deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)}
+#'
+#' where \eqn{\#} is the counting operator, counting the number of times
+#' \eqn{\hat{\theta}^*_b} is smaller than \eqn{\hat{\theta}}, and
+#' \eqn{\Phi^{-1}} the inverse cumulative density function of the standard
+#' normal distribution.\eqn{B} is the number of bootstrap samples.
+#'
+#' Acceleration quantifies how sensitive the variability of the statistic is
+#' to changes in the data.
+#' See `calculate_acceleration()` on how this is calculated.
+#'
+#' - \eqn{a=0}: The statistic's variability does not depend on the data
+#' (e.g., symmetric distribution)
+#' - \eqn{a>0}: Small changes in the data have a large effect on the
+#' statistic's variability (e.g., positive skew)
+#' - \eqn{a<0}: Small changes in the data have a smaller effect on the
+#' statistic's variability (e.g., negative skew).
+#'
+#' The bias and acceleration estimates are then used to calculate adjusted
+#' percentiles.
+#'
+#' \eqn{\alpha_1 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{\alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{\alpha/2})} \right)},
+#' \eqn{\alpha_2 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{1 - \alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{1 - \alpha/2})} \right)}
+#'
+#' So, we get
+#'
+#' \deqn{CI_{bca} = \left[ \hat{\theta}^*_{(\alpha_1)}, \hat{\theta}^*_{(\alpha_2)} \right]}
+#'
 #' @note
 #' This function is adapted from the internal function `bca.ci()`
-#' in the \pkg{boot} package (Davison & Ripley, 1999).
+#' in the \pkg{boot} package (Canty & Ripley, 1999).
 #'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
@@ -34,7 +69,7 @@
 #' @family interval_calculation
 #'
 #' @importFrom stats pnorm qnorm
-#'
+# nolint end
 
 bca_ci <- function(
     t0,

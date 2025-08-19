@@ -1,4 +1,5 @@
-#' Normal confidence interval (helper)
+# nolint start: line_length_linter.
+#' Calculate normal bootstrap confidence interval
 #'
 #' @param t0 Original statistic.
 #' @param t Numeric vector of bootstrap replicates.
@@ -15,9 +16,17 @@
 #'     \item{ul}{upper confidence limit}
 #'   }
 #'
+#' @details
+#'
+#' \deqn{CI_{norm} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} - \text{SE}_{\text{boot}} \times z_{1-\alpha/2},
+#' \hat{\theta} - \text{Bias}_{\text{boot}} + \text{SE}_{\text{boot}} \times z_{1-\alpha/2} \right]}
+#'
+#' where \eqn{z_{1-\alpha/2}} is the \eqn{1-\alpha/2} quantile of the
+#' standard normal distribution.
+#'
 #' @note
 #' This function is adapted from the function `norm.ci()`
-#' in the \pkg{boot} package (Davison & Ripley, 1999).
+#' in the \pkg{boot} package (Canty & Ripley, 1999).
 #'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
@@ -33,7 +42,7 @@
 #' @family interval_calculation
 #'
 #' @importFrom stats qnorm sd
-#'
+# nolint end
 
 norm_ci <- function(
     t0,

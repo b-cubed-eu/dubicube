@@ -1,4 +1,5 @@
-#' Percentile confidence interval (helper)
+# nolint start: line_length_linter.
+#' Calculate percentile bootstrap confidence interval
 #'
 #' @param t Numeric vector of bootstrap replicates.
 #' @param conf Confidence level (default = 0.95).
@@ -14,9 +15,17 @@
 #'     \item{ul}{upper confidence limit}
 #'   }
 #'
+#' @details
+#'
+#' \deqn{CI_{perc} = \left[ \hat{\theta}^*_{(\alpha/2)}, \hat{\theta}^*_{(1-\alpha/2)} \right]}
+#'
+#' where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+#' \eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+#' \eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
+#'
 #' @note
 #' This function is adapted from the internal function `perc.ci()`
-#' in the \pkg{boot} package (Davison & Ripley, 1999).
+#' in the \pkg{boot} package (Canty & Ripley, 1999).
 #'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
@@ -30,7 +39,7 @@
 #' @export
 #'
 #' @family interval_calculation
-#'
+# nolint end
 
 perc_ci <- function(
     t,

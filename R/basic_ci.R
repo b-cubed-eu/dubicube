@@ -1,4 +1,5 @@
-#' Basic confidence interval (helper)
+# nolint start: line_length_linter.
+#' Calculate basic bootstrap confidence interval
 #'
 #' @param t0 Original statistic.
 #' @param t Numeric vector of bootstrap replicates.
@@ -14,10 +15,18 @@
 #'     \item{ll}{lower confidence limit}
 #'     \item{ul}{upper confidence limit}
 #'   }
+#' @details
+#'
+#' \deqn{CI_{basic} = \left[ 2\hat{\theta} - \hat{\theta}^*_{(1-\alpha/2)},
+#' 2\hat{\theta} - \hat{\theta}^*_{(\alpha/2)} \right]}
+#'
+#' where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+#' \eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+#' \eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
 #'
 #' @note
 #' This function is adapted from the internal function `basic.ci()`
-#' in the \pkg{boot} package (Davison & Ripley, 1999).
+#' in the \pkg{boot} package (Canty & Ripley, 1999).
 #'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
@@ -31,7 +40,7 @@
 #' @export
 #'
 #' @family interval_calculation
-#'
+# nolint end
 
 basic_ci <- function(
     t0,

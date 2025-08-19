@@ -34,9 +34,7 @@ Bias-Corrected and Accelerated (BCa) confidence interval (helper)
 }
 \note{
 This function is adapted from the internal function \code{bca.ci()}
-in the \pkg{boot} package (Davison & Ripley, R Core Team).
-Credit: \pkg{boot} authors (A. C. Davison, B. D. Ripley, and R Core Team).
-Licensed under the same terms as R itself.
+in the \pkg{boot} package (Davison & Ripley, 1999).
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

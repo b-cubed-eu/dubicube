@@ -81,8 +81,8 @@ norm_inter <- function(t, alpha) {
   # Case 3: interpolation on normal quantile scale
   temp <- inds[!ints & k != 0 & k != n_rep]
   if (length(temp) > 0) {
-    temp1 <- stats::qnorm(alpha[temp])         # target quantile (on normal scale)
-    temp2 <- stats::qnorm(k[temp] / (n_rep + 1))   # lower bounding quantile
+    temp1 <- stats::qnorm(alpha[temp])  # target quantile (on normal scale)
+    temp2 <- stats::qnorm(k[temp] / (n_rep + 1))       # lower bounding quantile
     temp3 <- stats::qnorm((k[temp] + 1) / (n_rep + 1)) # upper bounding quantile
     tk <- tstar[k[temp]]                # lower order statistic
     tk1 <- tstar[k[temp] + 1L]          # upper order statistic

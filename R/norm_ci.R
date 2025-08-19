@@ -34,7 +34,7 @@
 #'
 #' @family interval_calculation
 #'
-#' @importFrom stats qnorm
+#' @importFrom stats qnorm sd
 #'
 
 norm_ci <- function(
@@ -45,19 +45,16 @@ norm_ci <- function(
     hinv = function(t) t) {
   # Keep only finite bootstrap replicates
   fins <- seq_along(t)[is.finite(t)]
-  t <- h(t[fins])
-
-  # Variance of transformed bootstrap replicates
-  var_t0 <- var(t)
+  t_h <- h(t[fins])
 
   # Transform original statistic
   t0_h <- h(t0)
 
   # Estimated bias
-  bias <- mean(t) - t0_h
+  bias <- mean(t_h) - t0_h
 
-  # Margin of error (z * sd)
-  merr <- sqrt(var_t0) * stats::qnorm((1 + conf) / 2)
+  # Margin of error (sd * z)
+  merr <- stats::sd(t_h) * stats::qnorm((1 + conf) / 2)
 
   # normal-based CI, back-transform with hinv
   ll <- hinv(t0_h - bias - merr)

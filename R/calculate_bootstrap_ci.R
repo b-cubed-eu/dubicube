@@ -174,10 +174,9 @@
 #' @family indicator_uncertainty
 #'
 #' @import dplyr
-#' @import boot
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
-#' @importFrom stats pnorm qnorm setNames
+#' @importFrom stats setNames
 #'
 #' @examples
 #' \dontrun{

@@ -15,8 +15,6 @@
 #'     \item{ul}{upper confidence limit}
 #'   }
 #'
-#' @details
-#'
 #' @note
 #' This function is adapted from the function `norm.ci()`
 #' in the \pkg{boot} package (Davison & Ripley, R Core Team).
@@ -36,9 +34,7 @@
 #'
 #' @family interval_calculation
 #'
-#' @import
-#'
-#' @examples
+#' @importFrom stats qnorm
 #'
 
 norm_ci <- function(

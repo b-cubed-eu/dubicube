@@ -14,8 +14,6 @@
 #'     \item{ul}{upper confidence limit}
 #'   }
 #'
-#' @details
-#'
 #' @note
 #' This function is adapted from the internal function `perc.ci()`
 #' in the \pkg{boot} package (Davison & Ripley, R Core Team).
@@ -34,10 +32,6 @@
 #' @export
 #'
 #' @family interval_calculation
-#'
-#' @import
-#'
-#' @examples
 #'
 
 perc_ci <- function(

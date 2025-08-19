@@ -11,6 +11,12 @@
 #'
 #' @details
 #'
+#' @note
+#' This function is adapted from the internal function `norm.inter`
+#' in the \pkg{boot} package (Davison & Ripley, R Core Team).
+#' Credit: \pkg{boot} authors (A. C. Davison, B. D. Ripley, and R Core Team).
+#' Licensed under the same terms as R itself.
+#'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
 #' Angelo Canty for S) \[Computer software\].

@@ -28,12 +28,12 @@ original scale. The default is the identity function. If \code{h} is supplied bu
 }
 \value{
 A matrix with four columns:
-\describe{
-\item{conf}{confidence level}
-\item{rk_lower}{rank of lower endpoint (interpolated)}
-\item{rk_upper}{rank of upper endpoint (interpolated)}
-\item{ll}{lower confidence limit}
-\item{ul}{upper confidence limit}
+\itemize{
+\item \code{conf}: confidence level
+\item \code{rk_lower}: rank of lower endpoint (interpolated)
+\item \code{rk_upper}: rank of upper endpoint (interpolated)
+\item \code{ll}: lower confidence limit
+\item \code{ul}: lower confidence limit
 }
 }
 \description{

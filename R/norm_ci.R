@@ -18,13 +18,11 @@
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
 #'
 #' @return A matrix with four columns:
-#'   \describe{
-#'     \item{conf}{confidence level}
-#'     \item{rk_lower}{rank of lower endpoint (interpolated)}
-#'     \item{rk_upper}{rank of upper endpoint (interpolated)}
-#'     \item{ll}{lower confidence limit}
-#'     \item{ul}{upper confidence limit}
-#'   }
+#'   - `conf`: confidence level
+#'   - `rk_lower`: rank of lower endpoint (interpolated)
+#'   - `rk_upper`: rank of upper endpoint (interpolated)
+#'   - `ll`: lower confidence limit
+#'   - `ul`: lower confidence limit
 #'
 #' @details
 #' \deqn{CI_{norm} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} - \text{SE}_{\text{boot}} \times z_{1-\alpha/2},

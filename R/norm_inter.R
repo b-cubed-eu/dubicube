@@ -2,7 +2,7 @@
 #'
 #' This function performs interpolation between order statistics
 #' on the normal quantile scale, as described in Davison and Hinkley (1997,
-#' eq. 5.8). It is used internally by the \pkg{boot} package (Canty & Ripley,
+#' equation 5.8). It is used internally by the \pkg{boot} package (Canty & Ripley,
 #' 1999) for bootstrap confidence interval calculations (normal-based
 #' interpolation).
 #'

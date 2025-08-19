@@ -1,7 +1,7 @@
 #' Basic confidence interval (helper)
 #'
 #' @param t0 Original statistic.
-#' @param replicates Numeric vector of bootstrap replicates.
+#' @param t Numeric vector of bootstrap replicates.
 #' @param conf Confidence level.
 #' @param h Transformation function.
 #' @param hinv Inverse transformation function.
@@ -30,21 +30,12 @@
 
 basic_ci <- function(
     t0,
-    replicates,
+    t,
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
-  t <- h(replicates)
-  t0 <- h(t0)
-
-  alpha <- (1 - conf) / 2
-  probs <- c(alpha, 1 - alpha)
-
-  q <- stats::quantile(t, probs, na.rm = TRUE, names = FALSE)
-
-  # Basic CI: 2*t0 - quantiles
-  ci <- 2 * t0 - q
-  ci <- hinv(ci)
-
-  stats::setNames(ci, c("ll", "ul"))
+  qq <- norm_inter(h(t), (1 + c(conf, -conf)) / 2)
+  cbind(conf,
+        matrix(qq[, 1L], ncol = 2L),
+        matrix(hinv(2 * h(t0) - qq[, 2L]), ncol = 2L))
 }

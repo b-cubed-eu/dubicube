@@ -1,6 +1,6 @@
 #' Percentile confidence interval (helper)
 #'
-#' @param replicates Numeric vector of bootstrap replicates.
+#' @param t Numeric vector of bootstrap replicates.
 #' @param conf Confidence level (default = 0.95).
 #' @param h Transformation function (default = identity).
 #' @param hinv Inverse transformation function (default = identity).
@@ -28,21 +28,11 @@
 #'
 
 perc_ci <- function(
-    replicates,
+    t,
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
-  # Transform replicates
-  t <- h(replicates)
-
-  # Compute percentile bounds
-  alpha <- (1 - conf) / 2
-  probs <- c(alpha, 1 - alpha)
-
-  ci <- stats::quantile(t, probs, na.rm = TRUE, names = FALSE)
-
-  # Transform back
-  ci <- hinv(ci)
-
-  stats::setNames(ci, c("ll", "ul"))
+  alpha <- (1 + c(-conf, conf)) / 2
+  qq <- norm_inter(h(t), alpha)
+  cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(qq[, 2]), ncol = 2L))
 }

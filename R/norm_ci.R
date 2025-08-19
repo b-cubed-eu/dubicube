@@ -1,7 +1,7 @@
 #' Normal confidence interval (helper)
 #'
 #' @param t0 Original statistic.
-#' @param replicates Numeric vector of bootstrap replicates.
+#' @param t Numeric vector of bootstrap replicates.
 #' @param conf Confidence level.
 #' @param h Transformation function.
 #' @param hinv Inverse transformation function.
@@ -30,26 +30,19 @@
 
 norm_ci <- function(
     t0,
-    replicates,
+    t,
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
-  t <- h(replicates)
+
+  fins <- seq_along(t)[is.finite(t)]
+  t <- h(t[fins])
+
+  var_t0 <- var(t)
+
   t0 <- h(t0)
+  bias <- mean(t) - t0
 
-  # Estimate mean, SE, and bias
-  t_bar <- mean(t, na.rm = TRUE)
-  se <- stats::sd(t, na.rm = TRUE)
-  bias <- t_bar - t0
-
-  z <- stats::qnorm((1 + conf) / 2)
-
-  # Normal CI formula
-  ci <- c(
-    t0 - bias - z * se,
-    t0 - bias + z * se
-  )
-  ci <- hinv(ci)
-
-  stats::setNames(ci, c("ll", "ul"))
+  merr <- sqrt(var_t0) * qnorm((1 + conf) / 2)
+  cbind(conf, hinv(t0 - bias - merr), hinv(t0 - bias + merr))
 }

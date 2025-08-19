@@ -1,7 +1,7 @@
 #' Bias-Corrected and Accelerated (BCa) confidence interval (helper)
 #'
 #' @param t0 Original statistic.
-#' @param replicates Numeric vector of bootstrap replicates.
+#' @param t Numeric vector of bootstrap replicates.
 #' @param a Acceleration constant.
 #' @param conf Confidence level.
 #' @param h Transformation function.
@@ -36,25 +36,22 @@ bca_ci <- function(
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
-  t <- h(replicates)
-  t0 <- h(t0)
-  R <- length(t)
-
-  # Bias correction
-  z0 <- stats::qnorm(sum(t < t0) / R)
-
-  # Critical values
+  # Calculate the BCa critical values
   alpha <- (1 + c(-conf, conf)) / 2
-  z_alpha <- stats::qnorm(alpha)
+  zalpha <- stats::qnorm(alpha)
 
-  # Adjusted alpha
-  adj_alpha <- stats::pnorm(
-    z0 + (z0 + z_alpha) / (1 - a * (z0 + z_alpha))
-  )
+  z0 <- stats::qnorm(sum(t < t0) / length(t))
+  if (!is.finite(z0)) {
+    warning("Estimated adjustment 'z0' is infinite.")
+    return(cbind(conf, ll = NA, ul = NA))
+  }
 
-  # Interpolation on normal quantile scale
-  qq <- norm_inter(t, adj_alpha) # <- your own version, not boot:::
-  ci <- hinv(h(qq[, 2]))
+  # Adjust for acceleration
+  adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
+                              (1 - a * (z0 + zalpha)))
+  qq <- norm_inter(t, adj_alpha)
+  qq_matrix <- matrix(hinv(h(qq[, 2L])), ncol = 2L)
+  colnames(qq_matrix) <- c("ll", "ul")
 
-  stats::setNames(ci, c("ll", "ul"))
+  return(cbind(conf, qq_matrix))
 }

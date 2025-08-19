@@ -1,12 +1,22 @@
 # nolint start: line_length_linter.
 #' Calculate Bias-Corrected and Accelerated (BCa) bootstrap confidence interval
 #'
+#' This function calculates a Bias-Corrected and Accelerated (BCa) confidence
+#' interval from a bootstrap sample. It is used by `calculate_bootstrap_ci()`.
+#'
 #' @param t0 Original statistic.
 #' @param t Numeric vector of bootstrap replicates.
-#' @param a Acceleration constant.
-#' @param conf Confidence level.
-#' @param h Transformation function.
-#' @param hinv Inverse transformation function.
+#' @param a Acceleration constant. See also `calculate_acceleration()`.
+#' @param conf A numeric value specifying the confidence level of the interval.
+#' Default is `0.95` (95 % confidence level).
+#' @param h A function defining a transformation. The intervals are calculated
+#' on the scale of `h(t)` and the inverse function `hinv` applied to the
+#' resulting intervals. It must be a function of one variable only. The default
+#' is the identity function.
+#' @param hinv A function, like `h`, which returns the inverse of `h`. It is
+#' used to transform the intervals calculated on the scale of `h(t)` back to the
+#' original scale. The default is the identity function. If `h` is supplied but
+#' `hinv` is not, then the intervals returned will be on the transformed scale.
 #'
 #' @return A matrix with four columns:
 #'   \describe{

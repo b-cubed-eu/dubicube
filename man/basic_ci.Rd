@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic_ci.R
 \name{basic_ci}
 \alias{basic_ci}
-\title{Basic confidence interval (helper)}
+\title{Calculate basic bootstrap confidence interval}
 \usage{
 basic_ci(t0, t, conf = 0.95, h = function(t) t, hinv = function(t) t)
 }
@@ -11,11 +11,18 @@ basic_ci(t0, t, conf = 0.95, h = function(t) t, hinv = function(t) t)
 
 \item{t}{Numeric vector of bootstrap replicates.}
 
-\item{conf}{Confidence level.}
+\item{conf}{A numeric value specifying the confidence level of the interval.
+Default is \code{0.95} (95 \% confidence level).}
 
-\item{h}{Transformation function.}
+\item{h}{A function defining a transformation. The intervals are calculated
+on the scale of \code{h(t)} and the inverse function \code{hinv} applied to the
+resulting intervals. It must be a function of one variable only. The default
+is the identity function.}
 
-\item{hinv}{Inverse transformation function.}
+\item{hinv}{A function, like \code{h}, which returns the inverse of \code{h}. It is
+used to transform the intervals calculated on the scale of \code{h(t)} back to the
+original scale. The default is the identity function. If \code{h} is supplied but
+\code{hinv} is not, then the intervals returned will be on the transformed scale.}
 }
 \value{
 A matrix with four columns:
@@ -28,11 +35,20 @@ A matrix with four columns:
 }
 }
 \description{
-Basic confidence interval (helper)
+This function calculates a basic confidence interval from a bootstrap sample.
+It is used by \code{calculate_bootstrap_ci()}.
+}
+\details{
+\deqn{CI_{basic} = \left[ 2\hat{\theta} - \hat{\theta}^*_{(1-\alpha/2)},
+2\hat{\theta} - \hat{\theta}^*_{(\alpha/2)} \right]}
+
+where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+\eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+\eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
 }
 \note{
 This function is adapted from the internal function \code{basic.ci()}
-in the \pkg{boot} package (Davison & Ripley, 1999).
+in the \pkg{boot} package (Canty & Ripley, 1999).
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

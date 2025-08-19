@@ -2,18 +2,25 @@
 % Please edit documentation in R/perc_ci.R
 \name{perc_ci}
 \alias{perc_ci}
-\title{Percentile confidence interval (helper)}
+\title{Calculate percentile bootstrap confidence interval}
 \usage{
 perc_ci(t, conf = 0.95, h = function(t) t, hinv = function(t) t)
 }
 \arguments{
 \item{t}{Numeric vector of bootstrap replicates.}
 
-\item{conf}{Confidence level (default = 0.95).}
+\item{conf}{A numeric value specifying the confidence level of the interval.
+Default is \code{0.95} (95 \% confidence level).}
 
-\item{h}{Transformation function (default = identity).}
+\item{h}{A function defining a transformation. The intervals are calculated
+on the scale of \code{h(t)} and the inverse function \code{hinv} applied to the
+resulting intervals. It must be a function of one variable only. The default
+is the identity function.}
 
-\item{hinv}{Inverse transformation function (default = identity).}
+\item{hinv}{A function, like \code{h}, which returns the inverse of \code{h}. It is
+used to transform the intervals calculated on the scale of \code{h(t)} back to the
+original scale. The default is the identity function. If \code{h} is supplied but
+\code{hinv} is not, then the intervals returned will be on the transformed scale.}
 }
 \value{
 A matrix with four columns:
@@ -26,11 +33,19 @@ A matrix with four columns:
 }
 }
 \description{
-Percentile confidence interval (helper)
+This function calculates a percentile confidence interval from a bootstrap
+sample. It is used by \code{calculate_bootstrap_ci()}.
+}
+\details{
+\deqn{CI_{perc} = \left[ \hat{\theta}^*_{(\alpha/2)}, \hat{\theta}^*_{(1-\alpha/2)} \right]}
+
+where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
+\eqn{\hat{\theta}^*_{(1-\alpha/2)}} are the \eqn{\alpha/2} and
+\eqn{1-\alpha/2} percentiles of the bootstrap distribution, respectively.
 }
 \note{
 This function is adapted from the internal function \code{perc.ci()}
-in the \pkg{boot} package (Davison & Ripley, 1999).
+in the \pkg{boot} package (Canty & Ripley, 1999).
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

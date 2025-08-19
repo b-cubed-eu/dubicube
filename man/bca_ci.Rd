@@ -2,7 +2,7 @@
 % Please edit documentation in R/bca_ci.R
 \name{bca_ci}
 \alias{bca_ci}
-\title{Bias-Corrected and Accelerated (BCa) confidence interval (helper)}
+\title{Calculate Bias-Corrected and Accelerated (BCa) bootstrap confidence interval}
 \usage{
 bca_ci(t0, t, a, conf = 0.95, h = function(t) t, hinv = function(t) t)
 }
@@ -11,13 +11,20 @@ bca_ci(t0, t, a, conf = 0.95, h = function(t) t, hinv = function(t) t)
 
 \item{t}{Numeric vector of bootstrap replicates.}
 
-\item{a}{Acceleration constant.}
+\item{a}{Acceleration constant. See also \code{calculate_acceleration()}.}
 
-\item{conf}{Confidence level.}
+\item{conf}{A numeric value specifying the confidence level of the interval.
+Default is \code{0.95} (95 \% confidence level).}
 
-\item{h}{Transformation function.}
+\item{h}{A function defining a transformation. The intervals are calculated
+on the scale of \code{h(t)} and the inverse function \code{hinv} applied to the
+resulting intervals. It must be a function of one variable only. The default
+is the identity function.}
 
-\item{hinv}{Inverse transformation function.}
+\item{hinv}{A function, like \code{h}, which returns the inverse of \code{h}. It is
+used to transform the intervals calculated on the scale of \code{h(t)} back to the
+original scale. The default is the identity function. If \code{h} is supplied but
+\code{hinv} is not, then the intervals returned will be on the transformed scale.}
 }
 \value{
 A matrix with four columns:
@@ -30,11 +37,47 @@ A matrix with four columns:
 }
 }
 \description{
-Bias-Corrected and Accelerated (BCa) confidence interval (helper)
+This function calculates a Bias-Corrected and Accelerated (BCa) confidence
+interval from a bootstrap sample. It is used by \code{calculate_bootstrap_ci()}.
+}
+\details{
+Adjusts for bias and acceleration.
+Bias refers to the systematic difference between the observed statistic
+from the original dataset and the center of the bootstrap distribution of
+the statistic. The bias correction term is calculated as follows:
+
+\deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)}
+
+where \eqn{\#} is the counting operator, counting the number of times
+\eqn{\hat{\theta}^*_b} is smaller than \eqn{\hat{\theta}}, and
+\eqn{\Phi^{-1}} the inverse cumulative density function of the standard
+normal distribution.\eqn{B} is the number of bootstrap samples.
+
+Acceleration quantifies how sensitive the variability of the statistic is
+to changes in the data.
+See \code{calculate_acceleration()} on how this is calculated.
+\itemize{
+\item \eqn{a=0}: The statistic's variability does not depend on the data
+(e.g., symmetric distribution)
+\item \eqn{a>0}: Small changes in the data have a large effect on the
+statistic's variability (e.g., positive skew)
+\item \eqn{a<0}: Small changes in the data have a smaller effect on the
+statistic's variability (e.g., negative skew).
+}
+
+The bias and acceleration estimates are then used to calculate adjusted
+percentiles.
+
+\eqn{\alpha_1 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{\alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{\alpha/2})} \right)},
+\eqn{\alpha_2 = \Phi\left( \hat{z}_0 + \frac{\hat{z}_0 + z_{1 - \alpha/2}}{1 - \hat{a}(\hat{z}_0 + z_{1 - \alpha/2})} \right)}
+
+So, we get
+
+\deqn{CI_{bca} = \left[ \hat{\theta}^*_{(\alpha_1)}, \hat{\theta}^*_{(\alpha_2)} \right]}
 }
 \note{
 This function is adapted from the internal function \code{bca.ci()}
-in the \pkg{boot} package (Davison & Ripley, 1999).
+in the \pkg{boot} package (Canty & Ripley, 1999).
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

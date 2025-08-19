@@ -217,7 +217,7 @@ In general, because of the wide range of biodiversity indicator types, we recomm
 The BCa interval is recommended as it accounts for bias and skewness.
 However, due to the jackknife estimation of the acceleration parameter, the calculation time is significantly longer.
 The use of the normal and basic confidence intervals is not recommended, but could be used in combination with truncations or transformations.
-The assumption of normality can be checked by making a Q-Q plot of the bootstrap replications (see further) (Davison & Hinkley, 1997).
+The assumption of normality can be checked by making a Q-Q plot of the bootstrap replications (see further) (Davison & Hinkley, [1997](https://doi.org/10.1017/CBO9780511802843)).
 An overview of the recommendations is provided in the table below.
 This is not an exhaustive review of the topic, but based on existing literature and our preliminary results, these recommendations provide a useful starting point for selecting appropriate interval types.
 
@@ -248,9 +248,9 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Efron & Tibshirani (1994, Ch. 13);<br>
-        Hesterberg (2015)
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Efron & Tibshirani (<a href="https://doi.org/10.1201/9780429246593">1994, Ch. 13</a>);<br>
+        Hesterberg (<a href="https://doi.org/10.1080/00031305.2015.1089789">2015</a>)
       </td>
     </tr>
     <tr>
@@ -268,9 +268,9 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Carpenter & Bithell (2000);<br>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Hesterberg (2015)
+        Carpenter & Bithell (<a href="https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9%3C1141::AID-SIM479%3E3.0.CO;2-F">2000</a>);<br>
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Hesterberg (<a href="https://doi.org/10.1080/00031305.2015.1089789">2015</a>)
       </td>
     </tr>
     <tr>
@@ -289,9 +289,9 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Carpenter & Bithell (2000);<br>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Efron & Tibshirani (1994, Ch. 13)
+        Carpenter & Bithell (<a href="https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9%3C1141::AID-SIM479%3E3.0.CO;2-F">2000</a>);<br>
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Efron & Tibshirani (<a href="https://doi.org/10.1201/9780429246593">1994, Ch. 13</a>)
       </td>
     </tr>
     <tr>
@@ -312,10 +312,10 @@ This is not an exhaustive review of the topic, but based on existing literature 
         </ul>
       </td>
       <td>
-        Carpenter & Bithell (2000);<br>
-        Davison & Hinkley (1997, Ch. 5);<br>
-        Dixon (2001);<br>
-        Efron & Tibshirani (1994, Ch. 14)
+        Carpenter & Bithell (<a href="https://doi.org/10.1002/(SICI)1097-0258(20000515)19:9%3C1141::AID-SIM479%3E3.0.CO;2-F">2000</a>);<br>
+        Davison & Hinkley (<a href="https://doi.org/10.1017/CBO9780511802843">1997, Ch. 5</a>);<br>
+        Dixon (<a href="https://doi.org/10.1093/oso/9780195131871.003.0014">2000</a>);<br>
+        Efron & Tibshirani (<a href="https://doi.org/10.1201/9780429246593">1994, Ch. 14</a>)
       </td>
     </tr>
   </tbody>

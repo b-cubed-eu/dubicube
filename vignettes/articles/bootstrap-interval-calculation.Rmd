@@ -97,7 +97,7 @@ where $I_i$ denotes the influence of data point $x_i$ on the estimation of $\the
 $I_i$ can be estimated using jackknifing.
 Examples are (1) the negative jackknife: $I_i = (n-1)(\hat{\theta} - \hat{\theta}_{-i})$, and (2) the positive jackknife $I_i = (n+1)(\hat{\theta}_{-i} - \hat{\theta})$ (Frangos & Schucany, [1990](https://doi.org/10.1016/0167-9473(90)90109-U)).
 Here, $\hat{\theta}_{-i}$ is the estimated value leaving out the $i$’th data point $x_i$.
-The **boot** package (Canty & Ripley, [1999](https://CRAN.R-project.org/package=boot)) also offers infinitesimal jackknife and regression estimation.
+The **boot** package also offers infinitesimal jackknife and regression estimation.
 Implementation of these jackknife algorithms can be explored in the future.
 
 In case of the BCa interval, `calculate_bootstrap_ci()` uses the function `calculate_acceleration()` to calculate acceleration.
@@ -803,3 +803,18 @@ bootstrap_results_richness %>%
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
 ```
+
+## References
+<!-- spell-check: ignore:start -->
+Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by Angelo Canty for S) [Computer software]. https://CRAN.R-project.org/package=boot
+
+Davison, A. C., & Hinkley, D. V. (1997). *Bootstrap Methods and their Application* (1st ed.). Cambridge University Press. https://doi.org/10.1017/CBO9780511802843
+
+DiCiccio, T. J., & Efron, B. (1996). Bootstrap confidence intervals. Statistical Science, 11(3). https://doi.org/10.1214/ss/1032280214
+
+Dixon, P. M. (2001). The Bootstrap and the Jackknife: Describing the Precision of Ecological Indices. In S. M. Scheiner & J. Gurevitch (Eds.), Design and Analysis of Ecological Experiments (Second Edition, pp. 267–288). Oxford University PressNew York, NY. https://doi.org/10.1093/oso/9780195131871.003.0014
+
+Efron, B. (1987). Better Bootstrap Confidence Intervals. Journal of the American Statistical Association, 82(397), 171–185. https://doi.org/10.1080/01621459.1987.10478410
+
+Frangos, C. C., & Schucany, W. R. (1990). Jackknife estimation of the bootstrap acceleration constant. Computational Statistics & Data Analysis, 9(3), 271–281. https://doi.org/10.1016/0167-9473(90)90109-U
+<!-- spell-check: ignore:end -->

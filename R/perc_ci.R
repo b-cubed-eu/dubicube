@@ -5,12 +5,19 @@
 #' @param h Transformation function (default = identity).
 #' @param hinv Inverse transformation function (default = identity).
 #'
-#' @return Named numeric vector with lower (`ll`) and upper (`ul`) limits.
+#' @return A matrix with four columns:
+#'   \describe{
+#'     \item{conf}{confidence level}
+#'     \item{rk_lower}{rank of lower endpoint (interpolated)}
+#'     \item{rk_upper}{rank of upper endpoint (interpolated)}
+#'     \item{ll}{lower confidence limit}
+#'     \item{ul}{upper confidence limit}
+#'   }
 #'
 #' @details
 #'
 #' @note
-#' This function is adapted from the internal function `norm.inter`
+#' This function is adapted from the internal function `perc.ci()`
 #' in the \pkg{boot} package (Davison & Ripley, R Core Team).
 #' Credit: \pkg{boot} authors (A. C. Davison, B. D. Ripley, and R Core Team).
 #' Licensed under the same terms as R itself.
@@ -38,7 +45,17 @@ perc_ci <- function(
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
+  # Two-sided alpha levels for the CI
   alpha <- (1 + c(-conf, conf)) / 2
+
+  # Interpolate on the normal quantile scale
   qq <- norm_inter(h(t), alpha)
-  cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(qq[, 2]), ncol = 2L))
+
+  # build output in the same style as boot:::perc.ci:
+  #   [conf, rk, CI values] for lower and upper limits
+  out <- matrix(c(conf, qq[1, 1L], qq[2, 1L], hinv(qq[1, 2]), hinv(qq[2, 2])),
+                nrow = 1L)
+  colnames(out) <- c("conf", "rk_lower", "rk_upper", "ll", "ul")
+
+  return(out)
 }

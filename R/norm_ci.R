@@ -6,12 +6,19 @@
 #' @param h Transformation function.
 #' @param hinv Inverse transformation function.
 #'
-#' @return Named numeric vector with lower (`ll`) and upper (`ul`) limits.
+#' @return A matrix with four columns:
+#'   \describe{
+#'     \item{conf}{confidence level}
+#'     \item{rk_lower}{rank of lower endpoint (interpolated)}
+#'     \item{rk_upper}{rank of upper endpoint (interpolated)}
+#'     \item{ll}{lower confidence limit}
+#'     \item{ul}{upper confidence limit}
+#'   }
 #'
 #' @details
 #'
 #' @note
-#' This function is adapted from the internal function `norm.inter`
+#' This function is adapted from the function `norm.ci()`
 #' in the \pkg{boot} package (Davison & Ripley, R Core Team).
 #' Credit: \pkg{boot} authors (A. C. Davison, B. D. Ripley, and R Core Team).
 #' Licensed under the same terms as R itself.
@@ -40,15 +47,28 @@ norm_ci <- function(
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
-
+  # Keep only finite bootstrap replicates
   fins <- seq_along(t)[is.finite(t)]
   t <- h(t[fins])
 
+  # Variance of transformed bootstrap replicates
   var_t0 <- var(t)
 
-  t0 <- h(t0)
-  bias <- mean(t) - t0
+  # Transform original statistic
+  t0_h <- h(t0)
 
-  merr <- sqrt(var_t0) * qnorm((1 + conf) / 2)
-  cbind(conf, hinv(t0 - bias - merr), hinv(t0 - bias + merr))
+  # Estimated bias
+  bias <- mean(t) - t0_h
+
+  # Margin of error (z * sd)
+  merr <- sqrt(var_t0) * stats::qnorm((1 + conf) / 2)
+
+  # normal-based CI, back-transform with hinv
+  ll <- hinv(t0_h - bias - merr)
+  ul <- hinv(t0_h - bias + merr)
+
+  out <- matrix(c(conf, ll, ul), nrow = 1)
+  colnames(out) <- c("conf", "ll", "ul")
+
+  return(out)
 }

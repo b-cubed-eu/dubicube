@@ -7,12 +7,19 @@
 #' @param h Transformation function.
 #' @param hinv Inverse transformation function.
 #'
-#' @return Named numeric vector with lower (`ll`) and upper (`ul`) limits.
+#' @return A matrix with four columns:
+#'   \describe{
+#'     \item{conf}{confidence level}
+#'     \item{rk_lower}{rank of lower endpoint (interpolated)}
+#'     \item{rk_upper}{rank of upper endpoint (interpolated)}
+#'     \item{ll}{lower confidence limit}
+#'     \item{ul}{upper confidence limit}
+#'   }
 #'
 #' @details
 #'
 #' @note
-#' This function is adapted from the internal function `norm.inter`
+#' This function is adapted from the internal function `bca.ci()`
 #' in the \pkg{boot} package (Davison & Ripley, R Core Team).
 #' Credit: \pkg{boot} authors (A. C. Davison, B. D. Ripley, and R Core Team).
 #' Licensed under the same terms as R itself.
@@ -37,27 +44,34 @@
 
 bca_ci <- function(
     t0,
-    replicates,
+    t,
     a,
     conf = 0.95,
     h = function(t) t,
     hinv = function(t) t) {
-  # Calculate the BCa critical values
+  # Two-sided alpha levels for the CI
   alpha <- (1 + c(-conf, conf)) / 2
   zalpha <- stats::qnorm(alpha)
 
+  # Calculate bias correction factor z0
   z0 <- stats::qnorm(sum(t < t0) / length(t))
   if (!is.finite(z0)) {
     warning("Estimated adjustment 'z0' is infinite.")
     return(cbind(conf, ll = NA, ul = NA))
   }
 
-  # Adjust for acceleration
+  # Adjust alpha values for acceleration
   adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
                               (1 - a * (z0 + zalpha)))
-  qq <- norm_inter(t, adj_alpha)
-  qq_matrix <- matrix(hinv(h(qq[, 2L])), ncol = 2L)
-  colnames(qq_matrix) <- c("ll", "ul")
 
-  return(cbind(conf, qq_matrix))
+  # Interpolate on the normal quantile scale
+  qq <- norm_inter(h(t), adj_alpha)
+
+  # build output in the same style as boot:::bca.ci:
+  #   [conf, rk, CI values] for lower and upper limits
+  out <- matrix(c(conf, qq[1, 1L], qq[2, 1L], hinv(qq[1, 2]), hinv(qq[2, 2])),
+                nrow = 1)
+  colnames(out) <- c("conf", "rk_lower", "rk_upper", "ll", "ul")
+
+  return(out)
 }

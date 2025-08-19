@@ -35,7 +35,7 @@
 #'
 #' @references
 #' Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
-#' Angelo Canty for S) [Computer software].
+#' Angelo Canty for S) \[Computer software\].
 #' \url{https://CRAN.R-project.org/package=boot}
 #'
 #' Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their

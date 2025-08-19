@@ -42,7 +42,7 @@ $$
 \hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)
 $$
 
-where $\#$ is the counting operator, counting the number of times $\hat{\theta}^*_b$ is smaller than $\hat{\theta}$, and $\Phi^{-1}$ is the inverse cumulative density function of the standard normal distribution. B is the number of bootstrap samples.
+where $\#$ is the counting operator, counting the number of times $\hat{\theta}^*_b$ is smaller than $\hat{\theta}$, and $\Phi^{-1}$ is the inverse cumulative density function of the standard normal distribution. $B$ is the number of bootstrap samples.
 
 **Acceleration** quantifies how sensitive the variability of the statistic is to changes in the data. See further for how this is calculated:
 

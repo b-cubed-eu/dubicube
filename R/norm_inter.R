@@ -2,8 +2,8 @@
 #'
 #' This function performs interpolation between order statistics
 #' on the normal quantile scale, as described in Davison and Hinkley (1997,
-#' equation 5.8). It is used internally by the \pkg{boot} package (Canty & Ripley,
-#' 1999) for bootstrap confidence interval calculations (normal-based
+#' equation 5.8). It is used internally by the \pkg{boot} package (Canty &
+#' Ripley, 1999) for bootstrap confidence interval calculations (normal-based
 #' interpolation).
 #'
 #' @param t A numeric vector of bootstrap replicates (finite values only are

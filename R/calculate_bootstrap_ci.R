@@ -106,8 +106,10 @@
 #'
 #'    \deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)}
 #'
-#'    where \eqn{\#} is the counting operator and \eqn{\Phi^{-1}} the inverse
-#'    cumulative density function of the standard normal distribution.
+#'    where \eqn{\#} is the counting operator, counting the number of times
+#'    \eqn{\hat{\theta}^*_b} is smaller than \eqn{\hat{\theta}}, and
+#'    \eqn{\Phi^{-1}} the inverse cumulative density function of the standard
+#'    normal distribution.\eqn{B} is the number of bootstrap samples.
 #'
 #'    Acceleration quantifies how sensitive the variability of the statistic is
 #'    to changes in the data.
@@ -172,10 +174,9 @@
 #' @family indicator_uncertainty
 #'
 #' @import dplyr
-#' @import boot
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
-#' @importFrom stats pnorm qnorm setNames
+#' @importFrom stats setNames
 #'
 #' @examples
 #' \dontrun{
@@ -312,15 +313,10 @@ calculate_bootstrap_ci <- function(
           group <- df %>%
             dplyr::distinct(!!!dplyr::syms(grouping_var))
 
-          # Calculate interval
-          replicates <- df$rep_boot
-          qq <- boot:::perc.ci(t = h(replicates), conf = conf, hinv = hinv)
+          # Calculate percentile interval
+          qq <- perc_ci(t = df$rep_boot, conf = conf, h = h, hinv = hinv)
 
-          # Return interval limits
-          qq_matrix <- matrix(qq[4:5], ncol = 2L)
-          colnames(qq_matrix) <- c("ll", "ul")
-
-          return(cbind(group, conf, qq_matrix))
+          return(cbind(group, conf, qq[, c("ll", "ul"), drop = FALSE]))
         })
 
       # Combine confidence levels in dataframe
@@ -373,10 +369,6 @@ calculate_bootstrap_ci <- function(
           group <- df %>%
             dplyr::distinct(!!!dplyr::syms(grouping_var))
 
-          # Get the original statistic and bootstrap replicates
-          t0 <- unique(df$est_original)
-          t <- df$rep_boot
-
           # Get the acceleration
           a <- unique(df$acceleration)
           if (!is.finite(a)) {
@@ -384,24 +376,17 @@ calculate_bootstrap_ci <- function(
             return(cbind(group, conf, ll = NA, ul = NA))
           }
 
-          # Calculate the BCa critical values
-          alpha <- (1 + c(-conf, conf)) / 2
-          zalpha <- stats::qnorm(alpha)
+          # Calculate BCa interval
+          qq <- bca_ci(
+            t0 = unique(df$est_original),
+            t = df$rep_boot,
+            a = a,
+            conf = conf,
+            h = h,
+            hinv = hinv
+          )
 
-          z0 <- stats::qnorm(sum(t < t0) / length(t))
-          if (!is.finite(z0)) {
-            warning("Estimated adjustment 'z0' is infinite.")
-            return(cbind(group, conf, ll = NA, ul = NA))
-          }
-
-          # Adjust for acceleration
-          adj_alpha <- stats::pnorm(z0 + (z0 + zalpha) /
-                                      (1 - a * (z0 + zalpha)))
-          qq <- boot:::norm.inter(t, adj_alpha)
-          qq_matrix <- matrix(hinv(h(qq[, 2L])), ncol = 2L)
-          colnames(qq_matrix) <- c("ll", "ul")
-
-          return(cbind(group, conf, qq_matrix))
+          return(cbind(group, conf, qq[, c("ll", "ul"), drop = FALSE]))
         })
 
       # Combine confidence levels in dataframe
@@ -422,17 +407,16 @@ calculate_bootstrap_ci <- function(
           group <- df %>%
             dplyr::distinct(!!!dplyr::syms(grouping_var))
 
-          # Calculate interval
-          estimate <- unique(df$est_original)
-          replicates <- df$rep_boot
-          qq <- boot::norm.ci(t0 = estimate, t = replicates, conf = conf,
-                              h = h, hinv = hinv)
+          # Calculate normal interval
+          qq <- norm_ci(
+            t0 = unique(df$est_original),
+            t = df$rep_boot,
+            conf = conf,
+            h = h,
+            hinv = hinv
+          )
 
-          # Return interval limits
-          qq_matrix <- matrix(qq[2:3], ncol = 2L)
-          colnames(qq_matrix) <- c("ll", "ul")
-
-          return(cbind(group, conf, qq_matrix))
+          return(cbind(group, conf, qq[, c("ll", "ul"), drop = FALSE]))
         })
 
       # Combine confidence levels in dataframe
@@ -453,17 +437,16 @@ calculate_bootstrap_ci <- function(
           group <- df %>%
             dplyr::distinct(!!!dplyr::syms(grouping_var))
 
-          # Calculate interval
-          estimate <- unique(df$est_original)
-          replicates <- df$rep_boot
-          qq <- boot:::basic.ci(t0 = h(estimate), t = h(replicates),
-                                conf = conf, hinv = hinv)
+          # Calculate basic interval
+          qq <- basic_ci(
+            t0 = unique(df$est_original),
+            t = df$rep_boot,
+            conf = conf,
+            h = h,
+            hinv = hinv
+          )
 
-          # Return interval limits
-          qq_matrix <- matrix(qq[4:5], ncol = 2L)
-          colnames(qq_matrix) <- c("ll", "ul")
-
-          return(cbind(group, conf, qq_matrix))
+          return(cbind(group, conf, qq[, c("ll", "ul"), drop = FALSE]))
         })
 
       # Combine confidence levels in dataframe

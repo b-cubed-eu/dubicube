@@ -149,8 +149,10 @@ the statistic. The bias correction term is calculated as follows:
 
 \deqn{\hat{z}_0 = \Phi^{-1}\left(\frac{\#(\hat{\theta}^*_b < \hat{\theta})}{B}\right)}
 
-where \eqn{\#} is the counting operator and \eqn{\Phi^{-1}} the inverse
-cumulative density function of the standard normal distribution.
+where \eqn{\#} is the counting operator, counting the number of times
+\eqn{\hat{\theta}^*_b} is smaller than \eqn{\hat{\theta}}, and
+\eqn{\Phi^{-1}} the inverse cumulative density function of the standard
+normal distribution.\eqn{B} is the number of bootstrap samples.
 
 Acceleration quantifies how sensitive the variability of the statistic is
 to changes in the data.

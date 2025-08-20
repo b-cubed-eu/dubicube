@@ -1,3 +1,7 @@
+# dubicube 0.9.4
+
+* Do not use internal functions from **boot** package #56
+
 # dubicube 0.9.3
 
 * Review of tutorials

@@ -50,3 +50,6 @@ reference:
   - title: "Indicator uncertainty and interpretation"
     contents:
       - has_concept("indicator_uncertainty")
+  - title: "Bootstrap interval helper functions"
+    contents:
+      - has_concept("interval_calculation")

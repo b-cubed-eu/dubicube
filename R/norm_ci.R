@@ -16,11 +16,11 @@
 #' used to transform the intervals calculated on the scale of `h(t)` back to the
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
+#' @param no_bias Logical. If `TRUE` intervals are centered around the original
+#' estimates (bias is ignored). Default is `FALSE`.
 #'
 #' @return A matrix with four columns:
 #'   - `conf`: confidence level
-#'   - `rk_lower`: rank of lower endpoint (interpolated)
-#'   - `rk_upper`: rank of upper endpoint (interpolated)
 #'   - `ll`: lower confidence limit
 #'   - `ul`: lower confidence limit
 #'
@@ -56,7 +56,8 @@ norm_ci <- function(
     t,
     conf = 0.95,
     h = function(t) t,
-    hinv = function(t) t) {
+    hinv = function(t) t,
+    no_bias = FALSE) {
   # Keep only finite bootstrap replicates
   fins <- seq_along(t)[is.finite(t)]
   t_h <- h(t[fins])
@@ -65,7 +66,7 @@ norm_ci <- function(
   t0_h <- h(t0)
 
   # Estimated bias
-  bias <- mean(t_h) - t0_h
+  bias <- ifelse(no_bias, 0, mean(t_h) - t0_h)
 
   # Margin of error (sd * z)
   merr <- stats::sd(t_h) * stats::qnorm((1 + conf) / 2)

@@ -46,6 +46,14 @@
 #' @export
 #'
 #' @family interval_calculation
+#'
+#' @examples
+#' set.seed(123)
+#' boot_reps <- rnorm(1000)      # bootstrap replicates
+#' t0 <- mean(boot_reps)         # observed statistic
+#'
+#' # Percentile CI
+#' perc_ci(boot_reps, conf = 0.95)
 # nolint end
 
 perc_ci <- function(

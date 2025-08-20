@@ -4,7 +4,14 @@
 \alias{norm_ci}
 \title{Calculate normal bootstrap confidence interval}
 \usage{
-norm_ci(t0, t, conf = 0.95, h = function(t) t, hinv = function(t) t)
+norm_ci(
+  t0,
+  t,
+  conf = 0.95,
+  h = function(t) t,
+  hinv = function(t) t,
+  no_bias = FALSE
+)
 }
 \arguments{
 \item{t0}{Original statistic.}
@@ -23,13 +30,14 @@ is the identity function.}
 used to transform the intervals calculated on the scale of \code{h(t)} back to the
 original scale. The default is the identity function. If \code{h} is supplied but
 \code{hinv} is not, then the intervals returned will be on the transformed scale.}
+
+\item{no_bias}{Logical. If \code{TRUE} intervals are centered around the original
+estimates (bias is ignored). Default is \code{FALSE}.}
 }
 \value{
 A matrix with four columns:
 \itemize{
 \item \code{conf}: confidence level
-\item \code{rk_lower}: rank of lower endpoint (interpolated)
-\item \code{rk_upper}: rank of upper endpoint (interpolated)
 \item \code{ll}: lower confidence limit
 \item \code{ul}: lower confidence limit
 }
@@ -48,6 +56,17 @@ standard normal distribution.
 \note{
 This function is adapted from the function \code{norm.ci()}
 in the \pkg{boot} package (Canty & Ripley, 1999).
+}
+\examples{
+set.seed(123)
+boot_reps <- rnorm(1000)
+t0 <- mean(boot_reps)
+
+# Normal-based CI
+norm_ci(t0, boot_reps, conf = 0.90)
+
+# Without bias correction
+norm_ci(t0, boot_reps, conf = 0.90, no_bias = TRUE)
 }
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by

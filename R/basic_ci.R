@@ -48,6 +48,14 @@
 #' @export
 #'
 #' @family interval_calculation
+#'
+#' @examples
+#' set.seed(123)
+#' boot_reps <- rnorm(1000)
+#' t0 <- mean(boot_reps)
+#'
+#' # Basic bootstrap CI
+#' basic_ci(t0, boot_reps, conf = 0.95)
 # nolint end
 
 basic_ci <- function(

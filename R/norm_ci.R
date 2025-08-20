@@ -49,6 +49,17 @@
 #' @family interval_calculation
 #'
 #' @importFrom stats qnorm sd
+#'
+#' @examples
+#' set.seed(123)
+#' boot_reps <- rnorm(1000)
+#' t0 <- mean(boot_reps)
+#'
+#' # Normal-based CI
+#' norm_ci(t0, boot_reps, conf = 0.90)
+#'
+#' # Without bias correction
+#' norm_ci(t0, boot_reps, conf = 0.90, no_bias = TRUE)
 # nolint end
 
 norm_ci <- function(

@@ -77,6 +77,17 @@
 #' @family interval_calculation
 #'
 #' @importFrom stats pnorm qnorm
+#'
+#' @examples
+#' set.seed(123)
+#' boot_reps <- rnorm(1000)
+#' t0 <- mean(boot_reps)
+#'
+#' # Example acceleration value (normally estimated via jackknife)
+#' a <- 0.01
+#'
+#' # BCa bootstrap CI
+#' bca_ci(t0, boot_reps, a, conf = 0.95)
 # nolint end
 
 bca_ci <- function(

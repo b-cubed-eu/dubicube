@@ -47,6 +47,14 @@ where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
 This function is adapted from the internal function \code{perc.ci()}
 in the \pkg{boot} package (Canty & Ripley, 1999).
 }
+\examples{
+set.seed(123)
+boot_reps <- rnorm(1000)      # bootstrap replicates
+t0 <- mean(boot_reps)         # observed statistic
+
+# Percentile CI
+perc_ci(boot_reps, conf = 0.95)
+}
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
 Angelo Canty for S) [Computer software].

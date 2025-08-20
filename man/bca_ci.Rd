@@ -79,6 +79,17 @@ So, we get
 This function is adapted from the internal function \code{bca.ci()}
 in the \pkg{boot} package (Canty & Ripley, 1999).
 }
+\examples{
+set.seed(123)
+boot_reps <- rnorm(1000)
+t0 <- mean(boot_reps)
+
+# Example acceleration value (normally estimated via jackknife)
+a <- 0.01
+
+# BCa bootstrap CI
+bca_ci(t0, boot_reps, a, conf = 0.95)
+}
 \references{
 Canty, A., & Ripley, B. (1999). boot: Bootstrap Functions (Originally by
 Angelo Canty for S) [Computer software].

@@ -124,7 +124,7 @@ bootstrap_results <- processed_cube$data %>%
       seed = 123,
       processed_cube = FALSE
     )
-    
+
     return(list(bootstrap_results = bootstrap_results, data = cube))
   })
 ```

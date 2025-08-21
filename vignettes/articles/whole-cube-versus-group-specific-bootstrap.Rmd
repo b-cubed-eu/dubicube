@@ -70,7 +70,7 @@ The choice of bootstrap method affects both the accuracy and stability of confid
 * Perform bootstrapping and interval calculation per group (e.g. using a for loop or `lapply()`).
 * See further.
 
-## An example of group-specific bootstrapping
+## An example of a group-specific analysis
 
 We reuse the example introduced in [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html) where we calculate confidence limits for the mean number of observations per grid cell per year for birds in Belgium between 2011 en 2020 using the MGRS grid at 10 km scale.
 
@@ -113,18 +113,7 @@ set.seed(123)
 
 # Make dataset smaller
 rows <- sample(nrow(bird_cube_belgium), 2000)
-bird_cube_belgium <- bird_cube_belgium[rows, ] %>%
-  # Downsample years 2019-2020 to only 5 rows
-  mutate(row_id = row_number(), .by = "year") %>%
-  rowwise() %>%
-  filter(
-    !(year %in% 2011:2012 & row_id > 90),
-    !(year %in% 2013:2014 & row_id > 50),
-    !(year %in% 2015:2016 & row_id > 30),
-    !(year %in% 2017:2018 & row_id > 10),
-    !(year %in% 2019:2020 & row_id > 5)
-  ) %>%
-  select(-row_id)
+bird_cube_belgium <- bird_cube_belgium[rows, ]
 
 # Process cube
 processed_cube <- process_cube(
@@ -141,203 +130,7 @@ processed_cube
 Let's say we are interested in the mean number of observations per grid cell per year.
 We create a function to calculate this.
 
-```{r, echo=FALSE}
-# nolint start: object_usage_linter.
-```
-
-```{r}
-# Function to calculate statistic of interest
-# Mean observations per grid cell per year
-mean_obs <- function(data) {
-  data %>%
-    dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
-    dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
-    as.data.frame()
-}
-```
-
-```{r, echo=FALSE}
-# nolint end
-```
-
-We get the following results:
-
-```{r}
-mean_obs(processed_cube$data)
-```
-
-On their own, these values don’t reveal how much uncertainty surrounds them. To better understand their variability, we use bootstrapping to estimate the distribution of the yearly means. From this, we can calculate bootstrap confidence intervals.
-
-## Whole-cube bootstrap
-### Bootstrapping
-
-We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-
-```{r}
-bootstrap_results <- bootstrap_cube(
-  data_cube = processed_cube,
-  fun = mean_obs,
-  grouping_var = "year",
-  samples = 1000,
-  seed = 123
-)
-```
-
-```{r}
-head(bootstrap_results)
-```
-
-### Interval calculation
-
-Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits (see also the [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-We get a warning message for BCa calculation because we are using a relatively small dataset.
-
-```{r}
-ci_mean_obs <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results,
-  grouping_var = "year",
-  type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  data_cube = processed_cube,   # Required for BCa
-  fun = mean_obs                # Required for BCa
-)
-
-# Make interval type factor
-ci_mean_obs <- ci_mean_obs %>%
-  mutate(
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  ) %>%
-  mutate(method = "whole-cube")
-```
-  
-```{r}
-head(ci_mean_obs)
-```
-
-## Group-specific bootstrap
-### Bootstrapping
-
-We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-
-```{r}
-bootstrap_results_group <- processed_cube$data %>%
-  split(processed_cube$data$year) %>%
-  lapply(function(cube) {
-    bootstrap_results <- bootstrap_cube(
-      data_cube = cube,
-      fun = mean_obs,
-      grouping_var = "year",
-      samples = 1000,
-      seed = 123,
-      processed_cube = FALSE
-    )
-    list(bootstrap_results = bootstrap_results, data = cube)
-  })
-```
-
-### Interval calculation
-
-Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits (see also the [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-We get a warning message for BCa calculation because we are using a relatively small dataset.
-
-```{r}
-ci_mean_obs_group_list <- bootstrap_results_group %>%
-  lapply(function(list) {
-    calculate_bootstrap_ci(
-      list$bootstrap_results,
-      grouping_var = "year",
-      type = c("perc", "bca", "norm", "basic"),
-      conf = 0.95,
-      data_cube = list$data,
-      fun = mean_obs
-    )
-  })
-
-# Make interval type factor
-ci_mean_obs_group <- bind_rows(ci_mean_obs_group_list) %>%
-  mutate(
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  ) %>%
-  mutate(method = "group-specific")
-```
-  
-```{r}
-head(ci_mean_obs_group)
-```
-
-## Comparsion
-
-```{r}
-# Visualise
-p1 <- bind_rows(
-  bootstrap_results %>%
-    mutate(method = "whole-cube"),
-  lapply(bootstrap_results_group, function(i) i$bootstrap_results) %>%
-    bind_rows() %>%
-    mutate(method = "group-specific")
-) %>%
-  ggplot(aes(x = method, y = rep_boot)) +
-  # Distribution
-  geom_violin(fill = alpha("cornflowerblue", 0.2)) +
-  # Settings
-  facet_wrap(~year, ncol = 2, scales = "free") +
-  labs(y = "Mean Number of Observations\nper Grid Cell") +
-  theme_minimal()
-p1
-```
-
-```{r}
-# Visualise
-p2 <- bind_rows(
-  ci_mean_obs,
-  ci_mean_obs_group
-) %>%
-  ggplot(aes(x = method, y = est_original)) +
-  geom_point() +
-  # Intervals
-  geom_errorbar(
-    aes(ymin = ll, ymax = ul, colour = int_type),
-    position = position_dodge(0.8), linewidth = 0.8
-  ) +
-  # Settings
-  facet_wrap(~year, ncol = 2, scales = "free") +
-  labs(y = "Mean Number of Observations\nper Grid Cell") +
-  theme_minimal()
-p2
-```
-
-```{r}
-bind_rows(
-  ci_mean_obs,
-  ci_mean_obs_group
-) %>%
-  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
-  ggplot(aes(x = n, y = se_boot, colour = method)) +
-  geom_point() +
-  facet_wrap(~int_type) +
-  geom_smooth(method = "lm")
-```
-
-```{r}
-bind_rows(
-  ci_mean_obs,
-  ci_mean_obs_group
-) %>%
-  mutate(var = ul - ll / (2 * est_boot)) %>%
-  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
-  ggplot(aes(x = n, y = var, colour = method)) +
-  geom_point() +
-  facet_wrap(~int_type) +
-  geom_smooth(method = "lm")
-```
-
-## Whole-cube bootstrap2
-
-Now we look at a function that does not depend on data from other years.
+> In contrast to the other vignettes, we now calculate this exclusively per year. Therefore, the group-specific bootstrap is more appropriate here.
 
 ```{r, echo=FALSE}
 # nolint start: object_usage_linter.
@@ -366,57 +159,11 @@ We get the following results:
 mean_obs(processed_cube$data)
 ```
 
-### Bootstrapping
+### Group-specific bootstrapping
 
 We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-
-```{r}
-bootstrap_results <- bootstrap_cube(
-  data_cube = processed_cube,
-  fun = mean_obs,
-  grouping_var = "year",
-  samples = 1000,
-  seed = 123
-)
-```
-
-```{r}
-head(bootstrap_results)
-```
-
-### Interval calculation
-
-Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits (see also the [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-We get a warning message for BCa calculation because we are using a relatively small dataset.
-
-```{r}
-ci_mean_obs <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results,
-  grouping_var = "year",
-  type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  data_cube = processed_cube,   # Required for BCa
-  fun = mean_obs                # Required for BCa
-)
-
-# Make interval type factor
-ci_mean_obs <- ci_mean_obs %>%
-  mutate(
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  ) %>%
-  mutate(method = "whole-cube")
-```
-  
-```{r}
-head(ci_mean_obs)
-```
-
-## Group-specific bootstrap2
-### Bootstrapping
-
-We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
+However, we now split the data per year and perform bootstrapping per year using `lapply()`.
+We store the data also in the resulting list to be used for interval calculation further on.
 
 ```{r}
 bootstrap_results_group <- processed_cube$data %>%
@@ -434,10 +181,10 @@ bootstrap_results_group <- processed_cube$data %>%
   })
 ```
 
-### Interval calculation
+### Group-specific interval calculation
 
 Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits (see also the [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-We get a warning message for BCa calculation because we are using a relatively small dataset.
+Because BCa interval calculation relies on jackknifing, we also need to do this per group using `lapply()`.
 
 ```{r}
 ci_mean_obs_group_list <- bootstrap_results_group %>%
@@ -451,7 +198,6 @@ ci_mean_obs_group_list <- bootstrap_results_group %>%
       fun = mean_obs
     )
   })
-    
 
 # Make interval type factor
 ci_mean_obs_group <- bind_rows(ci_mean_obs_group_list) %>%
@@ -459,85 +205,26 @@ ci_mean_obs_group <- bind_rows(ci_mean_obs_group_list) %>%
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
-  ) %>%
-  mutate(method = "group-specific")
+  )
 ```
   
 ```{r}
 head(ci_mean_obs_group)
 ```
 
-## Comparsion2
+We visualise the results.
 
 ```{r}
-# Visualise
-p3 <- bind_rows(
-  bootstrap_results %>%
-    mutate(method = "whole-cube"),
-  lapply(bootstrap_results_group, function(i) i$bootstrap_results) %>%
-    bind_rows() %>%
-    mutate(method = "group-specific")
-) %>%
-  ggplot(aes(x = method, y = rep_boot)) +
-  # Distribution
-  geom_violin(fill = alpha("cornflowerblue", 0.2)) +
-  # Settings
-  facet_wrap(~year, ncol = 2, scales = "free") +
-  labs(y = "Mean Number of Observations\nper Grid Cell") +
-  theme_minimal()
-p3
-```
-
-```{r}
-# Visualise
-p4 <- bind_rows(
-  ci_mean_obs,
-  ci_mean_obs_group
-) %>%
-  ggplot(aes(x = method, y = est_original)) +
-  geom_point() +
+ci_mean_obs_group %>%
+  ggplot(aes(x = year, y = est_original)) +
   # Intervals
-  geom_errorbar(
-    aes(ymin = ll, ymax = ul, colour = int_type),
-    position = position_dodge(0.8), linewidth = 0.8
-  ) +
+  geom_errorbar(aes(ymin = ll, ymax = ul),
+                position = position_dodge(0.8), linewidth = 0.8) +
+  # Estimates
+  geom_point(colour = "firebrick", size = 2) +
   # Settings
-  facet_wrap(~year, ncol = 2, scales = "free") +
   labs(y = "Mean Number of Observations\nper Grid Cell") +
-  theme_minimal()
-p4
+  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  theme_minimal() +
+  facet_wrap(~int_type)
 ```
-
-```{r}
-p1
-p2
-p3
-p4
-```
-
-
-```{r}
-bind_rows(
-  ci_mean_obs,
-  ci_mean_obs_group
-) %>%
-  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
-  ggplot(aes(x = n, y = se_boot, colour = method)) +
-  geom_point() +
-  facet_wrap(~int_type) +
-  geom_smooth(method = "lm")
-```
-
-```{r}
-bind_rows(
-  ci_mean_obs,
-  ci_mean_obs_group
-) %>%
-  mutate(var = ul - ll / (2 * est_boot)) %>%
-  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
-  ggplot(aes(x = n, y = var, colour = method)) +
-  geom_point() +
-  facet_wrap(~int_type) +
-  geom_smooth(method = "lm")
-```
-

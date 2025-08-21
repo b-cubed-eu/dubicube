@@ -231,7 +231,7 @@ ci_mean_obs_group %>%
   geom_point(colour = "firebrick", size = 2) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  scale_x_continuous(breaks = sort(unique(ci_mean_obs_group$year))) +
   theme_minimal() +
   facet_wrap(~int_type)
 ```

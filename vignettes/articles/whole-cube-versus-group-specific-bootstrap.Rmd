@@ -13,13 +13,17 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-When calculating indicators from a biodiversity cube, we often want confidence intervals (CIs) using bootstrapping. However, depending on the indicator, we need to consider how to resample rows:
+When calculating biodiversity indicators from a cube, we often want confidence intervals (CIs) using bootstrapping. In **dubicube**, bootstrapping can be done in two ways:
 
-- Some indicators are per group (e.g., species, year, habitat), and each group is analysed independently.
+* **Whole-cube bootstrapping**: resampling all rows in the cube, regardless of grouping.
+* **Group-specific bootstrapping**: resampling rows only within a group of interest (e.g., a species, year, or habitat).
 
-- Other indicators require data from multiple groups simultaneously (e.g., community richness, turnover, or multi-species metrics).
+The choice between these two methods directly affects how confidence intervals should be interpreted:
 
-The choice of bootstrap method affects both the accuracy and stability of confidence intervals. We distinguish whole-cube bootstrapping and group-specific bootstrapping.
+* Other indicators **combine information across groups** (e.g., community richness, turnover, or multi-species metrics). These require whole-cube bootstrapping to preserve correlations.
+* Some indicators are **calculated independently per group** (e.g., species-specific or year-specific metrics). For these, group-specific bootstrapping is usually more appropriate.
+
+In this tutorial, we explain the differences, discuss the strengths and limitations of each method, and provide a worked example where group-specific bootstrapping is the correct choice.
 
 ### Whole-cube bootstrap
 
@@ -43,7 +47,7 @@ The choice of bootstrap method affects both the accuracy and stability of confid
 
 **Implementation in `dubicube`**
 
-* Default use like vignettes and examples.
+* Default use like tutorials and examples.
 
 ### Group-specific bootstrap
 
@@ -130,7 +134,9 @@ processed_cube
 Let's say we are interested in the mean number of observations per grid cell per year.
 We create a function to calculate this.
 
-> In contrast to the other vignettes, we now calculate this exclusively per year. Therefore, the group-specific bootstrap is more appropriate here.
+In contrast to the other tutorials, we now calculate this exclusively per year.
+Therefore, the group-specific bootstrap is more appropriate here.
+This is because our indicator (mean observations per year) depends only on variation within each year, and not on correlations across years.
 
 ```{r, echo=FALSE}
 # nolint start: object_usage_linter.

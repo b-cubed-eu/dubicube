@@ -113,16 +113,14 @@ Therefore, we will use the **b3gbi** package for processing the raw data before 
 
 ```{r, message=FALSE, warning=FALSE}
 # Load packages
-library(dubicube)
+library(ggplot2)      # Data visualisation
+library(dplyr)        # Data wrangling
+library(tidyr)        # Data wrangling
 
 # Data loading and processing
 library(frictionless) # Load example datasets
 library(b3gbi)        # Process occurrence cubes
-
-# General
-library(ggplot2)      # Data visualisation
-library(dplyr)        # Data wrangling
-library(tidyr)        # Data wrangling
+library(dubicube)     # Analysis of data quality & indicator uncertainty
 ```
 
 ### Loading and processing the data

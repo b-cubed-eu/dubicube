@@ -80,16 +80,13 @@ We reuse the example introduced in [bootstrap confidence interval calculation tu
 
 ```{r, message=FALSE, warning=FALSE}
 # Load packages
-library(dubicube)
+library(ggplot2)      # Data visualisation
+library(dplyr)        # Data wrangling
 
 # Data loading and processing
 library(frictionless) # Load example datasets
 library(b3gbi)        # Process occurrence cubes
-
-# General
-library(ggplot2)      # Data visualisation
-library(dplyr)        # Data wrangling
-library(tidyr)        # Data wrangling
+library(dubicube)     # Analysis of data quality & indicator uncertainty
 ```
 
 ### Loading and processing the data
@@ -228,6 +225,8 @@ head(ci_mean_obs_group)
 We visualise the results.
 
 ```{r}
+#| fig.alt: >
+#|   Confidence intervals for mean number of occurrences over time.
 ci_mean_obs_group %>%
   ggplot(aes(x = year, y = est_original)) +
   # Intervals

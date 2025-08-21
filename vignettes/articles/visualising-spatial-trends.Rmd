@@ -22,17 +22,14 @@ We reuse the example introduced in [bootstrap confidence interval calculation tu
 
 ```{r, message=FALSE, warning=FALSE}
 # Load packages
-library(dubicube)
+library(ggplot2)      # Data visualisation
+library(dplyr)        # Data wrangling
+library(sf)           # Work with spatial objects
 
 # Data loading and processing
 library(frictionless) # Load example datasets
 library(b3gbi)        # Process occurrence cubes
-
-# General
-library(ggplot2)      # Data visualisation
-library(dplyr)        # Data wrangling
-library(tidyr)        # Data wrangling
-library(sf)           # Work with spatial objects
+library(dubicube)     # Analysis of data quality & indicator uncertainty
 ```
 
 ### Loading and processing the data

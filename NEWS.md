@@ -1,3 +1,8 @@
+# dubicube 0.9.5
+
+* Drop levels that do not occur in `calc_bootstrap_ci()` #69
+* Clarify whole-cube bootstrap versus group-specific bootstrap #70
+
 # dubicube 0.9.4
 
 * Do not use internal functions from **boot** package #56

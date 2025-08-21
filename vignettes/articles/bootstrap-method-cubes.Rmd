@@ -19,6 +19,8 @@ When working with data cubes, it’s essential to understand the uncertainty sur
 
 Bootstrapping is a resampling method used to approximate the distribution of a statistic by repeatedly sampling from the data with replacement. In the context of biodiversity data cubes, `bootstrap_cube()` enables us to assess the variability of derived statistics, such as by computing confidence intervals.
 
+Note that we also make a distinction between whole-cube bootstrapping and group-specific bootstrapping. This is further explained in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
+
 ### A data cube and a statistic
 
 Consider a data cube $\mathbf{X}$ from which we want to calculate a statistic $\theta$.
@@ -91,7 +93,7 @@ library(tidyr)        # Data wrangling
 # Data loading and processing
 library(frictionless) # Load example datasets
 library(b3gbi)        # Process occurrence cubes
-library(dubicube)     # Analysis of data quality & reliability
+library(dubicube)     # Analysis of data quality & indicator uncertainty
 ```
 
 ### Loading and processing the data

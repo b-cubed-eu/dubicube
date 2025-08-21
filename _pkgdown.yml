@@ -37,6 +37,7 @@ articles:
     contents:
     - articles/bootstrap-method-cubes
     - articles/bootstrap-interval-calculation
+    - articles/whole-cube-versus-group-specific-bootstrap
   - title: "Indicator interpretation and visualisation"
     contents:
     - articles/effect-classification

@@ -112,10 +112,8 @@ See the [effectclass tutorial](https://inbo.github.io/effectclass/articles/class
 
 ```{r, message=FALSE, warning=FALSE}
 # Load packages
-library(dubicube)
-
-# General
 library(ggplot2)      # Data visualisation
+library(dubicube)     # Analysis of data quality & indicator uncertainty
 ```
 
 Your dataframe must contain **lower and upper confidence limits**, e.g. `"lcl"` and `"ucl"`.

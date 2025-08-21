@@ -657,7 +657,7 @@ calc_richness <- function(data) {
 # nolint end
 ```
 
-We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `obs_richness_ts()`.
+We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `obs_richness_ts()`. In this case, a group-specific bootstrap would be more appropriate, but for the sake of simplicity we stick to the whole-cube bootstrap here. For a detailed discussion of when to use each approach, see [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
 
 ```{r}
 bootstrap_results_richness <- bootstrap_cube(

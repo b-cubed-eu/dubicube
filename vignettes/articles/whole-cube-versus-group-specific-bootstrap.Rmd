@@ -13,7 +13,64 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-...
+When calculating indicators from a biodiversity cube, we often want confidence intervals (CIs) using bootstrapping. However, depending on the indicator, we need to consider how to resample rows:
+
+- Some indicators are per group (e.g., species, year, habitat), and each group is analysed independently.
+
+- Other indicators require data from multiple groups simultaneously (e.g., community richness, turnover, or multi-species metrics).
+
+The choice of bootstrap method affects both the accuracy and stability of confidence intervals. We distinguish whole-cube bootstrapping and group-specific bootstrapping.
+
+### Whole-cube bootstrap
+
+**Definition:** Resample all rows in the cube, regardless of species, year, or other grouping.
+
+**Advantages:**
+
+* Preserves correlations between groups (e.g., species co-occurrence, temporal dependencies).
+* Appropriate for indicators that depend on multiple groups together (community-level metrics, multi-species diversity).
+
+**Disadvantages:**
+
+* Rare groups may end up with zero rows in some bootstrap replicates, leading to wider or undefined CIs.
+* Variance for small groups may be inflated.
+
+**Use case examples:**
+
+* Community richness per site or habitat.
+* Multi-species indicators (e.g., average occupancy across species).
+* Temporal turnover indicators that rely on multiple years.
+
+**Implementation in `dubicube`**
+
+* Default use like vignettes and examples.
+
+### Group-specific bootstrap
+
+**Definition:** Subset the cube by the group of interest (e.g., species or year), then resample rows only within that group.
+
+**Advantages:**
+
+* Guarantees each replicate has rows for the group → stable CIs.
+* Reflects within-group variability only.
+
+**Disadvantages:**
+
+* Ignores correlations with other groups.
+* Variance may be slightly underestimated if the group’s presence is correlated with other groups.
+
+**Use case examples:**
+
+* Species-specific occupancy or habitat preference metrics.
+* Year-specific indicators (e.g., annual richness).
+* Small or rare groups where zero-row replicates would be problematic.
+
+**Implementation in `dubicube`**
+
+* Perform bootstrapping and interval calculation per group (e.g. using a for loop or `lapply()`).
+* See further.
+
+## An example of group-specific bootstrapping
 
 We reuse the example introduced in [bootstrap confidence interval calculation tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html) where we calculate confidence limits for the mean number of observations per grid cell per year for birds in Belgium between 2011 en 2020 using the MGRS grid at 10 km scale.
 
@@ -31,7 +88,6 @@ library(dplyr)        # Data wrangling
 library(tidyr)        # Data wrangling
 ```
 
-## Example data
 ### Loading and processing the data
 
 We load the bird cube data from the **b3data** data package using **frictionless** (see also [here](https://github.com/b-cubed-eu/b3data-scripts)).
@@ -57,7 +113,18 @@ set.seed(123)
 
 # Make dataset smaller
 rows <- sample(nrow(bird_cube_belgium), 2000)
-bird_cube_belgium <- bird_cube_belgium[rows, ]
+bird_cube_belgium <- bird_cube_belgium[rows, ] %>%
+  # Downsample years 2019-2020 to only 5 rows
+  mutate(row_id = row_number(), .by = "year") %>%
+  rowwise() %>%
+  filter(
+    !(year %in% 2011:2012 & row_id > 90),
+    !(year %in% 2013:2014 & row_id > 50),
+    !(year %in% 2015:2016 & row_id > 30),
+    !(year %in% 2017:2018 & row_id > 10),
+    !(year %in% 2019:2020 & row_id > 5)
+  ) %>%
+  select(-row_id)
 
 # Process cube
 processed_cube <- process_cube(
@@ -155,7 +222,7 @@ head(ci_mean_obs)
 We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
 
 ```{r}
-bootstrap_results_group <-processed_cube$data %>%
+bootstrap_results_group <- processed_cube$data %>%
   split(processed_cube$data$year) %>%
   lapply(function(cube) {
     bootstrap_results <- bootstrap_cube(
@@ -176,32 +243,17 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
 We get a warning message for BCa calculation because we are using a relatively small dataset.
 
 ```{r}
-years <- unique(bootstrap_results_group$year)
-ci_mean_obs_group_list <- vector(mode = "list", length = length(years))
-for (i in seq_along(years)) {
-  y <- years[i]
-
-  ci_mean_obs_group_list[[i]] <- calculate_bootstrap_ci(
-    bootstrap_samples_df = bootstrap_results_group %>%
-      filter(year == y),
-    grouping_var = "year",
-    type = c("perc", "bca", "norm", "basic"),
-    conf = 0.95,
-    data_cube = processed_cube$data %>% # Required for BCa
-      filter(year == y),   
-    fun = mean_obs                      # Required for BCa
-  )
-}
-
 ci_mean_obs_group_list <- bootstrap_results_group %>%
-  lapply(
-    calculate_bootstrap_ci,
-    qgrouping_var = "year",
-    type = c("perc", "bca", "norm", "basic"),
-    conf = 0.95,
-    data_cube = processed_cube$data %>% # Required for BCa
-      filter(year == y),   
-    fun = mean_obs)
+  lapply(function(list) {
+    calculate_bootstrap_ci(
+      list$bootstrap_results,
+      grouping_var = "year",
+      type = c("perc", "bca", "norm", "basic"),
+      conf = 0.95,
+      data_cube = list$data,
+      fun = mean_obs
+    )
+  })
 
 # Make interval type factor
 ci_mean_obs_group <- bind_rows(ci_mean_obs_group_list) %>%
@@ -221,10 +273,11 @@ head(ci_mean_obs_group)
 
 ```{r}
 # Visualise
-bind_rows(
+p1 <- bind_rows(
   bootstrap_results %>%
     mutate(method = "whole-cube"),
-  bootstrap_results_group %>%
+  lapply(bootstrap_results_group, function(i) i$bootstrap_results) %>%
+    bind_rows() %>%
     mutate(method = "group-specific")
 ) %>%
   ggplot(aes(x = method, y = rep_boot)) +
@@ -234,11 +287,12 @@ bind_rows(
   facet_wrap(~year, ncol = 2, scales = "free") +
   labs(y = "Mean Number of Observations\nper Grid Cell") +
   theme_minimal()
+p1
 ```
 
 ```{r}
 # Visualise
-bind_rows(
+p2 <- bind_rows(
   ci_mean_obs,
   ci_mean_obs_group
 ) %>%
@@ -253,6 +307,32 @@ bind_rows(
   facet_wrap(~year, ncol = 2, scales = "free") +
   labs(y = "Mean Number of Observations\nper Grid Cell") +
   theme_minimal()
+p2
+```
+
+```{r}
+bind_rows(
+  ci_mean_obs,
+  ci_mean_obs_group
+) %>%
+  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
+  ggplot(aes(x = n, y = se_boot, colour = method)) +
+  geom_point() +
+  facet_wrap(~int_type) +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+bind_rows(
+  ci_mean_obs,
+  ci_mean_obs_group
+) %>%
+  mutate(var = ul - ll / (2 * est_boot)) %>%
+  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
+  ggplot(aes(x = n, y = var, colour = method)) +
+  geom_point() +
+  facet_wrap(~int_type) +
+  geom_smooth(method = "lm")
 ```
 
 ## Whole-cube bootstrap2
@@ -391,7 +471,7 @@ head(ci_mean_obs_group)
 
 ```{r}
 # Visualise
-bind_rows(
+p3 <- bind_rows(
   bootstrap_results %>%
     mutate(method = "whole-cube"),
   lapply(bootstrap_results_group, function(i) i$bootstrap_results) %>%
@@ -405,11 +485,12 @@ bind_rows(
   facet_wrap(~year, ncol = 2, scales = "free") +
   labs(y = "Mean Number of Observations\nper Grid Cell") +
   theme_minimal()
+p3
 ```
 
 ```{r}
 # Visualise
-bind_rows(
+p4 <- bind_rows(
   ci_mean_obs,
   ci_mean_obs_group
 ) %>%
@@ -424,5 +505,39 @@ bind_rows(
   facet_wrap(~year, ncol = 2, scales = "free") +
   labs(y = "Mean Number of Observations\nper Grid Cell") +
   theme_minimal()
+p4
+```
+
+```{r}
+p1
+p2
+p3
+p4
+```
+
+
+```{r}
+bind_rows(
+  ci_mean_obs,
+  ci_mean_obs_group
+) %>%
+  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
+  ggplot(aes(x = n, y = se_boot, colour = method)) +
+  geom_point() +
+  facet_wrap(~int_type) +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+bind_rows(
+  ci_mean_obs,
+  ci_mean_obs_group
+) %>%
+  mutate(var = ul - ll / (2 * est_boot)) %>%
+  left_join(count(processed_cube$data, year), by = join_by(year)) %>%
+  ggplot(aes(x = n, y = var, colour = method)) +
+  geom_point() +
+  facet_wrap(~int_type) +
+  geom_smooth(method = "lm")
 ```
 

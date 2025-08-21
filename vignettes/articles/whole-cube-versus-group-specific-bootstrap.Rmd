@@ -169,7 +169,7 @@ mean_obs(processed_cube$data)
 
 We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
 However, we now split the data per year and perform bootstrapping per year using `lapply()`.
-We store the data also in the resulting list to be used for interval calculation further on.
+We store the data also in the output list to be used for interval calculation further on.
 
 ```{r}
 bootstrap_results_group <- processed_cube$data %>%
@@ -183,7 +183,8 @@ bootstrap_results_group <- processed_cube$data %>%
       seed = 123,
       processed_cube = FALSE
     )
-    list(bootstrap_results = bootstrap_results, data = cube)
+
+    return(list(bootstrap_results = bootstrap_results, data = cube))
   })
 ```
 
@@ -200,8 +201,8 @@ ci_mean_obs_group_list <- bootstrap_results_group %>%
       grouping_var = "year",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95,
-      data_cube = list$data,
-      fun = mean_obs
+      data_cube = list$data, # Required for Bca
+      fun = mean_obs         # Required for Bca
     )
   })
 

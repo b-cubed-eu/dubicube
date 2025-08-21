@@ -165,6 +165,8 @@ We get the following results:
 mean_obs(processed_cube$data)
 ```
 
+On their own, these values don’t reveal how much uncertainty surrounds them. To better understand their variability, we use bootstrapping to estimate the distribution of the yearly means. From this distribution, we can calculate bootstrap confidence intervals.
+
 ### Group-specific bootstrapping
 
 We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
@@ -186,6 +188,10 @@ bootstrap_results_group <- processed_cube$data %>%
 
     return(list(bootstrap_results = bootstrap_results, data = cube))
   })
+```
+
+```{r}
+head(bootstrap_results_group[[1]]$bootstrap_results)
 ```
 
 ### Group-specific interval calculation

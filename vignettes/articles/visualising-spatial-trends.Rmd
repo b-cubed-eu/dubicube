@@ -130,7 +130,7 @@ bootstrap_results <- processed_cube$data %>%
 ```
 
 ```{r}
-head(bootstrap_results)
+head(bootstrap_results[[1]]$bootstrap_results)
 ```
 
 ### Interval calculation

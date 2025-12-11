@@ -32,7 +32,7 @@ mean_obs <- function(data) {
 
 ## Perform bootstrapping
 # Perform bootstrapping dataframe
-result1 <- bootstrap_cube(
+result1 <- bootstrap_cube_raw(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
@@ -42,7 +42,7 @@ result1 <- bootstrap_cube(
 )
 
 # Perform bootstrapping 'processed_cube'
-result2 <- bootstrap_cube(
+result2 <- bootstrap_cube_raw(
   data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
@@ -51,7 +51,7 @@ result2 <- bootstrap_cube(
 )
 
 # Perform bootstrapping dataframe with reference group
-result3 <- bootstrap_cube(
+result3 <- bootstrap_cube_raw(
   data_cube = cube_df,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
@@ -62,7 +62,7 @@ result3 <- bootstrap_cube(
 )
 
 # Perform bootstrapping 'processed_cube' with reference group
-result4 <- bootstrap_cube(
+result4 <- bootstrap_cube_raw(
   data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
@@ -72,8 +72,8 @@ result4 <- bootstrap_cube(
 )
 
 ## Perform tests
-# Test bootstrap_cube output
-test_that("bootstrap_cube returns a dataframe with expected structure", {
+# Test bootstrap_cube_raw output
+test_that("bootstrap_cube_raw returns a dataframe with expected structure", {
   expect_s3_class(result1, "data.frame")
   expect_true(all(c("sample", "taxonKey", "year", "est_original", "rep_boot",
                     "est_boot", "se_boot", "bias_boot") %in% names(result1)))
@@ -92,7 +92,7 @@ test_that("bootstrap_cube returns a dataframe with expected structure", {
 })
 
 # Test that bootstrapping produces reasonable values
-test_that("bootstrap_cube computes bootstrap statistics correctly", {
+test_that("bootstrap_cube_raw computes bootstrap statistics correctly", {
   years <- unique(cube_df$year)
 
   expect_true(all(result1$sample > 0))
@@ -135,7 +135,7 @@ test_that("identical results with single grouping variable", {
   }
 
   # Perform bootstrapping dataframe
-  result12 <- bootstrap_cube(
+  result12 <- bootstrap_cube_raw(
     data_cube = cube_df,
     fun = mean_obs2,
     grouping_var = "year",
@@ -145,7 +145,7 @@ test_that("identical results with single grouping variable", {
   )
 
   # Perform bootstrapping 'processed_cube'
-  result22 <- bootstrap_cube(
+  result22 <- bootstrap_cube_raw(
     data_cube = processed_cube,
     fun = mean_obs2,
     grouping_var = "year",
@@ -158,7 +158,7 @@ test_that("identical results with single grouping variable", {
 
 
   # Perform bootstrapping dataframe with reference group
-  result32 <- bootstrap_cube(
+  result32 <- bootstrap_cube_raw(
     data_cube = cube_df,
     fun = mean_obs2,
     grouping_var = "year",
@@ -169,7 +169,7 @@ test_that("identical results with single grouping variable", {
   )
 
   # Perform bootstrapping 'processed_cube' with reference group
-  result42 <- bootstrap_cube(
+  result42 <- bootstrap_cube_raw(
     data_cube = processed_cube,
     fun = mean_obs2,
     grouping_var = "year",
@@ -183,8 +183,8 @@ test_that("identical results with single grouping variable", {
 })
 
 # Test reproducibility with seed
-test_that("bootstrap_cube is reproducible with set seed", {
-  result5 <- bootstrap_cube(
+test_that("bootstrap_cube_raw is reproducible with set seed", {
+  result5 <- bootstrap_cube_raw(
     data_cube = cube_df,
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
@@ -196,7 +196,7 @@ test_that("bootstrap_cube is reproducible with set seed", {
   expect_equal(result1, result5)
 
   # without seed not identical
-  result6 <- bootstrap_cube(
+  result6 <- bootstrap_cube_raw(
     data_cube = cube_df,
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
@@ -204,7 +204,7 @@ test_that("bootstrap_cube is reproducible with set seed", {
     processed_cube = FALSE
   )
 
-  result7 <- bootstrap_cube(
+  result7 <- bootstrap_cube_raw(
     data_cube = cube_df,
     fun = mean_obs,
     grouping_var = c("year", "taxonKey"),
@@ -216,9 +216,9 @@ test_that("bootstrap_cube is reproducible with set seed", {
 })
 
 # Test handling of invalid input
-test_that("bootstrap_cube handles invalid inputs gracefully", {
+test_that("bootstrap_cube_raw handles invalid inputs gracefully", {
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
@@ -234,7 +234,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
   )
 
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = NULL,
       fun = mean_obs,
       grouping_var = "year",
@@ -250,7 +250,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
   )
 
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = 2,
@@ -262,7 +262,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
   )
 
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
@@ -274,7 +274,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
   )
 
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
@@ -287,7 +287,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
   )
 
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",
@@ -300,7 +300,7 @@ test_that("bootstrap_cube handles invalid inputs gracefully", {
   )
 
   expect_error(
-    bootstrap_cube(
+    bootstrap_cube_raw(
       data_cube = cube_df,
       fun = mean_obs,
       grouping_var = "year",

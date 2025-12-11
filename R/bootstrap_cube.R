@@ -32,6 +32,11 @@
 #' @param processed_cube Logical. If `TRUE` (default), the function expects
 #' `data_cube` to be a data cube object with a `$data` slot. If `FALSE`, the
 #' function expects `data_cube` to be a dataframe.
+#' @param method A character string specifying the bootstrap method.
+#' Options include:
+#'   - `"whole_cube"`: Perform whole-cube bootstrap
+#'   - `"group_specific"`: Perform group-specific bootstrap
+#'   - `"smart"`: Let dubicube derive the bootstrap method (default)
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
@@ -151,6 +156,7 @@ bootstrap_cube <- function(
     ref_group = NA,
     seed = NA,
     processed_cube = TRUE,
+    method = "smart",
     progress = FALSE) {
   ### Start checks
   # Check data_cube input

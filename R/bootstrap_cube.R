@@ -102,6 +102,19 @@
 #'    - The standard deviation of the bootstrap replications, which estimates
 #'    the variability of the statistic.
 #'
+#' There are two methods for bootstrapping:
+#' - Whole-cube bootstrapping: resampling all rows in the cube, regardless of
+#'   grouping. For indicators that are use data across groups.
+#' - Group-specific bootstrapping: resampling rows only within a group of
+#'   interest (e.g., a species, year, or habitat). For indicators that are
+#'   calculated independently per group.
+#'
+#' The default smart option (`method = "smart"`) will decide on the bootstrap
+#' method by calculating the statistic on a larger and smaller subset of the
+#' data (containing respectively more and less groups in `grouping_var`). If
+#' the indicator values for the common groups are identical,
+#' `method = "group_specific"`, otherwise `method = "whole_cube"`.
+#'
 #' @references
 #' Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their
 #' Application (1st ed.). Cambridge University Press.

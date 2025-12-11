@@ -206,6 +206,9 @@ bootstrap_cube <- function(
   stopifnot("`seed` must be a numeric vector of length 1 or NA." =
               (is.numeric(seed) | is.na(seed)) & length(seed) == 1)
 
+  # Check if method is specified correctly
+  method <- match.arg(method, c("whole_cube", "group_specific", "smart"))
+
   # Check if progress is a logical vector of length 1
   stopifnot("`progress` must be a logical vector of length 1." =
               assertthat::is.flag(progress))

@@ -1,3 +1,8 @@
+# dubicube 0.10.0
+
+* Fix chunk option in article #73
+* Detect group-specific or whole-cube bootstrapping automatically #74
+
 # dubicube 0.9.5
 
 * Drop levels that do not occur in `calc_bootstrap_ci()` #69

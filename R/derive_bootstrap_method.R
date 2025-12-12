@@ -129,7 +129,7 @@ derive_bootstrap_method <- function(
   ### End checks
 
   # Return fast in easy case
-  n_cat <- length(unique(df[[cat_var]]))
+  n_cat <- nrow(distinct(df, across(all_of(cat_var))))
   if (n_cat == 1) return("whole_cube")
 
   # Parse number of categories to filter

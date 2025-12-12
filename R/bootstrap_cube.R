@@ -211,6 +211,7 @@ bootstrap_cube <- function(
 
   # Perform bootstrapping
   if (method == "whole_cube") {
+    print("Performing whole-cube bootstrap.")
     bootstrap_samples_df <- bootstrap_cube_raw(
       data_cube = data_cube,
       fun = fun,
@@ -231,6 +232,7 @@ bootstrap_cube <- function(
     )
 
     # Make this in a for loop for progress = TRUE
+    print("Performing group-specific bootstrap.")
     bootstrap_samples_df <- bootstrap_samples_df %>%
       split(bootstrap_samples_df[[grouping_var]]) %>%
       lapply(function(cube) {

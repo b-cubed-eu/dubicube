@@ -120,10 +120,6 @@ derive_bootstrap_method <- function(
     "`max_cat` must be a single positive integer." =
       assertthat::is.count(max_cat)
   )
-  stopifnot(
-    "The min. number of categories must be smaller than the max. number." =
-      min_cat < max_cat
-  )
 
   # Check index input
   stopifnot(
@@ -133,17 +129,16 @@ derive_bootstrap_method <- function(
   ### End checks
 
   # Return fast in easy case
-  # df %>% dplyr::select(dplyr::all_of(cat_var))
   n_cat <- length(unique(df[[cat_var]]))
   if (n_cat == 1) return("whole_cube")
 
   # Parse number of categories to filter
-  stopifnot(
-    "`max_cat` cannot exceed the total number of categories in `cat_var`." =
-      max_cat <= n_cat
-  )
   min_cat <- min(n_cat, min_cat)
   max_cat <- min(n_cat, max_cat)
+  stopifnot(
+    "The min. number of categories must be smaller than the max. number." =
+      min_cat < max_cat
+  )
   if (index == -1) index <- n_cat - max_cat
 
   # Get dataset indices

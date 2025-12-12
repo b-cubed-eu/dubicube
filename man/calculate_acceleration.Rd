@@ -152,6 +152,8 @@ bootstrap acceleration constant. Computational Statistics & Data Analysis,
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
 \code{\link{bootstrap_cube}()},
-\code{\link{calculate_bootstrap_ci}()}
+\code{\link{bootstrap_cube_raw}()},
+\code{\link{calculate_bootstrap_ci}()},
+\code{\link{derive_bootstrap_method}()}
 }
 \concept{indicator_uncertainty}

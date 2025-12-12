@@ -225,15 +225,18 @@ bootstrap_cube <- function(
     ) %>%
       mutate(method_boot = "whole_cube")
   } else {
-    # Currenly not ok
+    # Currenly not ok, see further for possible fix
     stopifnot(
       "`ref_group` cannot be used combined with group-specific bootstrapping." =
         is.na(ref_group)
     )
 
-    # Make this in a for loop for progress = TRUE
+    # Make this in a for loop for progress = TRUE, combine dataframes with
+    # refgroup if not NA
     print("Performing group-specific bootstrap.")
     bootstrap_samples_df <- bootstrap_samples_df %>%
+      # will not work for multiple grouping var columns
+      # bootstrap_samples_df %>% dplyr::select(dplyr::all_of(grouping_var))
       split(bootstrap_samples_df[[grouping_var]]) %>%
       lapply(function(cube) {
         bootstrap_cube_raw(

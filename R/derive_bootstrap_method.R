@@ -133,6 +133,7 @@ derive_bootstrap_method <- function(
   ### End checks
 
   # Return fast in easy case
+  # df %>% dplyr::select(dplyr::all_of(cat_var))
   n_cat <- length(unique(df[[cat_var]]))
   if (n_cat == 1) return("whole_cube")
 

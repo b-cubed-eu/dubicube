@@ -1,15 +1,13 @@
 # nolint start: line_length_linter.
-#' Perform bootstrapping over a data cube for a calculated statistic
+#' Perform bootstrapping over a dataframe for a calculated statistic
 #'
 #' This function generate `samples` bootstrap replicates of a statistic applied
-#' to a data cube. It resamples the data cube and computes a statistic `fun` for
+#' to a dataframe. It resamples the data cube and computes a statistic `fun` for
 #' each bootstrap replicate, optionally comparing the results to a reference
-#' group (`ref_group`).
+#' group (`ref_group`). Bootstrapping happens over the whole dataset
+#' `data_cube`.
 #'
-#' @param data_cube A data cube object (class 'processed_cube' or 'sim_cube',
-#' see `b3gbi::process_cube()`) or a dataframe (cf. `$data` slot of
-#' 'processed_cube' or 'sim_cube'). If `processed_cube = TRUE` (default), this
-#' must be a processed or simulated data cube that contains a `$data` element.
+#' @param data_cube A dataframe.
 #' @param fun A function which, when applied to `data_cube$data` returns the
 #' statistic(s) of interest (or just `data_cube` in case of a dataframe).
 #' This function must return a dataframe with a column `diversity_val`
@@ -29,9 +27,6 @@
 #' generation to ensure reproducibility. If `NA` (default), then `set.seed()`
 #' is not called at all. If not `NA`, then the random number generator state is
 #' reset (to the state before calling this function) upon exiting this function.
-#' @param processed_cube Logical. If `TRUE` (default), the function expects
-#' `data_cube` to be a data cube object with a `$data` slot. If `FALSE`, the
-#' function expects `data_cube` to be a dataframe.
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
@@ -118,25 +113,22 @@
 #'
 #' @examples
 #' \dontrun{
-#' # After processing a data cube with b3gbi::process_cube()
-#'
 #' # Function to calculate statistic of interest
 #' # Mean observations per year
-#' mean_obs <- function(data) {
-#'   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+#' mean_obs <- function(x) {
+#'   out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
 #'   names(out_df) <- c("year", "diversity_val") # Rename columns
 #'   return(out_df)
 #' }
-#' mean_obs(processed_cube$data)
+#' mean_obs(data)
 #'
 #' # Perform bootstrapping
 #' bootstrap_mean_obs <- bootstrap_cube_raw(
-#'   data_cube = processed_cube,
+#'   data_cube = data,
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
-#'   seed = 123,
-#'   progress = FALSE
+#'   seed = 123
 #' )
 #' head(bootstrap_mean_obs)
 #' }
@@ -150,14 +142,11 @@ bootstrap_cube_raw <- function(
     samples = 1000,
     ref_group = NA,
     seed = NA,
-    processed_cube = TRUE,
     progress = FALSE) {
   ### Start checks
   # Check data_cube input
-  data_cube <- get_cube_data(
-    data_cube = data_cube,
-    processed_cube = processed_cube
-  )
+  stopifnot("`data_cube` must be a dataframe." =
+              inherits(data_cube, "data.frame"))
 
   # Check fun input
   stopifnot("`fun` must be a function." = is.function(fun))

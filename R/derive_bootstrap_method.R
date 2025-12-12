@@ -152,16 +152,16 @@ derive_bootstrap_method <- function(
   start_index_long <- stop_index - max_cat + 1
 
   # Filter datasets
-  data_short <- data %>%
-    mutate(group = cur_group_id(),
+  data_short <- df %>%
+    mutate(`_group`  = cur_group_id(),
            .by = all_of(cat_var)) %>%
-    filter(.data$group %in% start_index_short:stop_index)
+    filter(.data$`_group`  %in% start_index_short:stop_index)
   short_groups <- unique(data_short[[cat_var]])
 
-  data_long <- data %>%
-    mutate(group = cur_group_id(),
+  data_long <- df %>%
+    mutate(`_group` = cur_group_id(),
            .by = all_of(cat_var)) %>%
-    filter(.data$group %in% start_index_long:stop_index)
+    filter(.data$`_group`  %in% start_index_long:stop_index)
 
   # Calculate statistics on short and long dataset
   stat_short <- fun(data_short[, -ncol(data_short)], ...)

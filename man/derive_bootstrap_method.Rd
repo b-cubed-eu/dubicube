@@ -2,7 +2,7 @@
 % Please edit documentation in R/derive_bootstrap_method.R
 \name{derive_bootstrap_method}
 \alias{derive_bootstrap_method}
-\title{Derive Whether a Statistic Requires Whole-Cube or Group-Specific Bootstrapping}
+\title{Derive bootstrap method for a statistic}
 \usage{
 derive_bootstrap_method(
   df,

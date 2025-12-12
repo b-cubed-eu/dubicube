@@ -13,7 +13,6 @@ bootstrap_cube_raw(
   ref_group = NA,
   seed = NA,
   processed_cube = TRUE,
-  method = "smart",
   progress = FALSE
 )
 }

@@ -151,7 +151,6 @@ bootstrap_cube_raw <- function(
     ref_group = NA,
     seed = NA,
     processed_cube = TRUE,
-    method = "smart",
     progress = FALSE) {
   ### Start checks
   # Check data_cube input

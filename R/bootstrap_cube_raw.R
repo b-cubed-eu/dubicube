@@ -180,7 +180,7 @@ bootstrap_cube_raw <- function(
   stopifnot(
     "`ref_group` must be a numeric/character vector of length 1 or NA." =
       (assertthat::is.number(ref_group) | assertthat::is.string(ref_group) |
-         is.na(ref_group)) &
+       is.na(ref_group)) &
       length(ref_group) == 1
   )
 

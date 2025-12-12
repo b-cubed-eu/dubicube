@@ -1,4 +1,4 @@
-#' Derive Whether a Statistic Requires Whole-Cube or Group-Specific Bootstrapping
+#' Derive bootstrap method for a statistic
 #'
 #' Infers whether a user-supplied indicator function (`fun`) behaves as a
 #' **group-specific** statistic (computed independently within each category)
@@ -161,7 +161,7 @@ derive_bootstrap_method <- function(
   data_long <- data %>%
     mutate(group = cur_group_id(),
            .by = all_of(cat_var)) %>%
-    filter(group %in% start_index_long:stop_index)
+    filter(.data$group %in% start_index_long:stop_index)
 
   # Calculate statistics on short and long dataset
   stat_short <- fun(data_short[, -ncol(data_short)], ...)

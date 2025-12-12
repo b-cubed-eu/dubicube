@@ -76,6 +76,7 @@ group)
 \item \code{se_boot}: The standard error of the bootstrap estimate (standard
 deviation of the bootstrap replicates per group)
 \item \code{bias_boot}: The bias of the bootstrap estimate per group
+\item \code{method_boot}: The bootstrap method used
 }
 }
 \description{
@@ -169,8 +170,8 @@ the indicator values for the common groups are identical,
 
 # Function to calculate statistic of interest
 # Mean observations per year
-mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+mean_obs <- function(x) {
+  out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }

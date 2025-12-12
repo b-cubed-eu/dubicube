@@ -53,9 +53,9 @@
 #' @examples
 #' # 1. Calculate mean per group
 #' sepal_length_per_species <- function(x, f) {
-#'   out_df <- aggregate(x$Sepal.Length, by = list(x$Species), FUN = f)
-#'   names(out_df) <- c("Species", "diversity_val")
-#'   out_df
+#'   out_df <- aggregate(Sepal.Length ~ Species, x, f)
+#'   names(out_df) <- c("Species", "diversity_val") # Rename columns
+#'   return(out_df)
 #' }
 #' sepal_length_per_species(iris, mean)
 #'
@@ -71,10 +71,10 @@
 #'
 #' # 2. Calculate indicator based on whole dataset
 #' sepal_length_per_species2 <- function(x, f) {
-#'   out_df <- aggregate(x$Sepal.Length, by = list(x$Species), FUN = f)
+#'   out_df <- aggregate(Sepal.Length ~ Species, x, f)
 #'   out_df$x <- out_df$x / nrow(out_df) # new line
-#'   names(out_df) <- c("Species", "diversity_val")
-#'   out_df
+#'   names(out_df) <- c("Species", "diversity_val") # Rename columns
+#'   return(out_df)
 #' }
 #' sepal_length_per_species2(iris, mean)
 #'
@@ -89,14 +89,13 @@
 #' )
 
 derive_bootstrap_method <- function(
-  df,
-  fun,
-  ...,
-  cat_var,
-  min_cat = 2,
-  max_cat = 5,
-  index = -1
-) {
+    df,
+    fun,
+    ...,
+    cat_var,
+    min_cat = 2,
+    max_cat = 5,
+    index = -1) {
   ### Start checks
   # Check df input
   stopifnot("`df` must be a dataframe." = inherits(df, "data.frame"))

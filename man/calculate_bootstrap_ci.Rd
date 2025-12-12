@@ -30,6 +30,7 @@ columns should be present:
 \item \code{est_original}: The statistic based on the full dataset per group
 \item \code{rep_boot}: The statistic based on a bootstrapped dataset (bootstrap
 replicate)
+\item \code{method_boot}: Only in case of BCa interval calculation.
 }}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
@@ -199,8 +200,8 @@ where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
 
 # Function to calculate statistic of interest
 # Mean observations per year
-mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+mean_obs <- function(x) {
+  out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }

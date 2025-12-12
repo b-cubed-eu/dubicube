@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootstrap_cube_raw.R
 \name{bootstrap_cube_raw}
 \alias{bootstrap_cube_raw}
-\title{Perform bootstrapping over a data cube for a calculated statistic}
+\title{Perform bootstrapping over a dataframe for a calculated statistic}
 \usage{
 bootstrap_cube_raw(
   data_cube,
@@ -12,15 +12,11 @@ bootstrap_cube_raw(
   samples = 1000,
   ref_group = NA,
   seed = NA,
-  processed_cube = TRUE,
   progress = FALSE
 )
 }
 \arguments{
-\item{data_cube}{A data cube object (class 'processed_cube' or 'sim_cube',
-see \code{b3gbi::process_cube()}) or a dataframe (cf. \verb{$data} slot of
-'processed_cube' or 'sim_cube'). If \code{processed_cube = TRUE} (default), this
-must be a processed or simulated data cube that contains a \verb{$data} element.}
+\item{data_cube}{A dataframe.}
 
 \item{fun}{A function which, when applied to \code{data_cube$data} returns the
 statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
@@ -47,10 +43,6 @@ generation to ensure reproducibility. If \code{NA} (default), then \code{set.see
 is not called at all. If not \code{NA}, then the random number generator state is
 reset (to the state before calling this function) upon exiting this function.}
 
-\item{processed_cube}{Logical. If \code{TRUE} (default), the function expects
-\code{data_cube} to be a data cube object with a \verb{$data} slot. If \code{FALSE}, the
-function expects \code{data_cube} to be a dataframe.}
-
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
 }
@@ -71,9 +63,10 @@ deviation of the bootstrap replicates per group)
 }
 \description{
 This function generate \code{samples} bootstrap replicates of a statistic applied
-to a data cube. It resamples the data cube and computes a statistic \code{fun} for
+to a dataframe. It resamples the data cube and computes a statistic \code{fun} for
 each bootstrap replicate, optionally comparing the results to a reference
-group (\code{ref_group}).
+group (\code{ref_group}). Bootstrapping happens over the whole dataset
+\code{data_cube}.
 }
 \details{
 Bootstrapping is a statistical technique used to estimate the distribution of
@@ -141,25 +134,22 @@ the variability of the statistic.
 }
 \examples{
 \dontrun{
-# After processing a data cube with b3gbi::process_cube()
-
 # Function to calculate statistic of interest
 # Mean observations per year
-mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+mean_obs <- function(x) {
+  out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }
-mean_obs(processed_cube$data)
+mean_obs(data)
 
 # Perform bootstrapping
 bootstrap_mean_obs <- bootstrap_cube_raw(
-  data_cube = processed_cube,
+  data_cube = data,
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  seed = 123,
-  progress = FALSE
+  seed = 123
 )
 head(bootstrap_mean_obs)
 }

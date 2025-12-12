@@ -5,21 +5,20 @@
 #' or a **whole-cube** statistic (requiring pooled information across all
 #' categories).
 #'
-#' @param df A `data.frame` or tibble containing the full dataset used by the
-#'   indicator function.
-#' @param fun A function that computes an indicator. It must take a data frame
-#'   as its first argument and return a data frame with one row per category and
-#'   a column named `diversity_val` (or another comparable numeric result).
-#' @param ... Additional arguments passed to `fun()`.
-#' @param cat_var A character string giving the name of the categorical variable
-#'   that defines the groups (e.g. `"year"`, `"species"`, `"site"`).
+#' @param df A dataframe.
+#' @param fun A function which, when applied to
+#' `df` returns the statistic(s) of interest. This function must return a
+#' dataframe with a column `diversity_val` containing the statistic of interest.
+#' @param ... Additional arguments passed on to `fun`.
+#' @param cat_var A character vector specifying the grouping variable(s) used by
+#' `fun`. The function `fun(df, ...)` should return a row per group.
 #' @param min_cat Integer. The minimum number of categories to include in the
-#'   "short" dataset used for comparison. Defaults to `2`.
+#' "short" dataset used for comparison. Defaults to `2`.
 #' @param max_cat Integer. The maximum number of categories to include in the
-#'   "long" dataset. Defaults to `5`.
-#' @param index Integer. Position from the end of the sorted category list at
-#'   which the subsets should be constructed. Use `-1` (default) to set this
-#'   automatically based on `max_cat`.
+#' "long" dataset. Defaults to `5`.
+#' @param index Integer. Position from which the `max_cat` categories will be
+#' selected for processing. Use `-1` (default) use the final `min_cat` and
+#' `max_cat` categories in the dataset.
 #'
 #' @return
 #' A single character string: either

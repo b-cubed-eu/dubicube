@@ -58,6 +58,7 @@ Options include:
 \item \code{"whole_cube"}: Perform whole-cube bootstrap
 \item \code{"group_specific"}: Perform group-specific bootstrap
 \item \code{"smart"}: Let dubicube derive the bootstrap method (default)
+\item \code{"boot"}: Use the \pkg{boot} package (experimental)
 }}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
@@ -78,6 +79,9 @@ deviation of the bootstrap replicates per group)
 \item \code{bias_boot}: The bias of the bootstrap estimate per group
 \item \code{method_boot}: The bootstrap method used
 }
+
+In case \code{method = "boot"} was used. The returned value is an object of class
+"boot". See \code{\link[boot:boot]{boot::boot()}}.
 }
 \description{
 This function generate \code{samples} bootstrap replicates of a statistic applied
@@ -163,6 +167,9 @@ method by calculating the statistic on a larger and smaller subset of the
 data (containing respectively more and less groups in \code{grouping_var}). If
 the indicator values for the common groups are identical,
 \code{method = "group_specific"}, otherwise \code{method = "whole_cube"}.
+
+In case \code{method = "boot"} was used. The function uses \code{\link[boot:boot]{boot::boot()}} for
+bootstrapping. This is still an experimental feature.
 }
 \examples{
 \dontrun{

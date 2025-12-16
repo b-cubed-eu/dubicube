@@ -37,6 +37,7 @@
 #'   - `"whole_cube"`: Perform whole-cube bootstrap
 #'   - `"group_specific"`: Perform group-specific bootstrap
 #'   - `"smart"`: Let dubicube derive the bootstrap method (default)
+#'   - `"boot"`: Use the \pkg{boot} package (experimental)
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
@@ -52,6 +53,9 @@
 #'   deviation of the bootstrap replicates per group)
 #'   - `bias_boot`: The bias of the bootstrap estimate per group
 #'   - `method_boot`: The bootstrap method used
+#'
+#' In case `method = "boot"` was used. The returned value is an object of class
+#' "boot". See [boot::boot()].
 #'
 #' @details
 #' Bootstrapping is a statistical technique used to estimate the distribution of
@@ -115,6 +119,9 @@
 #' data (containing respectively more and less groups in `grouping_var`). If
 #' the indicator values for the common groups are identical,
 #' `method = "group_specific"`, otherwise `method = "whole_cube"`.
+#'
+#' In case `method = "boot"` was used. The function uses [boot::boot()] for
+#' bootstrapping. This is still an experimental feature.
 #'
 #' @references
 #' Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their
@@ -188,10 +195,13 @@ bootstrap_cube <- function(
 
   # Check if method is specified correctly
   method <- tryCatch({
-    match.arg(method, c("whole_cube", "group_specific", "smart"))
+    match.arg(method, c("whole_cube", "group_specific", "smart", "boot"))
   }, error = function(e) {
-    stop("`method` must be one of 'whole_cube', 'group_specific' or 'smart'.",
-         call. = FALSE)
+    stop(
+      paste("`method` must be one of 'whole_cube', 'group_specific',",
+            "'smart' or 'boot'."),
+      call. = FALSE
+    )
   })
 
   # Check if progress is a logical vector of length 1
@@ -254,7 +264,7 @@ bootstrap_cube <- function(
       bind_rows() %>%
       mutate(method_boot = "group_specific")
   } else {
-    stop("Boot functionality not implemented yet.")
+    stop("`boot::boot()` functionality not implemented yet.")
   }
 
   return(bootstrap_samples_df)

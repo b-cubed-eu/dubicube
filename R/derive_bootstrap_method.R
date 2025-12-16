@@ -130,7 +130,7 @@ derive_bootstrap_method <- function(
 
   # Return fast in easy case
   n_cat <- nrow(distinct(df, across(all_of(cat_var))))
-  if (n_cat == 1) return("whole_cube")
+  if (n_cat == 1) return("boot")
 
   # Parse number of categories to filter
   min_cat <- min(n_cat, min_cat)

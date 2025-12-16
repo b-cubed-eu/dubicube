@@ -224,7 +224,7 @@ bootstrap_cube <- function(
       progress = progress
     ) %>%
       mutate(method_boot = "whole_cube")
-  } else {
+  } else if (method == "group_specific") {
     # Currenly not ok, see further for possible fix
     stopifnot(
       "`ref_group` cannot be used combined with group-specific bootstrapping." =
@@ -253,6 +253,8 @@ bootstrap_cube <- function(
       }) %>%
       bind_rows() %>%
       mutate(method_boot = "group_specific")
+  } else {
+    stop("Boot functionality not implemented yet.")
   }
 
   return(bootstrap_samples_df)

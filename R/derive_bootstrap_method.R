@@ -141,31 +141,37 @@ derive_bootstrap_method <- function(
   )
   if (index == -1) index <- n_cat - max_cat
 
+  # Build group IDs
+  df_grouped <- df %>%
+    group_by(across(all_of(cat_var))) %>%
+    mutate(.grp_id = cur_group_id()) %>%
+    ungroup()
+
   # Get dataset indices
   stop_index <- min(index + max_cat, n_cat)
   start_index_short <- stop_index - min_cat + 1
   start_index_long <- stop_index - max_cat + 1
 
   # Filter datasets
-  data_short <- df %>%
-    mutate(`_group`  = cur_group_id(),
-           .by = all_of(cat_var)) %>%
-    filter(.data$`_group`  %in% start_index_short:stop_index)
-  short_groups <- unique(data_short[[cat_var]])
+  data_short <- df_grouped %>%
+    filter(.data$.grp_id  %in% start_index_short:stop_index) %>%
+    select(-".grp_id")
 
-  data_long <- df %>%
-    mutate(`_group` = cur_group_id(),
-           .by = all_of(cat_var)) %>%
-    filter(.data$`_group`  %in% start_index_long:stop_index)
+  data_long <- df_grouped %>%
+    filter(.data$.grp_id  %in% start_index_long:stop_index) %>%
+    select(-".grp_id")
 
   # Calculate statistics on short and long dataset
-  stat_short <- fun(data_short[, -ncol(data_short)], ...)
-  stat_long <- fun(data_long[, -ncol(data_long)], ...)
+  stat_short <- fun(data_short, ...)
+  stat_long <- fun(data_long, ...)
 
   # Compare results
+  merged <- stat_short %>%
+    left_join(stat_long, by = cat_var, suffix = c("_short", "_long"))
+
   is_group_specific <- identical(
-    stat_short$diversity_val,
-    stat_long[stat_long[[cat_var]] %in% short_groups, ]$diversity_val
+    merged$diversity_val_short,
+    merged$diversity_val_long
   )
 
   # Return bootstrap method

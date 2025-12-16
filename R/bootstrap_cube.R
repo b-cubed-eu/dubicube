@@ -230,39 +230,74 @@ bootstrap_cube <- function(
       samples = samples,
       ref_group = ref_group,
       seed = seed,
-      processed_cube = processed_cube,
       progress = progress
     ) %>%
       mutate(method_boot = "whole_cube")
   } else if (method == "group_specific") {
-    # Currenly not ok, see further for possible fix
-    stopifnot(
-      "`ref_group` cannot be used combined with group-specific bootstrapping." =
-        is.na(ref_group)
-    )
-
-    # Make this in a for loop for progress = TRUE, combine dataframes with
-    # refgroup if not NA
     print("Performing group-specific bootstrap.")
-    bootstrap_samples_df <- bootstrap_samples_df %>%
-      # will not work for multiple grouping var columns
-      # bootstrap_samples_df %>% dplyr::select(dplyr::all_of(grouping_var))
-      split(bootstrap_samples_df[[grouping_var]]) %>%
-      lapply(function(cube) {
-        bootstrap_cube_raw(
-          data_cube = cube,
-          fun = fun,
-          ...,
-          grouping_var = grouping_var,
-          samples = samples,
-          ref_group = ref_group,
-          seed = seed,
-          processed_cube = processed_cube,
-          progress = progress
+
+    # Identify groups
+    cube_grouped <- data_cube %>%
+      group_by(across(all_of(grouping_var))) %>%
+      mutate(.grp_id = cur_group_id()) %>%
+      ungroup()
+
+    if (!is.na(ref_group)) {
+      # Calculate group_var columns for matching
+      matching_col <- grouping_var[
+        sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
+               function(col) ref_group %in% col)
+      ]
+      # Reference group should not be included
+      cube_grouped <- cube_grouped %>%
+        dplyr::filter(.data[[matching_col]] != !!ref_group)
+    }
+
+    n_cat <- max(cube_grouped$.grp_id)
+
+    # Bootstrap for every group
+    bootstrap_samples_list <- vector(mode = "list", length = n_cat)
+
+    for (group in seq_len(n_cat)) {
+      if (progress) print(paste("Bootstrapping group", group, "of", n_cat, "."))
+
+      # Select relevant data
+      group_data <- cube_grouped %>%
+        filter(.data$.grp_id == group) %>%
+        select(-".grp_id")
+
+      if (!is.na(ref_group)) {
+        # Calculate group_var columns for matching
+        matching_col <- grouping_var[
+          sapply(data_cube %>% dplyr::select(dplyr::all_of(grouping_var)),
+                 function(col) ref_group %in% col)
+        ]
+        # Bind group data with reference group data
+        group_data <- bind_rows(
+          group_data,
+          dplyr::filter(data_cube, .data[[matching_col]] == !!ref_group)
         )
-      }) %>%
-      bind_rows() %>%
-      mutate(method_boot = "group_specific")
+      }
+
+      # Perform bootstraping
+      group_bootstrap_samples <- bootstrap_cube_raw(
+        data_cube = group_data,
+        fun = fun,
+        ...,
+        grouping_var = grouping_var,
+        samples = samples,
+        ref_group = ref_group,
+        seed = seed,
+        progress = progress
+      ) %>%
+        mutate(method_boot = "group_specific")
+
+      bootstrap_samples_list[[group]] <- group_bootstrap_samples
+    }
+
+    # Combine results
+    bootstrap_samples_df <- dplyr::bind_rows(bootstrap_samples_list) %>%
+      dplyr::mutate(method_boot = "group_specific")
   } else {
     stop("`boot::boot()` functionality not implemented yet.")
   }

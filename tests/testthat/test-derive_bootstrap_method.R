@@ -140,7 +140,7 @@ test_that("returns whole_cube when only one category exists", {
       fun = sepal_length_per_species,
       cat_var = "Species"
     ),
-    "boot"
+    "whole_cube"
   )
 })
 

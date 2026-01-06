@@ -20,6 +20,8 @@ processed_cube$meta <- "This is a processed occurrence cube"
 processed_cube$data <- cube_df
 class(processed_cube) <- "processed_cube"
 
+### Whole cube
+
 ## Function to calculate statistic of interest
 # Mean observations per year per species
 mean_obs <- function(data) {
@@ -38,7 +40,8 @@ boot_df1 <- bootstrap_cube(
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
-  processed_cube = FALSE
+  processed_cube = FALSE,
+  method = "whole_cube"
 )
 
 # Perform bootstrapping 'processed_cube'
@@ -47,7 +50,8 @@ boot_df2 <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
-  seed = 123
+  seed = 123,
+  method = "whole_cube"
 )
 
 # Perform bootstrapping dataframe with reference group
@@ -58,7 +62,8 @@ boot_df3 <- bootstrap_cube(
   samples = 1000,
   seed = 123,
   ref_group = ref_year,
-  processed_cube = FALSE
+  processed_cube = FALSE,
+  method = "whole_cube"
 )
 
 # Perform bootstrapping 'processed_cube' with reference group
@@ -68,7 +73,8 @@ boot_df4 <- bootstrap_cube(
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
-  ref_group = ref_year
+  ref_group = ref_year,
+  method = "whole_cube"
 )
 
 ## Calculate confidence intervals

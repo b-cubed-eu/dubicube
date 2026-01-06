@@ -143,9 +143,9 @@ derive_bootstrap_method <- function(
 
   # Build group IDs
   df_grouped <- df %>%
-    group_by(across(all_of(cat_var))) %>%
-    mutate(.grp_id = cur_group_id()) %>%
-    ungroup()
+    dplyr::group_by(across(all_of(cat_var))) %>%
+    dplyr::mutate(.grp_id = cur_group_id()) %>%
+    dplyr::ungroup()
 
   # Get dataset indices
   stop_index <- min(index + max_cat, n_cat)
@@ -154,12 +154,12 @@ derive_bootstrap_method <- function(
 
   # Filter datasets
   data_short <- df_grouped %>%
-    filter(.data$.grp_id  %in% start_index_short:stop_index) %>%
-    select(-".grp_id")
+    dplyr::filter(.data$.grp_id  %in% start_index_short:stop_index) %>%
+    dplyr::select(-".grp_id")
 
   data_long <- df_grouped %>%
-    filter(.data$.grp_id  %in% start_index_long:stop_index) %>%
-    select(-".grp_id")
+    dplyr::filter(.data$.grp_id  %in% start_index_long:stop_index) %>%
+    dplyr::select(-".grp_id")
 
   # Calculate statistics on short and long dataset
   stat_short <- fun(data_short, ...)
@@ -167,7 +167,7 @@ derive_bootstrap_method <- function(
 
   # Compare results
   merged <- stat_short %>%
-    left_join(stat_long, by = cat_var, suffix = c("_short", "_long"))
+    dplyr::left_join(stat_long, by = cat_var, suffix = c("_short", "_long"))
 
   is_group_specific <- identical(
     merged$diversity_val_short,

@@ -31,7 +31,7 @@
 #'
 #' @import dplyr
 #' @importFrom rlang .data
-has_redundant_grouping_vars <- function(data, grouping_var) {
+has_redundant_grouping_vars <- function(data, grouping_var) {# nolint: cyclocomp_linter
 
   if (length(grouping_var) < 2) {
     return(FALSE)

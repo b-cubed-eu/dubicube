@@ -40,6 +40,8 @@
 #'   - `"boot"`: Use the \pkg{boot} package (experimental)
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
+#' @param boot_args Named list of additional arguments passed to `boot::boot()`
+#'   (e.g., `list(parallel = "multicore", ncpus = 2)`).
 #'
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:
@@ -141,6 +143,7 @@
 #' @importFrom modelr bootstrap
 #' @importFrom purrr map
 #' @importFrom stats sd
+#' @importFrom boot boot
 #'
 #' @examples
 #' \dontrun{
@@ -169,16 +172,18 @@
 # nolint end
 
 bootstrap_cube <- function(
-    data_cube,
-    fun,
-    ...,
-    grouping_var,
-    samples = 1000,
-    ref_group = NA,
-    seed = NA,
-    processed_cube = TRUE,
-    method = "smart",
-    progress = FALSE) {
+  data_cube,
+  fun,
+  ...,
+  grouping_var,
+  samples = 1000,
+  ref_group = NA,
+  seed = NA,
+  processed_cube = TRUE,
+  method = "smart",
+  progress = FALSE,
+  boot_args = list()
+) {
   ### Start checks
   # Check data_cube input
   data_cube <- get_cube_data(
@@ -207,6 +212,9 @@ bootstrap_cube <- function(
   # Check if progress is a logical vector of length 1
   stopifnot("`progress` must be a logical vector of length 1." =
               assertthat::is.flag(progress))
+
+  # Check if boot_args is correct
+  stopifnot("`boot_args` must be a named list." = is.list(boot_args))
   ### End checks
 
   # Get bootstrap method
@@ -303,7 +311,36 @@ bootstrap_cube <- function(
     bootstrap_samples_df <- dplyr::bind_rows(bootstrap_samples_list) %>%
       dplyr::mutate(method_boot = "group_specific")
   } else {
-    stop("`boot::boot()` functionality not implemented yet.")
+    # Wrapper for boot::boot() to match expected output
+    boot_stat_wrapper <- function(data, indices) {
+      sampled_data <- data[indices, , drop = FALSE]
+      fun(sampled_data, ...) %>% dplyr::pull("diversity_val")
+    }
+
+    # Set seed if provided
+    if (!is.na(seed)) {
+      if (exists(".Random.seed", envir = .GlobalEnv)) {
+        rng_state_old <- get(".Random.seed", envir = .GlobalEnv)
+        on.exit(assign(".Random.seed", rng_state_old, envir = .GlobalEnv)) # nolint: object_name_linter
+      }
+      set.seed(seed)
+    }
+
+    # Call boot::boot() with user-specified arguments
+    boot_res <- do.call(
+      boot::boot,
+      c(
+        list(
+          data = data_cube,
+          statistic = boot_stat_wrapper,
+          R = samples
+        ),
+        boot_args
+      )
+    )
+
+    # Return boot object
+    return(boot_res)
   }
 
   return(bootstrap_samples_df)

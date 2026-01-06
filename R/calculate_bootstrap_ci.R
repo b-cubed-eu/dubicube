@@ -177,7 +177,7 @@
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
 #' @importFrom stats setNames
-#'  @importFrom boot boot.ci
+#' @importFrom boot boot.ci
 #'
 #' @examples
 #' \dontrun{
@@ -230,21 +230,21 @@
 # nolint end
 
 calculate_bootstrap_ci <- function(
-    bootstrap_samples_df,
-    grouping_var,
-    type = c("perc", "bca", "norm", "basic"),
-    conf = 0.95,
-    h = function(t) t,
-    hinv = function(t) t,
-    no_bias = FALSE,
-    aggregate = TRUE,
-    data_cube = NA,
-    fun = NA,
-    ...,
-    ref_group = NA,
-    influence_method = ifelse(is.element("bca", type), "usual", NA),
-    progress = FALSE,
-    boot_args = list()
+  bootstrap_samples_df,
+  grouping_var,
+  type = c("perc", "bca", "norm", "basic"),
+  conf = 0.95,
+  h = function(t) t,
+  hinv = function(t) t,
+  no_bias = FALSE,
+  aggregate = TRUE,
+  data_cube = NA,
+  fun = NA,
+  ...,
+  ref_group = NA,
+  influence_method = ifelse(is.element("bca", type), "usual", NA),
+  progress = FALSE,
+  boot_args = list()
 ) {
   # If the bootstrap samples are a boot object, use the boot package
   if (inherits(bootstrap_samples_df, "boot")) {
@@ -256,7 +256,7 @@ calculate_bootstrap_ci <- function(
       type
     }
 
-    ci_list <- lapply(seq_len(n_stats), function(idx) {
+    ci_out <- lapply(seq_len(n_stats), function(idx) {
       res <- do.call(boot::boot.ci, c(
         list(
           boot.out = boot_out,
@@ -274,16 +274,28 @@ calculate_bootstrap_ci <- function(
       # Convert to tidy dataframe
       data.frame(
         stat_index = idx,
+        est_original = rep(boot_out$t0[idx], length(ci_types)),
         int_type = names(res)[names(res) %in%
-                                c("normal", "basic", "perc", "bca")],
-        ll = sapply(res[names(res) %in% c("normal", "basic", "perc", "bca")],
-                    function(x) x[2]),
-        ul = sapply(res[names(res) %in% c("normal", "basic", "perc", "bca")],
-                    function(x) x[3]),
+                                c("normal", "basic", "percent", "bca")],
+        ll = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
+                    function(x) x[length(x) - 1]),
+        ul = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
+                    function(x) x[length(x)]),
         conf = conf
-      )
-    })
-    return(dplyr::bind_rows(ci_list))
+      ) %>%
+        dplyr::mutate(
+          int_type = dplyr::case_when(
+            .data$int_type == "percent" ~ "perc",
+            .data$int_type == "normal" ~ "norm",
+            TRUE ~ .data$int_type
+          )
+        )
+    }) %>%
+      dplyr::bind_rows()
+
+    # Return dataframe without rownames
+    rownames(ci_out) <- NULL
+    return(ci_out)
   }
 
   ### Start checks

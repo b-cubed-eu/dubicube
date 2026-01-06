@@ -65,8 +65,7 @@ Options include:
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
 display a progress bar, \code{FALSE} (default) to suppress it.}
 
-\item{boot_args}{Named list of additional arguments passed to \code{boot::boot()}
-(e.g., \code{list(parallel = "multicore", ncpus = 2)}).}
+\item{boot_args}{Named list of additional arguments passed to \code{boot::boot()}.}
 }
 \value{
 A dataframe containing the bootstrap results with the following

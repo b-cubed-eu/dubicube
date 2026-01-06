@@ -40,8 +40,7 @@
 #'   - `"boot"`: Use the \pkg{boot} package (experimental)
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
-#' @param boot_args Named list of additional arguments passed to `boot::boot()`
-#'   (e.g., `list(parallel = "multicore", ncpus = 2)`).
+#' @param boot_args Named list of additional arguments passed to `boot::boot()`.
 #'
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:

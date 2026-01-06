@@ -234,13 +234,17 @@ bootstrap_cube <- function(
     ) %>%
       mutate(method_boot = "whole_cube")
   } else if (method == "group_specific") {
+    stopifnot(
+      "Group-specific bootstrapping requires exactly one grouping variable." =
+        length(grouping_var) == 1
+    )
     print("Performing group-specific bootstrap.")
 
     # Identify groups
     cube_grouped <- data_cube %>%
-      group_by(across(all_of(grouping_var))) %>%
-      mutate(.grp_id = cur_group_id()) %>%
-      ungroup()
+      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_var))) %>%
+      dplyr::mutate(.grp_id = dplyr::cur_group_id()) %>%
+      dplyr::ungroup()
 
     if (!is.na(ref_group)) {
       # Calculate group_var columns for matching
@@ -263,8 +267,8 @@ bootstrap_cube <- function(
 
       # Select relevant data
       group_data <- cube_grouped %>%
-        filter(.data$.grp_id == group) %>%
-        select(-".grp_id")
+        dplyr::filter(.data$.grp_id == group) %>%
+        dplyr::select(-".grp_id")
 
       if (!is.na(ref_group)) {
         # Calculate group_var columns for matching
@@ -273,7 +277,7 @@ bootstrap_cube <- function(
                  function(col) ref_group %in% col)
         ]
         # Bind group data with reference group data
-        group_data <- bind_rows(
+        group_data <- dplyr::bind_rows(
           group_data,
           dplyr::filter(data_cube, .data[[matching_col]] == !!ref_group)
         )
@@ -290,7 +294,7 @@ bootstrap_cube <- function(
         seed = seed,
         progress = progress
       ) %>%
-        mutate(method_boot = "group_specific")
+        dplyr::mutate(method_boot = "group_specific")
 
       bootstrap_samples_list[[group]] <- group_bootstrap_samples
     }

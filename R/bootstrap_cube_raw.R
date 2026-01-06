@@ -156,7 +156,8 @@ bootstrap_cube_raw <- function(
               is.character(grouping_var))
 
   # Check if grouping_var contains redundant variables
-  check_redundant_grouping_vars(data_cube, grouping_var)
+  stopifnot("Grouping variables contain redundant information." =
+              !has_redundant_grouping_vars(data_cube, grouping_var))
 
   # Check if samples is a positive integer
   stopifnot(
@@ -279,7 +280,7 @@ bootstrap_cube_raw <- function(
       .by = dplyr::all_of(grouping_var)
     ) %>%
     dplyr::mutate(bias_boot = .data$est_boot - .data$est_original) %>%
-    dplyr::arrange(dplyr::across(grouping_var)) %>%
+    dplyr::arrange(dplyr::across(dplyr::all_of(grouping_var))) %>%
     dplyr::select("sample", dplyr::all_of(grouping_var), "est_original",
                   dplyr::everything()) %>%
     as.data.frame()

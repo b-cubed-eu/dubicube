@@ -4,16 +4,13 @@
 #' This function calculates confidence intervals for a dataframe containing
 #' bootstrap replicates based on different methods, including percentile
 #' (`perc`), bias-corrected and accelerated (`bca`), normal (`norm`), and basic
-#' (`basic`).
+#' (`basic`). The function also supports a `boot` object from the \pkg{boot}
+#' package.
 #'
-#' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
-#' where each row represents a bootstrap sample. As returned by
-#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
-#' columns should be present:
-#'   - `est_original`: The statistic based on the full dataset per group
-#'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
-#'   replicate)
-#'   - `method_boot`: Only in case of BCa interval calculation.
+#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a
+#' `boot` object. For dataframes, each row is a bootstrap sample; must include
+#' columns `rep_boot`, `est_original`, and the grouping variables. For `boot`
+#' objects, the function uses `boot::boot.ci()` internally.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -65,6 +62,8 @@
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
+#' @param boot_args Named list of additional arguments passed to
+#' `boot::boot.ci()`.
 #'
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:
@@ -178,6 +177,7 @@
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
 #' @importFrom stats setNames
+#'  @importFrom boot boot.ci
 #'
 #' @examples
 #' \dontrun{
@@ -243,7 +243,49 @@ calculate_bootstrap_ci <- function(
     ...,
     ref_group = NA,
     influence_method = ifelse(is.element("bca", type), "usual", NA),
-    progress = FALSE) {
+    progress = FALSE,
+    boot_args = list()
+) {
+  # If the bootstrap samples are a boot object, use the boot package
+  if (inherits(bootstrap_samples_df, "boot")) {
+    boot_out <- bootstrap_samples_df
+    n_stats <- length(boot_out$t0)
+    ci_types <- if (any(type == "all")) {
+      c("norm", "basic", "perc", "bca")
+    } else {
+      type
+    }
+
+    ci_list <- lapply(seq_len(n_stats), function(idx) {
+      res <- do.call(boot::boot.ci, c(
+        list(
+          boot.out = boot_out,
+          conf = conf,
+          type = ci_types,
+          index = idx,
+          t0 = boot_out$t0[idx],
+          t = boot_out$t[, idx, drop = TRUE],
+          h = h,
+          hinv = hinv
+        ),
+        boot_args
+      ))
+
+      # Convert to tidy dataframe
+      data.frame(
+        stat_index = idx,
+        int_type = names(res)[names(res) %in%
+                                c("normal", "basic", "perc", "bca")],
+        ll = sapply(res[names(res) %in% c("normal", "basic", "perc", "bca")],
+                    function(x) x[2]),
+        ul = sapply(res[names(res) %in% c("normal", "basic", "perc", "bca")],
+                    function(x) x[3]),
+        conf = conf
+      )
+    })
+    return(dplyr::bind_rows(ci_list))
+  }
+
   ### Start checks
   # Arguments fun, ref_group, influence_method, and progress
   # arguments are checked in the calculate_acceleration() function

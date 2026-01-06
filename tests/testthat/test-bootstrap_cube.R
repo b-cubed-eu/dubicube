@@ -125,3 +125,64 @@ test_that("bootstrap_cube handles invalid inputs", {
     "requires exactly one grouping variable"
   )
 })
+
+test_that("bootstrap_cube supports boot::boot() method", {
+
+  # Run bootstrap using boot::boot()
+  res <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs,
+    grouping_var = c("year", "taxonKey"),
+    samples = 5,
+    seed = 123,
+    processed_cube = FALSE,
+    method = "boot"
+  )
+
+  expect_s3_class(res, "boot")                 # Should return a boot object
+  expect_equal(res$R, 5)                       # Number of replicates
+  expect_true(all(dim(res$t)[1] == 5))         # Rows of t should match R
+})
+
+test_that("bootstrap_cube passes boot_args correctly", {
+
+  # Use a dummy argument parallel = "no"
+  res <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs,
+    grouping_var = c("year", "taxonKey"),
+    samples = 5,
+    seed = 123,
+    processed_cube = FALSE,
+    method = "boot",
+    boot_args = list(parallel = "no")
+  )
+
+  expect_s3_class(res, "boot")
+  expect_equal(res$R, 5)
+})
+
+test_that("bootstrap_cube boot method respects seed", {
+
+  res1 <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs,
+    grouping_var = c("year", "taxonKey"),
+    samples = 5,
+    seed = 123,
+    processed_cube = FALSE,
+    method = "boot"
+  )
+
+  res2 <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs,
+    grouping_var = c("year", "taxonKey"),
+    samples = 5,
+    seed = 123,
+    processed_cube = FALSE,
+    method = "boot"
+  )
+
+  expect_equal(res1$t, res2$t)  # Results should be identical with same seed
+})

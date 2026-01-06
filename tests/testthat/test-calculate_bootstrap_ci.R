@@ -415,3 +415,68 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
     fixed = TRUE
   )
 })
+
+## Boot implementation
+library(boot)
+
+# Statistic function
+stat_fun <- function(data, indices) mean(data[indices])
+
+# Create a simple numeric vector from cube
+x <- cube_df$obs + rnorm(length(cube_df$obs), 0, 0.1)
+
+# Create boot object
+set.seed(123)
+boot_obj <- boot::boot(x, statistic = stat_fun, R = 100)
+
+test_that("calculate_bootstrap_ci handles boot objects correctly", {
+  ci_boot <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_obj,
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  expect_s3_class(ci_boot, "data.frame")
+  expect_true(all(c("est_original", "ll", "ul", "int_type", "conf") %in%
+                    names(ci_boot)))
+  expect_true(all(ci_boot$conf == 0.95))
+  expect_true(all(ci_boot$ll <= ci_boot$ul))
+  expect_true(all(ci_boot$int_type %in% c("perc", "norm", "basic")))
+})
+
+# Statistic function returning multiple statistics
+stat_fun_multi <- function(data, indices) {
+  subset <- data[indices]
+  c(mean_val = mean(subset), median_val = median(subset))
+}
+
+# Create boot object with multiple statistics
+set.seed(123)
+boot_obj_multi <- boot::boot(x, statistic = stat_fun_multi, R = 100)
+
+test_that("boot objects with multiple statistics", {
+  ci_boot_multi <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_obj_multi,
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  expect_s3_class(ci_boot_multi, "data.frame")
+
+  # Columns check
+  expect_true(all(c("est_original", "ll", "ul", "int_type", "conf") %in%
+                    names(ci_boot_multi)))
+
+  # Confidence level
+  expect_true(all(ci_boot_multi$conf == 0.95))
+
+  # Limits order
+  expect_true(all(ci_boot_multi$ll <= ci_boot_multi$ul))
+
+  # Interval types
+  expect_true(all(ci_boot_multi$int_type %in% c("perc", "norm", "basic")))
+
+  # Check that both statistics are present
+  expect_true(all(c("mean_val", "median_val") %in% rownames(ci_boot_multi) |
+                    ci_boot_multi$stat_name %in% c("mean_val", "median_val")))
+})

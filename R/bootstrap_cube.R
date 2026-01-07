@@ -40,6 +40,7 @@
 #'   - `"boot"`: Use the \pkg{boot} package (experimental)
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
+#' @param boot_args Named list of additional arguments passed to `boot::boot()`.
 #'
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:
@@ -141,6 +142,7 @@
 #' @importFrom modelr bootstrap
 #' @importFrom purrr map
 #' @importFrom stats sd
+#' @importFrom boot boot
 #'
 #' @examples
 #' \dontrun{
@@ -169,16 +171,18 @@
 # nolint end
 
 bootstrap_cube <- function(
-    data_cube,
-    fun,
-    ...,
-    grouping_var,
-    samples = 1000,
-    ref_group = NA,
-    seed = NA,
-    processed_cube = TRUE,
-    method = "smart",
-    progress = FALSE) {
+  data_cube,
+  fun,
+  ...,
+  grouping_var,
+  samples = 1000,
+  ref_group = NA,
+  seed = NA,
+  processed_cube = TRUE,
+  method = "smart",
+  progress = FALSE,
+  boot_args = list()
+) {
   ### Start checks
   # Check data_cube input
   data_cube <- get_cube_data(
@@ -207,6 +211,9 @@ bootstrap_cube <- function(
   # Check if progress is a logical vector of length 1
   stopifnot("`progress` must be a logical vector of length 1." =
               assertthat::is.flag(progress))
+
+  # Check if boot_args is correct
+  stopifnot("`boot_args` must be a named list." = is.list(boot_args))
   ### End checks
 
   # Get bootstrap method
@@ -234,13 +241,17 @@ bootstrap_cube <- function(
     ) %>%
       mutate(method_boot = "whole_cube")
   } else if (method == "group_specific") {
+    stopifnot(
+      "Group-specific bootstrapping requires exactly one grouping variable." =
+        length(grouping_var) == 1
+    )
     print("Performing group-specific bootstrap.")
 
     # Identify groups
     cube_grouped <- data_cube %>%
-      group_by(across(all_of(grouping_var))) %>%
-      mutate(.grp_id = cur_group_id()) %>%
-      ungroup()
+      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_var))) %>%
+      dplyr::mutate(.grp_id = dplyr::cur_group_id()) %>%
+      dplyr::ungroup()
 
     if (!is.na(ref_group)) {
       # Calculate group_var columns for matching
@@ -263,8 +274,8 @@ bootstrap_cube <- function(
 
       # Select relevant data
       group_data <- cube_grouped %>%
-        filter(.data$.grp_id == group) %>%
-        select(-".grp_id")
+        dplyr::filter(.data$.grp_id == group) %>%
+        dplyr::select(-".grp_id")
 
       if (!is.na(ref_group)) {
         # Calculate group_var columns for matching
@@ -273,7 +284,7 @@ bootstrap_cube <- function(
                  function(col) ref_group %in% col)
         ]
         # Bind group data with reference group data
-        group_data <- bind_rows(
+        group_data <- dplyr::bind_rows(
           group_data,
           dplyr::filter(data_cube, .data[[matching_col]] == !!ref_group)
         )
@@ -290,7 +301,7 @@ bootstrap_cube <- function(
         seed = seed,
         progress = progress
       ) %>%
-        mutate(method_boot = "group_specific")
+        dplyr::mutate(method_boot = "group_specific")
 
       bootstrap_samples_list[[group]] <- group_bootstrap_samples
     }
@@ -299,7 +310,36 @@ bootstrap_cube <- function(
     bootstrap_samples_df <- dplyr::bind_rows(bootstrap_samples_list) %>%
       dplyr::mutate(method_boot = "group_specific")
   } else {
-    stop("`boot::boot()` functionality not implemented yet.")
+    # Wrapper for boot::boot() to match expected output
+    boot_stat_wrapper <- function(data, indices) {
+      sampled_data <- data[indices, , drop = FALSE]
+      fun(sampled_data, ...) %>% dplyr::pull("diversity_val")
+    }
+
+    # Set seed if provided
+    if (!is.na(seed)) {
+      if (exists(".Random.seed", envir = .GlobalEnv)) {
+        rng_state_old <- get(".Random.seed", envir = .GlobalEnv)
+        on.exit(assign(".Random.seed", rng_state_old, envir = .GlobalEnv)) # nolint: object_name_linter
+      }
+      set.seed(seed)
+    }
+
+    # Call boot::boot() with user-specified arguments
+    boot_res <- do.call(
+      boot::boot,
+      c(
+        list(
+          data = data_cube,
+          statistic = boot_stat_wrapper,
+          R = samples
+        ),
+        boot_args
+      )
+    )
+
+    # Return boot object
+    return(boot_res)
   }
 
   return(bootstrap_samples_df)

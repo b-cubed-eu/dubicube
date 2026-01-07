@@ -4,16 +4,13 @@
 #' This function calculates confidence intervals for a dataframe containing
 #' bootstrap replicates based on different methods, including percentile
 #' (`perc`), bias-corrected and accelerated (`bca`), normal (`norm`), and basic
-#' (`basic`).
+#' (`basic`). The function also supports a `boot` object from the \pkg{boot}
+#' package.
 #'
-#' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
-#' where each row represents a bootstrap sample. As returned by
-#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
-#' columns should be present:
-#'   - `est_original`: The statistic based on the full dataset per group
-#'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
-#'   replicate)
-#'   - `method_boot`: Only in case of BCa interval calculation.
+#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a
+#' `boot` object. For dataframes, each row is a bootstrap sample; must include
+#' columns `rep_boot`, `est_original`, and the grouping variables. For `boot`
+#' objects, the function uses `boot::boot.ci()` internally.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -65,6 +62,8 @@
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
+#' @param boot_args Named list of additional arguments passed to
+#' `boot::boot.ci()`.
 #'
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:
@@ -178,6 +177,7 @@
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
 #' @importFrom stats setNames
+#' @importFrom boot boot.ci
 #'
 #' @examples
 #' \dontrun{
@@ -230,20 +230,74 @@
 # nolint end
 
 calculate_bootstrap_ci <- function(
-    bootstrap_samples_df,
-    grouping_var,
-    type = c("perc", "bca", "norm", "basic"),
-    conf = 0.95,
-    h = function(t) t,
-    hinv = function(t) t,
-    no_bias = FALSE,
-    aggregate = TRUE,
-    data_cube = NA,
-    fun = NA,
-    ...,
-    ref_group = NA,
-    influence_method = ifelse(is.element("bca", type), "usual", NA),
-    progress = FALSE) {
+  bootstrap_samples_df,
+  grouping_var,
+  type = c("perc", "bca", "norm", "basic"),
+  conf = 0.95,
+  h = function(t) t,
+  hinv = function(t) t,
+  no_bias = FALSE,
+  aggregate = TRUE,
+  data_cube = NA,
+  fun = NA,
+  ...,
+  ref_group = NA,
+  influence_method = ifelse(is.element("bca", type), "usual", NA),
+  progress = FALSE,
+  boot_args = list()
+) {
+  # If the bootstrap samples are a boot object, use the boot package
+  if (inherits(bootstrap_samples_df, "boot")) {
+    boot_out <- bootstrap_samples_df
+    n_stats <- length(boot_out$t0)
+    ci_types <- if (any(type == "all")) {
+      c("norm", "basic", "perc", "bca")
+    } else {
+      type
+    }
+
+    ci_out <- lapply(seq_len(n_stats), function(idx) {
+      res <- do.call(boot::boot.ci, c(
+        list(
+          boot.out = boot_out,
+          conf = conf,
+          type = ci_types,
+          index = idx,
+          t0 = boot_out$t0[idx],
+          t = boot_out$t[, idx, drop = TRUE],
+          h = h,
+          hinv = hinv
+        ),
+        boot_args
+      ))
+
+      # Convert to tidy dataframe
+      data.frame(
+        stat_index = idx,
+        est_original = rep(boot_out$t0[idx], length(ci_types)),
+        int_type = names(res)[names(res) %in%
+                                c("normal", "basic", "percent", "bca")],
+        ll = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
+                    function(x) x[length(x) - 1]),
+        ul = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
+                    function(x) x[length(x)]),
+        conf = conf
+      ) %>%
+        dplyr::mutate(
+          int_type = dplyr::case_when(
+            .data$int_type == "percent" ~ "perc",
+            .data$int_type == "normal" ~ "norm",
+            TRUE ~ .data$int_type
+          )
+        )
+    }) %>%
+      dplyr::bind_rows()
+
+    # Return dataframe without rownames
+    rownames(ci_out) <- NULL
+    return(ci_out)
+  }
+
   ### Start checks
   # Arguments fun, ref_group, influence_method, and progress
   # arguments are checked in the calculate_acceleration() function

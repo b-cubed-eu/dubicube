@@ -344,7 +344,7 @@ cross_validate_cube <- function(
       rmse = sqrt(.data$mse),
       .by = dplyr::all_of(grouping_var)
     ) %>%
-    dplyr::arrange(dplyr::across(grouping_var)) %>%
+    dplyr::arrange(dplyr::across(dplyr::all_of(grouping_var))) %>%
     dplyr::select("id_cv", dplyr::all_of(grouping_var),
                   !!out_col_name := "cat_left_out",
                   "rep_cv", "est_original",

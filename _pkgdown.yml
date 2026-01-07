@@ -54,3 +54,11 @@ reference:
   - title: "Bootstrap interval helper functions"
     contents:
       - has_concept("interval_calculation")
+
+authors:
+  European Union (ID 101059592):
+    href: "https://doi.org/10.3030/101059592"
+    html: "<img src='https://github.com/wlangera/targets-workshop-2025/blob/main/slides/_extensions/inbo/eu-funded-en.png?raw=true' height=24 alt='logo of the European Union'>"
+  Research Institute for Nature and Forest (INBO):
+    href: "https://www.vlaanderen.be/inbo/en-gb"
+    html: "<img src='https://inbo.github.io/checklist/reference/figures/logo-en.png' height=24 alt='logo of the Research Institute for Nature and Forest (INBO)'>"

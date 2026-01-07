@@ -6,9 +6,9 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-5900-8109", affiliation = "Research Institute for Nature and Forest (INBO)")),
     person("Toon", "Van Daele", , "toon.vandaele@inbo.be", role = "aut",
            comment = c(ORCID = "0000-0002-1362-853X", affiliation = "Research Institute for Nature and Forest (INBO)")),
-    person("Research Institute for Nature and Forest (INBO)", role = "cph",
-           comment = c(ROR = "00j54wy13")),
-    person("European Union", role = "fnd",
+    person("Research Institute for Nature and Forest (INBO)", email = "info@inbo.be", role = "cph",
+           comment = c(ROR = "https://ror.org/00j54wy13")),
+    person("European Union", email = "b-cubedsupport@meisebotanicgarden.be", role = "fnd",
            comment = "https://doi.org/10.3030/101059592")
   )
 Description: This R package provides functions to explore data cubes using

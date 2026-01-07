@@ -348,7 +348,7 @@ $\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1
 
 Therefore, if you want to calculate the BCa intervals using `calculate_bootstrap_ci()`, you also need to provide `ref_group = 2011`.
 
-```{r, echo=FALSE, message=FALSE}
+```{r}
 ci_mean_obs_ref <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_ref,
   grouping_var = "year",

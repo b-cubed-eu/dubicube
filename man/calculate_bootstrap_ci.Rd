@@ -18,19 +18,15 @@ calculate_bootstrap_ci(
   ...,
   ref_group = NA,
   influence_method = ifelse(is.element("bca", type), "usual", NA),
-  progress = FALSE
+  progress = FALSE,
+  boot_args = list()
 )
 }
 \arguments{
-\item{bootstrap_samples_df}{A dataframe containing the bootstrap replicates,
-where each row represents a bootstrap sample. As returned by
-\code{bootstrap_cube()}. Apart from the \code{grouping_var} column, the following
-columns should be present:
-\itemize{
-\item \code{est_original}: The statistic based on the full dataset per group
-\item \code{rep_boot}: The statistic based on a bootstrapped dataset (bootstrap
-replicate)
-}}
+\item{bootstrap_samples_df}{A dataframe with bootstrap replicates, or a
+\code{boot} object. For dataframes, each row is a bootstrap sample; must include
+columns \code{rep_boot}, \code{est_original}, and the grouping variables. For \code{boot}
+objects, the function uses \code{boot::boot.ci()} internally.}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
 for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
@@ -99,6 +95,9 @@ the influence values.
 
 \item{progress}{Logical. Whether to show a progress bar for jackknifing. Set
 to \code{TRUE} to display a progress bar, \code{FALSE} (default) to suppress it.}
+
+\item{boot_args}{Named list of additional arguments passed to
+\code{boot::boot.ci()}.}
 }
 \value{
 A dataframe containing the bootstrap results with the following
@@ -123,7 +122,8 @@ When \code{aggregate = FALSE}, the dataframe contains the columns from
 This function calculates confidence intervals for a dataframe containing
 bootstrap replicates based on different methods, including percentile
 (\code{perc}), bias-corrected and accelerated (\code{bca}), normal (\code{norm}), and basic
-(\code{basic}).
+(\code{basic}). The function also supports a \code{boot} object from the \pkg{boot}
+package.
 }
 \details{
 We consider four different types of intervals (with confidence level
@@ -199,8 +199,8 @@ where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
 
 # Function to calculate statistic of interest
 # Mean observations per year
-mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+mean_obs <- function(x) {
+  out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }
@@ -265,6 +265,8 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
 \code{\link{bootstrap_cube}()},
-\code{\link{calculate_acceleration}()}
+\code{\link{bootstrap_cube_raw}()},
+\code{\link{calculate_acceleration}()},
+\code{\link{derive_bootstrap_method}()}
 }
 \concept{indicator_uncertainty}

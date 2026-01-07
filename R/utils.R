@@ -1,4 +1,4 @@
-#' Check for redundant grouping variables
+#' Detect redundant grouping variables
 #'
 #' This function checks whether any of the specified grouping variables contain
 #' redundant information. Two grouping variables are considered redundant if
@@ -8,14 +8,8 @@
 #' @param grouping_var A character vector specifying the names of the grouping
 #' variables.
 #'
-#' @return Returns `TRUE` if no redundancy is found. Otherwise, it throws an
-#' error.
-#'
-#' @noRd
-#'
-#' @import dplyr
-#' @importFrom rlang .data
-#' @importFrom stats setNames
+#' @return Logical. Returns `TRUE` if redundant grouping variables are detected,
+#' otherwise `FALSE`.
 #'
 #' @examples
 #' years <- 2000:2002
@@ -25,51 +19,47 @@
 #'   region = rep(c("A", "B", "C"), each = 2)
 #' )
 #'
-#' # Will throw an error
-#' check_redundant_grouping_vars(df, c("year", "time_point"))
-#' # No error
-#' check_redundant_grouping_vars(df, c("year", "region"))
+#' # year and time_point encode the same information
+#' has_redundant_grouping_vars(df, c("year", "time_point"))
+#' #> TRUE
+#'
+#' # year and region are not redundant
+#' has_redundant_grouping_vars(df, c("year", "region"))
+#' #> FALSE
+#'
+#' @noRd
+#'
+#' @import dplyr
+#' @importFrom rlang .data
+has_redundant_grouping_vars <- function(data, grouping_var) {# nolint: cyclocomp_linter
 
-check_redundant_grouping_vars <- function(data, grouping_var) {
-  if (length(grouping_var) > 1) {
-    # Subset the data to keep only the specified grouping variables
-    grouping_data <- data[, grouping_var, drop = FALSE]
+  if (length(grouping_var) < 2) {
+    return(FALSE)
+  }
 
-    # Loop over all pairs of grouping variables
-    for (i in seq_along(grouping_var)) {
-      for (j in seq_along(grouping_var)) {
-        if (i != j) { # Avoid self-comparisons
+  grouping_data <- data[, grouping_var, drop = FALSE]
 
-          # Check for a one-to-one mapping between the two variables
-          mapping_check <- grouping_data %>%
-            dplyr::select(grouping_var[i], grouping_var[j]) %>%
-            dplyr::distinct() %>%
-            dplyr::count(.data[[grouping_var[i]]]) %>%
-            dplyr::pull(n) %>%
-            unique()
+  for (i in seq_along(grouping_var)) {
+    for (j in seq_along(grouping_var)) {
+      if (i != j) {
 
-          # If there is only one unique count and it equals 1, then the
-          # variables are redundant
-          error_message <- paste0(
-            "Grouping variables '", grouping_var[i], "' and '",
-            grouping_var[j], "' contain redundant information. ",
-            "Please use only one of them."
-          )
+        mapping_check <- grouping_data %>%
+          dplyr::select(all_of(grouping_var[c(i, j)])) %>%
+          dplyr::distinct() %>%
+          dplyr::count(.data[[grouping_var[i]]]) %>%
+          dplyr::pull(n) %>%
+          unique()
 
-          do.call(
-            stopifnot,
-            stats::setNames(
-              list(
-                !(length(mapping_check) == 1 && mapping_check == 1)
-              ),
-              error_message
-            )
-          )
+        if (length(mapping_check) == 1 && mapping_check == 1) {
+          return(TRUE)
         }
       }
     }
   }
+
+  FALSE
 }
+
 
 #' Extract data from a processed data cube or from a dataframe
 #'

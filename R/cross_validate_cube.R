@@ -139,8 +139,8 @@
 #'
 #' # Function to calculate statistic of interest
 #' # Mean observations per year
-#' mean_obs <- function(data) {
-#'   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+#' mean_obs <- function(x) {
+#'   out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
 #'   names(out_df) <- c("year", "diversity_val") # Rename columns
 #'   return(out_df)
 #' }
@@ -344,7 +344,7 @@ cross_validate_cube <- function(
       rmse = sqrt(.data$mse),
       .by = dplyr::all_of(grouping_var)
     ) %>%
-    dplyr::arrange(dplyr::across(grouping_var)) %>%
+    dplyr::arrange(dplyr::across(dplyr::all_of(grouping_var))) %>%
     dplyr::select("id_cv", dplyr::all_of(grouping_var),
                   !!out_col_name := "cat_left_out",
                   "rep_cv", "est_original",

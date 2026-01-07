@@ -50,7 +50,12 @@ perform_jackknifing <- function(
               is.character(grouping_var))
 
   # Check if grouping_var contains redundant variables
-  check_redundant_grouping_vars(df, grouping_var)
+  if (has_redundant_grouping_vars(df, grouping_var)) {
+    warning(
+      paste("Some grouping variables are redundant; results may contain",
+            "duplicate groups.")
+    )
+  }
 
   # Check if ref_group is NA or a number or a string
   stopifnot(

@@ -37,3 +37,4 @@ spelling:
   ignore:
   - .github
   - LICENSE.md
+  - docs

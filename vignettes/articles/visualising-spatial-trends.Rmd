@@ -106,28 +106,19 @@ On their own, these values don’t reveal how much uncertainty surrounds them. T
 ### Bootstrapping
 
 We use the `bootstrap_cube()` function to perform bootstrapping (see also the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)).
-Since this indicator is calculated independently per group (grid cell) we perform group-specific bootstrapping.
-For a detailed discussion of when to use each approach, see [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
 
 ```{r}
-bootstrap_results <- processed_cube$data %>%
-  split(processed_cube$data$cellCode) %>%
-  lapply(function(cube) {
-    bootstrap_results <- bootstrap_cube(
-      data_cube = cube,
-      fun = mean_obs_grid,
-      grouping_var = "cellCode",
-      samples = 1000,
-      seed = 123,
-      processed_cube = FALSE
-    )
-
-    return(list(bootstrap_results = bootstrap_results, data = cube))
-  })
+bootstrap_results <- bootstrap_cube(
+  data_cube = processed_cube,
+  fun = mean_obs_grid,
+  grouping_var = "cellCode",
+  samples = 1000,
+  seed = 123
+)
 ```
 
 ```{r}
-head(bootstrap_results[[1]]$bootstrap_results)
+head(bootstrap_results)
 ```
 
 ### Interval calculation
@@ -136,20 +127,17 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
 We get a warning message for BCa calculation because we are using a relatively small dataset.
 
 ```{r}
-ci_mean_obs_list <- bootstrap_results %>%
-  lapply(function(list) {
-    calculate_bootstrap_ci(
-      list$bootstrap_results,
-      grouping_var = "cellCode",
-      type = c("perc", "bca", "norm", "basic"),
-      conf = 0.95,
-      data_cube = list$data, # Required for Bca
-      fun = mean_obs_grid    # Required for Bca
-    )
-  })
+ci_mean_obs <- calculate_bootstrap_ci(
+  bootstrap_samples_df = bootstrap_results,
+  grouping_var = "cellCode",
+  type = c("perc", "bca", "norm", "basic"),
+  conf = 0.95,
+  data_cube = processed_cube,   # Required for BCa
+  fun = mean_obs_grid           # Required for Bca
+)
 
 # Make interval type factor
-ci_mean_obs <- bind_rows(ci_mean_obs_list) %>%
+ci_mean_obs <- ci_mean_obs %>%
   mutate(
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")

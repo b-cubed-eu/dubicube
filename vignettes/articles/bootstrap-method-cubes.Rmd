@@ -325,3 +325,21 @@ If this is the case, it could make sense to select the last period as a referenc
 In a way, this also avoids the arbitrariness of choosing the reference period.
 You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
 Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability.
+
+### Bootstrap method
+
+Note that we also make a distinction between whole-cube bootstrapping and group-specific bootstrapping. This is further explained in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
+
+### Bootstrap Method
+
+The bootstrap method in **dubicube** can be performed in different ways depending on the structure of your data and the indicator of interest. There are two main approaches which are compared in more detail in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
+
+1. **Whole-cube bootstrapping** (`method = "whole_cube"`)
+   In this method, resampling is performed across all rows in the cube, ignoring any grouping variables. This is appropriate when the statistic of interest uses data from multiple groups simultaneously, such as overall biodiversity measures or aggregated metrics that combine multiple species, years, or locations.
+
+2. **Group-specific bootstrapping** (`method = "group_specific"`)
+   Here, resampling occurs only within each group defined by the grouping variable (e.g., species, year, or habitat). This is suitable for indicators calculated independently for each group, where maintaining the group structure is essential for a meaningful estimate of variability.
+
+The smart option (`method = "smart"`, default) lets **dubicube** automatically choose the most suitable approach. It does so by comparing indicator values calculated on larger versus smaller subsets of the data, checking whether the common groups yield identical results. If so, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used.
+
+Additionally, there is an experimental option (`method = "boot"`) that uses the `boot::boot()` function from the **boot** package. This allows for advanced bootstrapping techniques but is still under development.

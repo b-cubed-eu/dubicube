@@ -9,8 +9,6 @@ allowed:
       repositories:\n  effectclass\nSuggests or Enhances not in mainstream repositories:\n
       \ b3gbi\nAvailability using Additional_repositories specification:\n  effectclass
       \  yes   https://inbo.r-universe.dev       \n  b3gbi         yes   https://b-cubed-eu.r-universe.dev/"
-  - motivation: Not applicable
-    value: ORCID required for `Research Institute for Nature and Forest (INBO)`
   notes:
   - motivation: This is just a note that reminds CRAN maintainers to check that the
       submission comes actually from his maintainer and not anybody else.

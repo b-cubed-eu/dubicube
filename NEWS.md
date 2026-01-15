@@ -3,7 +3,7 @@
 * Fix chunk option in article #73
 * Detect group-specific or whole-cube bootstrapping automatically #74
 * Improve funder and rights holder descriptions #82
-* Allow users to use `boot` dependency for bootstrapping and CI calculation 
+* Allow users to use **boot** dependency for bootstrapping and CI calculation 
 
 # dubicube 0.9.5
 

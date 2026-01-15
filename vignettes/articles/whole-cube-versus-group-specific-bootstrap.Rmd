@@ -61,7 +61,7 @@ In practice, users rarely need to set method explicitly: `method = "smart"` sele
 
 **Implementation in `dubicube`**
 
-* Use `method = "whole_cube"` in the `bootstrap_cube()` function
+* Use `method = "whole_cube"` in the `bootstrap_cube()` function.
 
 ### Group-specific bootstrap
 
@@ -85,7 +85,7 @@ In practice, users rarely need to set method explicitly: `method = "smart"` sele
 
 **Implementation in `dubicube`**
 
-* Use `method = "group_specific"` in the `bootstrap_cube()` function
+* Use `method = "group_specific"` in the `bootstrap_cube()` function.
 
 ### Bootstrapping with boot
 

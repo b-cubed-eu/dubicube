@@ -326,10 +326,6 @@ In a way, this also avoids the arbitrariness of choosing the reference period.
 You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
 Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability.
 
-### Bootstrap method
-
-Note that we also make a distinction between whole-cube bootstrapping and group-specific bootstrapping. This is further explained in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
-
 ### Bootstrap Method
 
 The bootstrap method in **dubicube** can be performed in different ways depending on the structure of your data and the indicator of interest. There are two main approaches which are compared in more detail in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).

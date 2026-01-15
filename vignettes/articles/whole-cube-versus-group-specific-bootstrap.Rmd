@@ -26,10 +26,18 @@ The choice between these two methods directly affects how confidence intervals s
 In this tutorial, we explain the differences, discuss the strengths and limitations of each method, and provide a worked example.
 
 ## Methods
-### dubicube's smart method
+### `dubicube`'s smart method
 
-> under construction
-> make flowchart
+The smart option (`method = "smart"`) is the default functionality of the `bootstrap_cube()` function. With this option, **dubicube** automatically chooses the most suitable method. It does so by comparing indicator values calculated on larger versus smaller subsets of the data, checking whether the common groups yield identical results. If so, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used. If no reference group is used (`ref_group = NA`), the **boot** package is used for bootstrapping.
+
+| Scope of indicator calculation | Reference group used? | Method chosen by `method = "smart"` | Uses **boot** package? |
+| ------------------------------ | --------------------- | --------------------- | --- |
+| Group-specific                 | No (`ref_group = NA`) | `boot_group_specific` | yes |
+| Whole cube                     | No (`ref_group = NA`) | `boot_whole_cube`     | yes |
+| Group-specific                 | Yes                   | `group_specific`      | no  |
+| Whole cube                     | Yes                   | `whole_cube`          | no  |
+
+In practice, users rarely need to set method explicitly: `method = "smart"` selects the appropriate strategy based on indicator behaviour and the presence of a reference group.
 
 ### Whole-cube bootstrap
 
@@ -53,7 +61,7 @@ In this tutorial, we explain the differences, discuss the strengths and limitati
 
 **Implementation in `dubicube`**
 
-> Under construction
+* Use `method = "whole_cube"` in the `bootstrap_cube()` function
 
 ### Group-specific bootstrap
 
@@ -77,7 +85,7 @@ In this tutorial, we explain the differences, discuss the strengths and limitati
 
 **Implementation in `dubicube`**
 
-> Under construction
+* Use `method = "group_specific"` in the `bootstrap_cube()` function
 
 ### Bootstrapping with boot
 

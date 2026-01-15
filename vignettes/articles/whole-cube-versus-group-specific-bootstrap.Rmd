@@ -25,6 +25,12 @@ The choice between these two methods directly affects how confidence intervals s
 
 In this tutorial, we explain the differences, discuss the strengths and limitations of each method, and provide a worked example.
 
+## Methods
+### dubicube's smart method
+
+> under construction
+> make flowchart
+
 ### Whole-cube bootstrap
 
 **Definition:** Resample all rows in the cube, regardless of species, year, or other grouping.
@@ -47,7 +53,7 @@ In this tutorial, we explain the differences, discuss the strengths and limitati
 
 **Implementation in `dubicube`**
 
-* Default use like tutorials and examples.
+> Under construction
 
 ### Group-specific bootstrap
 
@@ -71,9 +77,12 @@ In this tutorial, we explain the differences, discuss the strengths and limitati
 
 **Implementation in `dubicube`**
 
-* Perform bootstrapping and interval calculation per group (e.g. using a for loop or `lapply()`).
-* See further.
+> Under construction
 
-## Bootstrap methods in dubicube
+### Bootstrapping with boot
 
-> Working on this
+> Under construction
+
+## Comparing performance between methods
+
+> Under construction

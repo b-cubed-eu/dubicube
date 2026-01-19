@@ -267,6 +267,7 @@ Other indicator_uncertainty:
 \code{\link{bootstrap_cube}()},
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_acceleration}()},
-\code{\link{derive_bootstrap_method}()}
+\code{\link{derive_bootstrap_method}()},
+\code{\link{resolve_bootstrap_method}()}
 }
 \concept{indicator_uncertainty}

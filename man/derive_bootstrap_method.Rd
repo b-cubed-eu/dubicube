@@ -110,6 +110,7 @@ Other indicator_uncertainty:
 \code{\link{bootstrap_cube}()},
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_acceleration}()},
-\code{\link{calculate_bootstrap_ci}()}
+\code{\link{calculate_bootstrap_ci}()},
+\code{\link{resolve_bootstrap_method}()}
 }
 \concept{indicator_uncertainty}

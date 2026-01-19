@@ -56,10 +56,17 @@ function expects \code{data_cube} to be a dataframe.}
 \item{method}{A character string specifying the bootstrap method.
 Options include:
 \itemize{
-\item \code{"whole_cube"}: Perform whole-cube bootstrap
-\item \code{"group_specific"}: Perform group-specific bootstrap
-\item \code{"smart"}: Let dubicube derive the bootstrap method (default)
-\item \code{"boot"}: Use the \pkg{boot} package (experimental)
+\item \code{"smart"}: Automatically select the appropriate bootstrap method
+based on indicator behaviour and the presence of a reference group
+(default).
+\item \code{"boot_whole_cube"}: Perform whole-cube bootstrap using
+\code{\link[boot:boot]{boot::boot()}}. Cannot be used with \code{ref_group}.
+\item \code{"boot_group_specific"}: Perform group-specific bootstrap using
+\code{\link[boot:boot]{boot::boot()}}. Cannot be used with \code{ref_group}.
+\item \code{"whole_cube"}: Perform whole-cube bootstrap without using the
+\pkg{boot} package. Can be used with \code{ref_group}.
+\item \code{"group_specific"}: Perform group-specific bootstrap without using the
+\pkg{boot} package. Can be used with \code{ref_group}.
 }}
 
 \item{progress}{Logical. Whether to show a progress bar. Set to \code{TRUE} to
@@ -83,8 +90,9 @@ deviation of the bootstrap replicates per group)
 \item \code{method_boot}: The bootstrap method used
 }
 
-In case \code{method = "boot"} was used. The returned value is an object of class
-"boot". See \code{\link[boot:boot]{boot::boot()}}.
+If \code{method} resolves to \code{"boot_whole_cube"} or \code{"boot_group_specific"},
+the returned value is an object of class \code{"boot"}, as produced by
+\code{\link[boot:boot]{boot::boot()}}.
 }
 \description{
 This function generate \code{samples} bootstrap replicates of a statistic applied
@@ -165,14 +173,21 @@ interest (e.g., a species, year, or habitat). For indicators that are
 calculated independently per group.
 }
 
-The default smart option (\code{method = "smart"}) will decide on the bootstrap
-method by calculating the statistic on a larger and smaller subset of the
-data (containing respectively more and less groups in \code{grouping_var}). If
-the indicator values for the common groups are identical,
-\code{method = "group_specific"}, otherwise \code{method = "whole_cube"}.
+The default smart option (\code{method = "smart"}) determines both
+(i) whether the indicator is group-specific or whole-cube, and
+(ii) whether the \pkg{boot} package should be used.
 
-In case \code{method = "boot"} was used. The function uses \code{\link[boot:boot]{boot::boot()}} for
-bootstrapping. This is still an experimental feature.
+The decision is made by calculating the statistic on larger and smaller
+subsets of the data (containing respectively more and fewer groups in
+\code{grouping_var}). If indicator values for the common groups are identical,
+the indicator is treated as group-specific; otherwise, it is treated as
+whole-cube.
+
+If no reference group is used (\code{ref_group = NA}), \code{method = "smart"}
+resolves to \code{"boot_group_specific"} or \code{"boot_whole_cube"}, both of which
+use \code{\link[boot:boot]{boot::boot()}}. If a reference group is specified, \code{method = "smart"}
+resolves to \code{"group_specific"} or \code{"whole_cube"} and bootstrapping is
+handled internally.
 }
 \examples{
 \dontrun{
@@ -213,6 +228,7 @@ Other indicator_uncertainty:
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_acceleration}()},
 \code{\link{calculate_bootstrap_ci}()},
-\code{\link{derive_bootstrap_method}()}
+\code{\link{derive_bootstrap_method}()},
+\code{\link{resolve_bootstrap_method}()}
 }
 \concept{indicator_uncertainty}

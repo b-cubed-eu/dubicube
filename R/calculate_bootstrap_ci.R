@@ -177,7 +177,6 @@
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
 #' @importFrom stats setNames
-#' @importFrom boot boot.ci
 #'
 #' @examples
 #' \dontrun{
@@ -248,58 +247,39 @@ calculate_bootstrap_ci <- function(
 ) {
   # If the bootstrap samples are a boot object, use the boot package
   if (inherits(bootstrap_samples_df, "boot")) {
-    boot_out <- bootstrap_samples_df
-    n_stats <- length(boot_out$t0)
-    ci_types <- if (any(type == "all")) {
-      c("norm", "basic", "perc", "bca")
-    } else {
-      type
-    }
+    stopifnot(
+      "Cannot use a 'boot' method when a no bias is specified." =
+        no_bias == FALSE
+    )
 
-    ci_out <- lapply(seq_len(n_stats), function(idx) {
-      res <- do.call(boot::boot.ci, c(
-        list(
-          boot.out = boot_out,
-          conf = conf,
-          type = ci_types,
-          index = idx,
-          t0 = boot_out$t0[idx],
-          t = boot_out$t[, idx, drop = TRUE],
-          h = h,
-          hinv = hinv
-        ),
-        boot_args
-      ))
-
-      # Convert to tidy dataframe
-      data.frame(
-        stat_index = idx,
-        est_original = rep(boot_out$t0[idx], length(ci_types)),
-        int_type = names(res)[names(res) %in%
-                                c("normal", "basic", "percent", "bca")],
-        ll = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
-                    function(x) x[length(x) - 1]),
-        ul = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
-                    function(x) x[length(x)]),
-        conf = conf
-      ) %>%
-        dplyr::mutate(
-          int_type = dplyr::case_when(
-            .data$int_type == "percent" ~ "perc",
-            .data$int_type == "normal" ~ "norm",
-            TRUE ~ .data$int_type
-          )
-        )
-    }) %>%
-      dplyr::bind_rows()
-
-    # Return dataframe without rownames
-    rownames(ci_out) <- NULL
-    return(ci_out)
+    ci_df <- calculate_boot_ci_from_boot(
+      boot_obj = bootstrap_samples_df,
+      type = type,
+      conf = conf,
+      h = h,
+      hinv = hinv,
+      boot_args = boot_args
+    )
+    return(ci_df)
   }
 
+  # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
   if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
-    # lapply helper function of the above and bind rows of total
+    stopifnot(
+      "Cannot use a 'boot' method when a no bias is specified." =
+        no_bias == FALSE
+    )
+    ci_list <- lapply(bootstrap_samples_df, function(boot_obj) {
+      calculate_boot_ci_from_boot(
+        boot_obj = boot_obj,
+        type = type,
+        conf = conf,
+        h = h,
+        hinv = hinv,
+        boot_args = boot_args
+      )
+    })
+    return(dplyr::bind_rows(ci_list))
   }
 
   ### Start checks

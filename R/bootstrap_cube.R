@@ -350,6 +350,8 @@ bootstrap_cube <- function(
 
     if (method == "boot_whole_cube") {
 
+      print("Performing whole-cube bootstrap with `boot::boot()`.")
+
       # Call boot::boot() with user-specified arguments
       boot_res <- do.call(
         boot::boot,
@@ -374,6 +376,7 @@ bootstrap_cube <- function(
         "boot_group_specific requires exactly one grouping variable." =
           length(grouping_var) == 1
       )
+      print("Performing group-specific bootstrap with `boot::boot()`.")
 
       # Split data per group
       cube_split <- split(

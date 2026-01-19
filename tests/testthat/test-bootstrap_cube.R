@@ -71,7 +71,7 @@ test_that("bootstrap_cube smart method resolves method_boot", {
     processed_cube = FALSE,
     method = "smart"
   )
-  expect_true(all(sapply(res, class) == "boot"))
+  expect_true(all(sapply(res, inherits, "boot")))
 })
 
 test_that("bootstrap_cube detects redundant grouping variables", {

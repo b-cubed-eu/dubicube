@@ -94,16 +94,18 @@ resolve_bootstrap_method <- function(
     cat_var,
     ref_group,
     method) {
-  ### Start checks ---------------------------------------------------------
+  ### Start checks
   stopifnot("`df` must be a dataframe." = inherits(df, "data.frame"))
   stopifnot("`fun` must be a function." = is.function(fun))
-  stopifnot("`cat_var` must be a character vector." =
-              is.character(cat_var))
-  stopifnot(
-    "`method` must be a character string." =
-      is.character(method) && length(method) == 1
-  )
-  ### End checks -----------------------------------------------------------
+  stopifnot("`cat_var` must be a character vector." = is.character(cat_var))
+  stopifnot("`method` must be a character string of length 1." =
+              is.character(method) && length(method) == 1)
+
+  # Disallow boot + reference group
+  if (!is.na(ref_group) && grepl("^boot_", method)) {
+    stop("Cannot use a 'boot' method when a reference group is specified.")
+  }
+  ### End checks
 
   if (method != "smart") {
     return(method)

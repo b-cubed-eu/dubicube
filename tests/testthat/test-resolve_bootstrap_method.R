@@ -62,3 +62,65 @@ test_that("resolve_bootstrap_method returns expected method variants", {
     "whole_cube"
   )
 })
+
+test_that("resolve_bootstrap_method throws errors for invalid inputs", {
+  # df not a dataframe
+  expect_error(
+    resolve_bootstrap_method(
+      df = list(a = 1),
+      fun = fun_group_specific,
+      cat_var = "Species",
+      ref_group = NA,
+      method = "smart"
+    ),
+    "`df` must be a dataframe"
+  )
+
+  # fun not a function
+  expect_error(
+    resolve_bootstrap_method(
+      df = iris,
+      fun = 123,
+      cat_var = "Species",
+      ref_group = NA,
+      method = "smart"
+    ),
+    "`fun` must be a function"
+  )
+
+  # cat_var not a character vector
+  expect_error(
+    resolve_bootstrap_method(
+      df = iris,
+      fun = fun_group_specific,
+      cat_var = 1,
+      ref_group = NA,
+      method = "smart"
+    ),
+    "`cat_var` must be a character vector"
+  )
+
+  # method not character
+  expect_error(
+    resolve_bootstrap_method(
+      df = iris,
+      fun = fun_group_specific,
+      cat_var = "Species",
+      ref_group = NA,
+      method = 123
+    ),
+    "`method` must be a character string"
+  )
+
+  # Illegal combination: boot_* + ref_group
+  expect_error(
+    resolve_bootstrap_method(
+      df = iris,
+      fun = fun_group_specific,
+      cat_var = "Species",
+      ref_group = "setosa",
+      method = "boot_group_specific"
+    ),
+    "Cannot use a 'boot' method when a reference group is specified"
+  )
+})

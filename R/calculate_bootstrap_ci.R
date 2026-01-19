@@ -298,6 +298,10 @@ calculate_bootstrap_ci <- function(
     return(ci_out)
   }
 
+  if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
+    # lapply helper function of the above and bind rows of total
+  }
+
   ### Start checks
   # Arguments fun, ref_group, influence_method, and progress
   # arguments are checked in the calculate_acceleration() function

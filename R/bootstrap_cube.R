@@ -34,10 +34,17 @@
 #' function expects `data_cube` to be a dataframe.
 #' @param method A character string specifying the bootstrap method.
 #' Options include:
-#'   - `"whole_cube"`: Perform whole-cube bootstrap
-#'   - `"group_specific"`: Perform group-specific bootstrap
-#'   - `"smart"`: Let dubicube derive the bootstrap method (default)
-#'   - `"boot"`: Use the \pkg{boot} package (experimental)
+#'   - `"smart"`: Automatically select the appropriate bootstrap method
+#'     based on indicator behaviour and the presence of a reference group
+#'     (default).
+#'   - `"boot_whole_cube"`: Perform whole-cube bootstrap using
+#'     [boot::boot()]. Cannot be used with `ref_group`.
+#'   - `"boot_group_specific"`: Perform group-specific bootstrap using
+#'     [boot::boot()]. Cannot be used with `ref_group`.
+#'   - `"whole_cube"`: Perform whole-cube bootstrap without using the
+#'     \pkg{boot} package. Can be used with `ref_group`.
+#'   - `"group_specific"`: Perform group-specific bootstrap without using the
+#'     \pkg{boot} package. Can be used with `ref_group`.
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #' @param boot_args Named list of additional arguments passed to `boot::boot()`.
@@ -55,8 +62,9 @@
 #'   - `bias_boot`: The bias of the bootstrap estimate per group
 #'   - `method_boot`: The bootstrap method used
 #'
-#' In case `method = "boot"` was used. The returned value is an object of class
-#' "boot". See [boot::boot()].
+#' If `method` resolves to `"boot_whole_cube"` or `"boot_group_specific"`,
+#' the returned value is an object of class `"boot"`, as produced by
+#' [boot::boot()].
 #'
 #' @details
 #' Bootstrapping is a statistical technique used to estimate the distribution of
@@ -115,14 +123,21 @@
 #'   interest (e.g., a species, year, or habitat). For indicators that are
 #'   calculated independently per group.
 #'
-#' The default smart option (`method = "smart"`) will decide on the bootstrap
-#' method by calculating the statistic on a larger and smaller subset of the
-#' data (containing respectively more and less groups in `grouping_var`). If
-#' the indicator values for the common groups are identical,
-#' `method = "group_specific"`, otherwise `method = "whole_cube"`.
+#' The default smart option (`method = "smart"`) determines both
+#' (i) whether the indicator is group-specific or whole-cube, and
+#' (ii) whether the \pkg{boot} package should be used.
 #'
-#' In case `method = "boot"` was used. The function uses [boot::boot()] for
-#' bootstrapping. This is still an experimental feature.
+#' The decision is made by calculating the statistic on larger and smaller
+#' subsets of the data (containing respectively more and fewer groups in
+#' `grouping_var`). If indicator values for the common groups are identical,
+#' the indicator is treated as group-specific; otherwise, it is treated as
+#' whole-cube.
+#'
+#' If no reference group is used (`ref_group = NA`), `method = "smart"`
+#' resolves to `"boot_group_specific"` or `"boot_whole_cube"`, both of which
+#' use [boot::boot()]. If a reference group is specified, `method = "smart"`
+#' resolves to `"group_specific"` or `"whole_cube"` and bootstrapping is
+#' handled internally.
 #'
 #' @references
 #' Davison, A. C., & Hinkley, D. V. (1997). Bootstrap Methods and their
@@ -199,11 +214,15 @@ bootstrap_cube <- function(
 
   # Check if method is specified correctly
   method <- tryCatch({
-    match.arg(method, c("whole_cube", "group_specific", "smart", "boot"))
+    match.arg(
+      method,
+      c("smart", "boot_whole_cube", "boot_group_specific", "whole_cube",
+        "group_specific")
+    )
   }, error = function(e) {
     stop(
-      paste("`method` must be one of 'whole_cube', 'group_specific',",
-            "'smart' or 'boot'."),
+      paste("`method` must be one of 'smart', 'boot_whole_cube',",
+            "'boot_group_specific', 'whole_cube', or 'group_specific'."),
       call. = FALSE
     )
   })
@@ -217,17 +236,18 @@ bootstrap_cube <- function(
   ### End checks
 
   # Get bootstrap method
-  if (method == "smart") {
-    method <- derive_bootstrap_method(
-      df = data_cube,
-      fun = fun,
-      ...,
-      cat_var = grouping_var
-    )
-  }
+  method <- resolve_bootstrap_method(
+    df = data_cube,
+    fun = fun,
+    ...,
+    cat_var = grouping_var,
+    ref_group = ref_group,
+    method = method
+  )
 
   # Perform bootstrapping
   if (method == "whole_cube") {
+
     print("Performing whole-cube bootstrap.")
     bootstrap_samples_df <- bootstrap_cube_raw(
       data_cube = data_cube,
@@ -240,7 +260,9 @@ bootstrap_cube <- function(
       progress = progress
     ) %>%
       mutate(method_boot = "whole_cube")
+
   } else if (method == "group_specific") {
+
     stopifnot(
       "Group-specific bootstrapping requires exactly one grouping variable." =
         length(grouping_var) == 1
@@ -309,6 +331,7 @@ bootstrap_cube <- function(
     # Combine results
     bootstrap_samples_df <- dplyr::bind_rows(bootstrap_samples_list) %>%
       dplyr::mutate(method_boot = "group_specific")
+
   } else {
     # Wrapper for boot::boot() to match expected output
     boot_stat_wrapper <- function(data, indices) {
@@ -325,21 +348,56 @@ bootstrap_cube <- function(
       set.seed(seed)
     }
 
-    # Call boot::boot() with user-specified arguments
-    boot_res <- do.call(
-      boot::boot,
-      c(
-        list(
-          data = data_cube,
-          statistic = boot_stat_wrapper,
-          R = samples
-        ),
-        boot_args
-      )
-    )
+    if (method == "boot_whole_cube") {
 
-    # Return boot object
-    return(boot_res)
+      # Call boot::boot() with user-specified arguments
+      boot_res <- do.call(
+        boot::boot,
+        c(
+          list(
+            data = data_cube,
+            statistic = boot_stat_wrapper,
+            R = samples
+          ),
+          boot_args
+        )
+      )
+
+      # Return boot object
+      return(boot_res)
+
+    }
+
+    if (method == "boot_group_specific") {
+
+      stopifnot(
+        "boot_group_specific requires exactly one grouping variable." =
+          length(grouping_var) == 1
+      )
+
+      # Split data per group
+      cube_split <- split(
+        data_cube,
+        data_cube[[grouping_var]]
+      )
+
+      # Call boot::boot() with user-specified arguments per group
+      boot_list <- lapply(cube_split, function(df) {
+        do.call(
+          boot::boot,
+          c(
+            list(
+              data = df,
+              statistic = boot_stat_wrapper,
+              R = samples
+            ),
+            boot_args
+          )
+        )
+      })
+
+      return(boot_list)
+    }
   }
 
   return(bootstrap_samples_df)

@@ -265,9 +265,6 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
 \code{\link{bootstrap_cube}()},
-\code{\link{bootstrap_cube_raw}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{derive_bootstrap_method}()},
-\code{\link{resolve_bootstrap_method}()}
+\code{\link{calculate_acceleration}()}
 }
 \concept{indicator_uncertainty}

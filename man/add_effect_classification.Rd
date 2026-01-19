@@ -83,10 +83,7 @@ Onkelinx, T. (2023). effectclass: Classification and visualisation of effects
 \seealso{
 Other indicator_uncertainty: 
 \code{\link{bootstrap_cube}()},
-\code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_acceleration}()},
-\code{\link{calculate_bootstrap_ci}()},
-\code{\link{derive_bootstrap_method}()},
-\code{\link{resolve_bootstrap_method}()}
+\code{\link{calculate_bootstrap_ci}()}
 }
 \concept{indicator_uncertainty}

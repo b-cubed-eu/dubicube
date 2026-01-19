@@ -87,7 +87,6 @@ group)
 \item \code{se_boot}: The standard error of the bootstrap estimate (standard
 deviation of the bootstrap replicates per group)
 \item \code{bias_boot}: The bias of the bootstrap estimate per group
-\item \code{method_boot}: The bootstrap method used
 }
 
 If \code{method} resolves to \code{"boot_whole_cube"} or \code{"boot_group_specific"},
@@ -225,10 +224,7 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 \seealso{
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
-\code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_acceleration}()},
-\code{\link{calculate_bootstrap_ci}()},
-\code{\link{derive_bootstrap_method}()},
-\code{\link{resolve_bootstrap_method}()}
+\code{\link{calculate_bootstrap_ci}()}
 }
 \concept{indicator_uncertainty}

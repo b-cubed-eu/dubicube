@@ -43,7 +43,7 @@
 #'    `"group_specific"` or `"whole_cube"` are returned.
 #'
 #' @export
-#' @family indicator_uncertainty
+#' @family indicator_uncertainty_helper
 #'
 #' @examples
 #' # Example 1: Group-specific indicator without a reference group

@@ -102,7 +102,7 @@
 #'
 #' @export
 #'
-#' @family indicator_uncertainty
+#' @family indicator_uncertainty_helper
 #'
 #' @import dplyr
 #' @import assertthat

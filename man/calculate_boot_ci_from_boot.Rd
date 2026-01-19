@@ -58,6 +58,28 @@ This function calculates multiple types of confidence intervals
 (normal, basic, percentile, BCa) for a \pkg{boot} object using
 \code{boot::boot.ci()}.
 }
+\examples{
+\dontrun{
+library(boot)
+
+# Function to compute the mean
+mean_fun <- function(data, indices) {
+  mean(data[indices])
+}
+
+# Bootstrap mean of the 'mpg' variable in mtcars
+set.seed(123)
+boot_obj <- boot(data = mtcars$mpg, statistic = mean_fun, R = 1000)
+
+# Calculate confidence intervals for all types
+ci_df <- calculate_boot_ci_from_boot(
+  boot_obj = boot_obj,
+  type = "all",
+  conf = 0.95
+)
+ci_df
+}
+}
 \seealso{
 Other indicator_uncertainty_helper: 
 \code{\link{bootstrap_cube_raw}()},

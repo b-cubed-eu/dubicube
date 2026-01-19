@@ -60,7 +60,6 @@
 #'   - `se_boot`: The standard error of the bootstrap estimate (standard
 #'   deviation of the bootstrap replicates per group)
 #'   - `bias_boot`: The bias of the bootstrap estimate per group
-#'   - `method_boot`: The bootstrap method used
 #'
 #' If `method` resolves to `"boot_whole_cube"` or `"boot_group_specific"`,
 #' the returned value is an object of class `"boot"`, as produced by
@@ -258,8 +257,8 @@ bootstrap_cube <- function(
       ref_group = ref_group,
       seed = seed,
       progress = progress
-    ) %>%
-      mutate(method_boot = "whole_cube")
+    )
+    return(bootstrap_samples_df)
 
   } else if (method == "group_specific") {
 
@@ -322,15 +321,13 @@ bootstrap_cube <- function(
         ref_group = ref_group,
         seed = seed,
         progress = progress
-      ) %>%
-        dplyr::mutate(method_boot = "group_specific")
+      )
 
       bootstrap_samples_list[[group]] <- group_bootstrap_samples
     }
 
     # Combine results
-    bootstrap_samples_df <- dplyr::bind_rows(bootstrap_samples_list) %>%
-      dplyr::mutate(method_boot = "group_specific")
+    return(dplyr::bind_rows(bootstrap_samples_list))
 
   } else {
     # Wrapper for boot::boot() to match expected output
@@ -402,6 +399,4 @@ bootstrap_cube <- function(
       return(boot_list)
     }
   }
-
-  return(bootstrap_samples_df)
 }

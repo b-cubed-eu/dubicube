@@ -18,6 +18,12 @@ mean_obs <- function(data) {
   out_df
 }
 
+mean_obs_simple <- function(data) {
+  out_df <- aggregate(obs ~ year, data, mean)
+  names(out_df) <- c("year", "diversity_val")
+  out_df
+}
+
 test_that("non-boot whole-cube and group-specific bootstraps", {
   # whole_cube
   res <- bootstrap_cube(
@@ -34,8 +40,8 @@ test_that("non-boot whole-cube and group-specific bootstraps", {
   # group_specific
   res <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = "taxonKey",
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,
@@ -62,8 +68,8 @@ test_that("bootstrap_cube handles reference group correctly", {
 test_that("bootstrap_cube smart method resolves method_boot", {
   res <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = "taxonKey",
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,
@@ -110,6 +116,17 @@ test_that("bootstrap_cube validates inputs and method", {
     ),
     "requires exactly one grouping variable"
   )
+
+  expect_error(
+    bootstrap_cube(
+      data_cube = cube_df,
+      fun = mean_obs,
+      grouping_var = c("taxonKey"),
+      processed_cube = FALSE,
+      method = "group_specific"
+    ),
+    "Not enough variables specified in `grouping_var`."
+  )
 })
 
 test_that("bootstrap_cube supports boot::boot() method", {
@@ -130,8 +147,8 @@ test_that("bootstrap_cube supports boot::boot() method", {
   # boot_group_specific
   res_list <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = "taxonKey",
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,

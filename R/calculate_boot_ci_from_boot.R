@@ -70,6 +70,20 @@ calculate_boot_ci_from_boot <- function(
     h = function(t) t,
     hinv = function(t) t,
     boot_args = list()) {
+  ### Start checks
+  stopifnot(
+    "`boot_obj` must be a `boot` object (created by boot::boot)." =
+      inherits(boot_obj, "boot")
+  )
+  # Check if interval type is correct
+  stopifnot("`type` must be one of 'perc', 'bca', 'norm', 'basic'." =
+              all(is.element(type, c("perc", "bca", "norm", "basic", "all"))))
+  # conf should be numeric between 0 and 1
+  stopifnot("`conf` must be a numeric value between 0 and 1." =
+              assertthat::is.number(conf) &
+              (conf > 0 & conf < 1))
+  ### End checks
+
   # Determine which CI types to calculate
   ci_types <- if (any(type == "all")) {
     c("norm", "basic", "perc", "bca")
@@ -103,7 +117,7 @@ calculate_boot_ci_from_boot <- function(
       stat_index = idx,
       est_original = rep(boot_obj$t0[idx], length(ci_types)),
       int_type = names(res)[
-        names(res) %in%c("normal", "basic", "percent", "bca")
+        names(res) %in% c("normal", "basic", "percent", "bca")
       ],
       ll = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
                   function(x) x[length(x) - 1]),

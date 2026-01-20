@@ -130,7 +130,12 @@ perform_jackknifing <- function(
     # Calculate jackknife estimates for difference for non-reference groups
     thetai_nonref <- jackknife_df %>%
       dplyr::filter(.data[[matching_col]] != ref_group) %>%
-      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      safe_join(
+        ref_val,
+        by = setdiff(grouping_var, matching_col),
+        type = "left",
+        relationship = "many-to-many"
+      ) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$jack_rep - .data$theta2) %>%
       dplyr::ungroup()
@@ -143,8 +148,12 @@ perform_jackknifing <- function(
     thetai_ref <- jackknife_df %>%
       dplyr::filter(.data[[matching_col]] == ref_group) %>%
       dplyr::select(-dplyr::all_of(matching_col)) %>%
-      dplyr::right_join(non_ref_val,
-                        by = setdiff(grouping_var, matching_col)) %>%
+      safe_join(
+        non_ref_val,
+        by = setdiff(grouping_var, matching_col),
+        type = "right",
+        relationship = "many-to-many"
+      ) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$theta1 - .data$jack_rep) %>%
       dplyr::ungroup()

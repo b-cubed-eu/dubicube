@@ -1,5 +1,9 @@
 # Script to create blur-spatial-uncertainty.png
 
+library(dplyr)
+library(ggplot2)
+library(sf)
+
 # Create a simple 3x3 grid using sf
 grid_size <- 1  # Define cell size
 grid <- expand.grid(x = 1:3, y = 1:3) %>%
@@ -77,36 +81,41 @@ p_blur <- ggplot() +
   theme_minimal() +
   theme(panel.grid = element_line(linewidth = 1)) +
   labs(title = "Blur", x = "", y = "", colour = "Estimate") +
-  guides(blur_size = "none") +
-  annotate("segment",
-           x = 1.5,
-           y = 0.8,
-           xend = 3.5,
-           yend = 0.8,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  guides(lur_size = "none") +
+  annotate(
+    "segment",
+    x = 1.5,
+    y = 0.8,
+    xend = 3.5,
+    yend = 0.8,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("segment",
-           x = 0.8,
-           y = 1.5,
-           xend = 0.8,
-           yend = 3.5,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 0.8,
+    y = 1.5,
+    xend = 0.8,
+    yend = 3.5,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher uncertainty"),
-           x = 2.5,
-           y = 0.65,
-           size = 5, hjust = "center", vjust = "center", colour = "black"
+  annotate(
+    "text",
+    label = c("Higher uncertainty"),
+    x = 2.5,
+    y = 0.65,
+    size = 5, hjust = "center", vjust = "center", colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher estimate"),
-           x = 0.7,
-           y = 2.5,
-           size = 5, hjust = "center", vjust = "bottom", colour = "black", angle = 90
+  annotate(
+    "text",
+    label = c("Higher estimate"),
+    x = 0.7,
+    y = 2.5,
+    size = 5, hjust = "center", vjust = "bottom", colour = "black",
+    angle = 90
   )
 
 # Increasing blur and descreasing size with increasing uncertainty
@@ -134,35 +143,40 @@ p_blur2 <- ggplot() +
   theme(panel.grid = element_line(linewidth = 1)) +
   labs(title = "Blur + Size", x = "", y = "", colour = "Estimate") +
   guides(blur_size = "none") +
-  annotate("segment",
-           x = 1.5,
-           y = 0.8,
-           xend = 3.5,
-           yend = 0.8,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 1.5,
+    y = 0.8,
+    xend = 3.5,
+    yend = 0.8,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("segment",
-           x = 0.8,
-           y = 1.5,
-           xend = 0.8,
-           yend = 3.5,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 0.8,
+    y = 1.5,
+    xend = 0.8,
+    yend = 3.5,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher uncertainty"),
-           x = 2.5,
-           y = 0.65,
-           size = 5, hjust = "center", vjust = "center", colour = "black"
+  annotate(
+    "text",
+    label = c("Higher uncertainty"),
+    x = 2.5,
+    y = 0.65,
+    size = 5, hjust = "center", vjust = "center", colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher estimate"),
-           x = 0.7,
-           y = 2.5,
-           size = 5, hjust = "center", vjust = "bottom", colour = "black", angle = 90
+  annotate(
+    "text",
+    label = c("Higher estimate"),
+    x = 0.7,
+    y = 2.5,
+    size = 5, hjust = "center", vjust = "bottom", colour = "black",
+    angle = 90
   )
 
 # Increasing transparency with increasing uncertainty
@@ -177,35 +191,40 @@ p_transparency <- ggplot() +
   theme_minimal() +
   theme(panel.grid = element_line(linewidth = 1)) +
   labs(title = "Transparency", x = "", y = "", colour = "Estimate") +
-  annotate("segment",
-           x = 1.5,
-           y = 0.8,
-           xend = 3.5,
-           yend = 0.8,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 1.5,
+    y = 0.8,
+    xend = 3.5,
+    yend = 0.8,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("segment",
-           x = 0.8,
-           y = 1.5,
-           xend = 0.8,
-           yend = 3.5,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 0.8,
+    y = 1.5,
+    xend = 0.8,
+    yend = 3.5,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher uncertainty"),
-           x = 2.5,
-           y = 0.65,
-           size = 5, hjust = "center", vjust = "center", colour = "black"
+  annotate(
+    "text",
+    label = c("Higher uncertainty"),
+    x = 2.5,
+    y = 0.65,
+    size = 5, hjust = "center", vjust = "center", colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher estimate"),
-           x = 0.7,
-           y = 2.5,
-           size = 5, hjust = "center", vjust = "bottom", colour = "black", angle = 90
+  annotate(
+    "text",
+    label = c("Higher estimate"),
+    x = 0.7,
+    y = 2.5,
+    size = 5, hjust = "center", vjust = "bottom", colour = "black",
+    angle = 90
   )
 
 # Increasing transparency and descreasing size with increasing uncertainty
@@ -222,35 +241,40 @@ p_transparency2 <- ggplot() +
   theme(panel.grid = element_line(linewidth = 1)) +
   labs(title = "Transparency + Size", x = "", y = "", colour = "Estimate") +
   guides(size = "none") +
-  annotate("segment",
-           x = 1.5,
-           y = 0.8,
-           xend = 3.5,
-           yend = 0.8,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 1.5,
+    y = 0.8,
+    xend = 3.5,
+    yend = 0.8,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("segment",
-           x = 0.8,
-           y = 1.5,
-           xend = 0.8,
-           yend = 3.5,
-           linewidth = 1,
-           arrow = arrow(type = "closed", length = unit(0.02, "npc")),
-           colour = "black"
+  annotate(
+    "segment",
+    x = 0.8,
+    y = 1.5,
+    xend = 0.8,
+    yend = 3.5,
+    linewidth = 1,
+    arrow = arrow(type = "closed", length = unit(0.02, "npc")),
+    colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher uncertainty"),
-           x = 2.5,
-           y = 0.65,
-           size = 5, hjust = "center", vjust = "center", colour = "black"
+  annotate(
+    "text",
+    label = c("Higher uncertainty"),
+    x = 2.5,
+    y = 0.65,
+    size = 5, hjust = "center", vjust = "center", colour = "black"
   ) +
-  annotate("text",
-           label = c("Higher estimate"),
-           x = 0.7,
-           y = 2.5,
-           size = 5, hjust = "center", vjust = "bottom", colour = "black", angle = 90
+  annotate(
+    "text",
+    label = c("Higher estimate"),
+    x = 0.7,
+    y = 2.5,
+    size = 5, hjust = "center", vjust = "bottom", colour = "black",
+    angle = 90
   )
 
 # Create grid plot

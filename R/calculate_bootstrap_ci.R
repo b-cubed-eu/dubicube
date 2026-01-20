@@ -269,15 +269,19 @@ calculate_bootstrap_ci <- function(
       "Cannot use a 'boot' method when a no bias is specified." =
         no_bias == FALSE
     )
-    ci_list <- lapply(bootstrap_samples_df, function(boot_obj) {
-      calculate_boot_ci_from_boot(
-        boot_obj = boot_obj,
+    ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
+      ci <- calculate_boot_ci_from_boot(
+        boot_obj = bootstrap_samples_df[[i]],
         type = type,
         conf = conf,
         h = h,
         hinv = hinv,
         boot_args = boot_args
       )
+
+      # Overwrite stat_index
+      ci$stat_index <- i
+      ci
     })
     return(dplyr::bind_rows(ci_list))
   }

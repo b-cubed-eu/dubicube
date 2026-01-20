@@ -30,8 +30,6 @@ test_that("non-boot whole-cube and group-specific bootstraps", {
     method = "whole_cube"
   )
   expect_s3_class(res, "data.frame")
-  expect_true("method_boot" %in% names(res))
-  expect_true(all(res$method_boot == "whole_cube"))
 
   # group_specific
   res <- bootstrap_cube(

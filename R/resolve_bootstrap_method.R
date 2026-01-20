@@ -95,9 +95,6 @@ resolve_bootstrap_method <- function(
     ref_group,
     method) {
   ### Start checks
-  stopifnot("`df` must be a dataframe." = inherits(df, "data.frame"))
-  stopifnot("`fun` must be a function." = is.function(fun))
-  stopifnot("`cat_var` must be a character vector." = is.character(cat_var))
   stopifnot("`method` must be a character string of length 1." =
               is.character(method) && length(method) == 1)
 

@@ -125,7 +125,7 @@ perform_jackknifing <- function(
     ref_val <- group_estimates %>%
       dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
       dplyr::rename("theta2" = "diversity_val") %>%
-      dplyr::select(-matching_col)
+      dplyr::select(-dplyr::all_of(matching_col))
 
     # Calculate jackknife estimates for difference for non-reference groups
     thetai_nonref <- jackknife_df %>%
@@ -142,7 +142,7 @@ perform_jackknifing <- function(
 
     thetai_ref <- jackknife_df %>%
       dplyr::filter(.data[[matching_col]] == ref_group) %>%
-      dplyr::select(-matching_col) %>%
+      dplyr::select(-dplyr::all_of(matching_col)) %>%
       dplyr::right_join(non_ref_val,
                         by = setdiff(grouping_var, matching_col)) %>%
       dplyr::rowwise() %>%

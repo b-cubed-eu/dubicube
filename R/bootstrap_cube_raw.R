@@ -255,7 +255,7 @@ bootstrap_cube_raw <- function(
       ref_val <- df %>%
         dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
         dplyr::rename("ref_val" = "diversity_val") %>%
-        dplyr::select(-matching_col, -"sample")
+        dplyr::select(-dplyr::all_of(matching_col), -"sample")
 
       df %>%
         dplyr::filter(.data[[matching_col]] != !!ref_group) %>%

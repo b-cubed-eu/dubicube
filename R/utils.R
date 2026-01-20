@@ -184,7 +184,7 @@ calc_stat_by_group <- function(
     ref_val <- t0_full %>%
       dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
       dplyr::rename("ref_val" = "diversity_val") %>%
-      dplyr::select(-matching_col)
+      dplyr::select(-dplyr::all_of(matching_col))
 
     # Calculate true statistic
     t0 <- t0_full %>%

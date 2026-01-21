@@ -26,6 +26,21 @@ The choice between these two methods directly affects how confidence intervals s
 In this tutorial, we explain the differences, discuss the strengths and limitations of each method, and provide a worked example.
 
 ## Methods
+
+Consider the `iris` example dataset. We calculate the mean sepal length and use bootstrapping for uncertainty calculation.
+
+```{r}
+mean_sepal_length <- function(x) {
+  out_df <- aggregate(Sepal.Length ~ Species, x, mean)
+  names(out_df) <- c("Species", "diversity_val")
+  out_df
+}
+```
+
+```{r}
+mean_sepal_length(iris)
+```
+
 ### `dubicube`'s smart method
 
 The smart option (`method = "smart"`) is the default functionality of the `bootstrap_cube()` function. With this option, **dubicube** automatically chooses the most suitable method. It does so by comparing indicator values calculated on larger versus smaller subsets of the data, checking whether the common groups yield identical results. If so, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used. If no reference group is used (`ref_group = NA`), the **boot** package is used for bootstrapping.
@@ -38,6 +53,24 @@ The smart option (`method = "smart"`) is the default functionality of the `boots
 | Whole cube                     | Yes                   | `whole_cube`          | no  |
 
 In practice, users rarely need to set method explicitly: `method = "smart"` selects the appropriate strategy based on indicator behaviour and the presence of a reference group.
+
+```{r}
+bootstrap_mean_smart <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  seed = 123,
+  processed_cube = FALSE # We are not working with a processed cube
+)
+```
+
+As expected, the **boot** package was used since no reference group was specified and we use group-specific bootstrapping since the mean sepal length is calculated separately per species.
+We get a named list of boot objects.
+
+```{r}
+sapply(bootstrap_mean_smart, class)
+```
 
 ### Whole-cube bootstrap
 
@@ -63,6 +96,19 @@ In practice, users rarely need to set method explicitly: `method = "smart"` sele
 
 * Use `method = "whole_cube"` in the `bootstrap_cube()` function.
 
+```{r}
+bootstrap_mean_whole_cube <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  seed = 123,
+  processed_cube = FALSE,
+  method = "whole_cube"
+)
+head(bootstrap_mean_whole_cube)
+```
+
 ### Group-specific bootstrap
 
 **Definition:** Subset the cube by the group of interest (e.g., species or year), then resample rows only within that group.
@@ -86,6 +132,19 @@ In practice, users rarely need to set method explicitly: `method = "smart"` sele
 **Implementation in `dubicube`**
 
 * Use `method = "group_specific"` in the `bootstrap_cube()` function.
+
+```{r}
+bootstrap_mean_group_specific <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  seed = 123,
+  processed_cube = FALSE,
+  method = "group_specific"
+)
+head(bootstrap_mean_group_specific)
+```
 
 ### Bootstrapping with boot
 

@@ -43,6 +43,10 @@ mean_sepal_length(iris)
 
 ### `dubicube`'s smart method
 
+```{r}
+library(dubicube)
+```
+
 The smart option (`method = "smart"`) is the default functionality of the `bootstrap_cube()` function. With this option, **dubicube** automatically chooses the most suitable method. It does so by comparing indicator values calculated on larger versus smaller subsets of the data, checking whether the common groups yield identical results. If so, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used. If no reference group is used (`ref_group = NA`), the **boot** package is used for bootstrapping.
 
 | Scope of indicator calculation | Reference group used? | Method chosen by `method = "smart"` | Uses **boot** package? |
@@ -66,7 +70,7 @@ bootstrap_mean_smart <- bootstrap_cube(
 ```
 
 As expected, the **boot** package was used since no reference group was specified and we use group-specific bootstrapping since the mean sepal length is calculated separately per species.
-We get a named list of boot objects.
+We get a named list of `"boot"` objects (see further).
 
 ```{r}
 sapply(bootstrap_mean_smart, class)
@@ -97,7 +101,7 @@ sapply(bootstrap_mean_smart, class)
 * Use `method = "whole_cube"` in the `bootstrap_cube()` function.
 
 ```{r}
-bootstrap_mean_whole_cube <- bootstrap_cube(
+bootstrap_mean_whole <- bootstrap_cube(
   data_cube = iris,
   fun = mean_sepal_length,
   grouping_var = "Species",
@@ -106,7 +110,7 @@ bootstrap_mean_whole_cube <- bootstrap_cube(
   processed_cube = FALSE,
   method = "whole_cube"
 )
-head(bootstrap_mean_whole_cube)
+head(bootstrap_mean_whole)
 ```
 
 ### Group-specific bootstrap
@@ -134,7 +138,7 @@ head(bootstrap_mean_whole_cube)
 * Use `method = "group_specific"` in the `bootstrap_cube()` function.
 
 ```{r}
-bootstrap_mean_group_specific <- bootstrap_cube(
+bootstrap_mean_group <- bootstrap_cube(
   data_cube = iris,
   fun = mean_sepal_length,
   grouping_var = "Species",
@@ -143,13 +147,57 @@ bootstrap_mean_group_specific <- bootstrap_cube(
   processed_cube = FALSE,
   method = "group_specific"
 )
-head(bootstrap_mean_group_specific)
+head(bootstrap_mean_group)
 ```
 
-### Bootstrapping with boot
+### Bootstrapping with the **boot** package
+
+For most use cases, **dubicube** delegates the resampling procedure to the well-established **boot** package (Canty et al., [2025](https://doi.org/10.32614/CRAN.package.boot)). This happens when:
+
+* Automatically with `method = "smart"` (default) and no reference group is specified (default)
+* Manually with `method = "boot_whole_cube"` or `method = "boot_group_specific"`
+
+In these cases, `bootstrap_cube()` returns the native objects produced by `boot::boot()`, rather than a summarised data frame.
+
+#### Whole-cube bootstrap with **boot**
+
+When whole-cube bootstrapping is performed via **boot**, a single `"boot"` object is returned.
+
+```{r}
+bootstrap_mean_boot_whole <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  seed = 123,
+  processed_cube = FALSE,
+  method = "boot_whole_cube"
+)
+class(bootstrap_mean_boot_whole)
+```
+
+#### Group-specific bootstrap with **boot**
+
+For group-specific bootstrapping via **boot**, `bootstrap_cube()` returns a named list of `"boot"` objects, one per group.
+
+```{r}
+bootstrap_mean_boot_group <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  seed = 123,
+  processed_cube = FALSE,
+  method = "boot_group_specific"
+)
+sapply(bootstrap_mean_boot_group, class)
+```
+
+## Comparison between methods
+### Comparing results
 
 > Under construction
 
-## Comparing performance between methods
+### Comparing speed
 
 > Under construction

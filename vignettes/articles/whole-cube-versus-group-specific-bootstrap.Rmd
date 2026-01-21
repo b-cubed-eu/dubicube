@@ -196,7 +196,55 @@ sapply(bootstrap_mean_boot_group, class)
 ## Comparison between methods
 ### Comparing results
 
-> Under construction
+```{r}
+library(dplyr)
+```
+
+```{r}
+boot_to_dataframe <- function(boot, grouping_var = "Species") {
+  out_df <- data.frame(
+    sample = seq_len(prod(dim(boot$t))),
+    Species = rep(
+      levels(boot$data[[grouping_var]]),
+      each = boot$R
+    ),
+    est_original = rep(
+      boot$t0,
+      each = boot$R
+    ),
+    rep_boot = as.vector(boot$t),
+    est_boot = rep(
+      apply(boot$t, 2, mean),
+      each = boot$R
+    ),
+    se_boot = rep(
+      apply(boot$t, 2, sd),
+      each = boot$R
+    )
+  )
+  out_df$bias_boot <- out_df$est_boot - out_df$est_original
+  
+  return(out_df)
+}
+```
+
+```{r}
+# Whole-cube to dataframe
+bootstrap_mean_boot_whole_df <- boot_to_dataframe(bootstrap_mean_boot_whole)
+
+# Group-specific to dataframe
+bootstrap_mean_boot_group_df <- lapply(
+  names(bootstrap_mean_boot_group),
+  function(name) {
+    boot_to_dataframe(bootstrap_mean_boot_group[[name]]) %>%
+      filter(Species == name)
+  }
+) %>%
+  bind_rows()
+head(bootstrap_mean_boot_group_df)
+```
+
+
 
 ### Comparing speed
 

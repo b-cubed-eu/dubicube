@@ -243,26 +243,30 @@ bootstrap_mean_boot_group_df <- lapply(
   }
 ) %>%
   bind_rows()
-head(bootstrap_mean_boot_group_df)
+```
+
+```{r}
+bootstrap_mean_whole %>%
+  distinct(Species, est_original, est_boot, se_boot, bias_boot)
+bootstrap_mean_group %>%
+  distinct(Species, est_original, est_boot, se_boot, bias_boot)
+bootstrap_mean_boot_whole_df %>%
+  distinct(Species, est_original, est_boot, se_boot, bias_boot)
+bootstrap_mean_boot_group_df %>%
+  distinct(Species, est_original, est_boot, se_boot, bias_boot)
 ```
 
 Calculate confidence intervals:
 
 ```{r}
-ci_mean_group <- calculate_bootstrap_ci(
+ci_mean_whole <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_whole,
   grouping_var = "Species",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   data_cube = iris,         # Required for BCa
   fun = mean_sepal_length   # Required for BCa
-) %>%
-  mutate(
-    method = "whole_cube",
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  )
+)
 ci_mean_group <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_group,
   grouping_var = "Species",
@@ -270,37 +274,17 @@ ci_mean_group <- calculate_bootstrap_ci(
   conf = 0.95,
   data_cube = iris,         # Required for BCa
   fun = mean_sepal_length   # Required for BCa
-) %>%
-  mutate(
-    method = "group_specific",
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  )
+)
 ci_mean_boot_whole <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_boot_whole,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
-) %>%
-  mutate(
-    Species = rep(levels(iris$Species), each = 4),
-    method = "boot_whole_cube",
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  )
+)
 ci_mean_boot_group <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_boot_group,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
-) %>%
-  mutate(
-    Species = rep(levels(iris$Species), each = 4),
-    method = "boot_group_specific",
-    int_type = factor(
-      int_type, levels = c("perc", "bca", "norm", "basic")
-    )
-  )
+)
 ```
 
 ```{r}
@@ -314,6 +298,25 @@ bootstrap_results <- bind_rows(
   bootstrap_mean_boot_group_df %>%
     mutate(method = "boot_group_specific")
 )
+
+ci_results <- bind_rows(
+  ci_mean_whole %>%
+    mutate(method = "whole_cube"),
+  ci_mean_group %>%
+    mutate(method = "group_specific"),
+  ci_mean_boot_whole %>%
+    mutate(method = "boot_whole_cube",
+           Species = rep(levels(iris$Species), each = 4)),
+  ci_mean_boot_group %>%
+    mutate(method = "boot_group_specific",
+           Species = rep(levels(iris$Species), each = 4))
+) %>%
+  mutate(
+    int_type = factor(
+      int_type, levels = c("perc", "bca", "norm", "basic")
+    )
+  ) %>%
+  select(Species, int_type, ll, ul, method)
 
 # Get bias values
 bias_mean_obs <- bootstrap_results %>%
@@ -337,14 +340,13 @@ bootstrap_results %>%
   geom_point(data = estimate_mean_obs, aes(y = value, shape = Legend),
              colour = "firebrick", size = 2, alpha = 0.5) +
   # Intervals
-  geom_errorbar(data = ci_mean_obs,
+  geom_errorbar(data = ci_results,
                 aes(ymin = ll, ymax = ul, colour = int_type),
                 position = position_dodge(0.8), linewidth = 0.8) +
   facet_wrap(~method) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))

@@ -225,7 +225,7 @@ boot_to_dataframe <- function(boot, grouping_var = "Species") {
     )
   )
   out_df$bias_boot <- out_df$est_boot - out_df$est_original
-  
+
   return(out_df)
 }
 ```
@@ -290,25 +290,33 @@ ci_mean_boot_group <- calculate_bootstrap_ci(
 ```{r}
 bootstrap_results <- bind_rows(
   bootstrap_mean_whole %>%
-    mutate(method = "whole_cube"),
+    mutate(method = "whole_cube",
+           boot = "no boot"),
   bootstrap_mean_group %>%
-    mutate(method = "group_specific"),
+    mutate(method = "group_specific",
+           boot = "no boot"),
   bootstrap_mean_boot_whole_df %>%
-    mutate(method = "boot_whole_cube"),
+    mutate(method = "whole_cube",
+           boot = "boot"),
   bootstrap_mean_boot_group_df %>%
-    mutate(method = "boot_group_specific")
+    mutate(method = "group_specific",
+           boot = "boot")
 )
 
 ci_results <- bind_rows(
   ci_mean_whole %>%
-    mutate(method = "whole_cube"),
+    mutate(method = "whole_cube",
+           boot = "no boot"),
   ci_mean_group %>%
-    mutate(method = "group_specific"),
+    mutate(method = "group_specific",
+           boot = "no boot"),
   ci_mean_boot_whole %>%
-    mutate(method = "boot_whole_cube",
+    mutate(method = "whole_cube",
+           boot = "boot",
            Species = rep(levels(iris$Species), each = 4)),
   ci_mean_boot_group %>%
-    mutate(method = "boot_group_specific",
+    mutate(method = "group_specific",
+           boot = "boot",
            Species = rep(levels(iris$Species), each = 4))
 ) %>%
   mutate(
@@ -316,12 +324,12 @@ ci_results <- bind_rows(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
   ) %>%
-  select(Species, int_type, ll, ul, method)
+  select(Species, int_type, ll, ul, method, boot)
 
 # Get bias values
 bias_mean_obs <- bootstrap_results %>%
   distinct(Species, estimate = est_original, `bootstrap estimate` = est_boot,
-           method)
+           method, boot)
 
 # Get estimate values
 estimate_mean_obs <- bias_mean_obs %>%
@@ -343,7 +351,7 @@ bootstrap_results %>%
   geom_errorbar(data = ci_results,
                 aes(ymin = ll, ymax = ul, colour = int_type),
                 position = position_dodge(0.8), linewidth = 0.8) +
-  facet_wrap(~method) +
+  facet_grid(method ~ boot) +
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
@@ -352,7 +360,216 @@ bootstrap_results %>%
         legend.title = element_text(face = "bold"))
 ```
 
-
 ### Comparing speed
 
-> Under construction
+To illustrate the computational performance of the different bootstrapping strategies, we use the classic `iris` dataset. As a simple example indicator, we calculate the mean sepal length per species and quantify uncertainty using bootstrap-based confidence intervals.
+
+```{r}
+mean_sepal_length <- function(x) {
+  out_df <- aggregate(Sepal.Length ~ Species, x, mean)
+  names(out_df) <- c("Species", "diversity_val")
+  out_df
+}
+```
+
+```{r}
+mean_sepal_length(iris)
+```
+
+We benchmark execution time using the **microbenchmark** package (Mersmann et al., [2024](https://doi.org/10.32614/CRAN.package.microbenchmark)).
+Two computational steps are evaluated separately:
+
+1. Bootstrap resampling using `bootstrap_cube()` (1,000 bootstrap samples)
+2. Confidence interval calculation using `calculate_bootstrap_ci()` (all intervals (`"perc"`, `"bca"`, `"norm", `"basic"`))
+
+For each step, we compare:
+
+* Whole-cube vs group-specific resampling strategies, and
+* Internal `dubicube` implementations vs delegation to the `boot` package.
+
+The label "boot" indicates that `dubicube` relies on the `boot` package for resampling or interval calculation, whereas "no boot" denotes that the same task is performed using `dubicube`'s internal code paths.
+Each method is executed 20 times and timings are reported in milliseconds.
+All benchmarks are run with identical inputs and a fixed random seed to ensure comparability.
+
+> discuss results
+
+```{r, echo=FALSE}
+library(microbenchmark)
+
+set.seed(123)
+
+# Time bootstrapping
+results_whole <- microbenchmark(
+  {
+    bootstrap_cube(
+      data_cube = iris,
+      fun = mean_sepal_length,
+      grouping_var = "Species",
+      samples = 1000,
+      processed_cube = FALSE,
+      method = "whole_cube"
+    )
+  },
+  times = 20
+)
+
+results_group <- microbenchmark(
+  {
+    bootstrap_cube(
+      data_cube = iris,
+      fun = mean_sepal_length,
+      grouping_var = "Species",
+      samples = 1000,
+      processed_cube = FALSE,
+      method = "group_specific"
+    )
+  },
+  times = 20
+)
+
+results_boot_whole <- microbenchmark(
+  {
+    bootstrap_cube(
+      data_cube = iris,
+      fun = mean_sepal_length,
+      grouping_var = "Species",
+      samples = 1000,
+      processed_cube = FALSE,
+      method = "boot_whole_cube"
+    )
+  },
+  times = 20
+)
+
+results_boot_group <- microbenchmark(
+  {
+    bootstrap_cube(
+      data_cube = iris,
+      fun = mean_sepal_length,
+      grouping_var = "Species",
+      samples = 1000,
+      processed_cube = FALSE,
+      method = "boot_group_specific"
+    )
+  },
+  times = 20
+)
+
+# Time confidence interval calculation
+results_ci_whole <- microbenchmark(
+  {
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = bootstrap_mean_whole,
+      grouping_var = "Species",
+      type = c("perc", "bca", "norm", "basic"),
+      conf = 0.95,
+      data_cube = iris,         # Required for BCa
+      fun = mean_sepal_length   # Required for BCa
+    )
+  },
+  times = 20
+)
+
+results_ci_group <- microbenchmark(
+  {
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = bootstrap_mean_group,
+      grouping_var = "Species",
+      type = c("perc", "bca", "norm", "basic"),
+      conf = 0.95,
+      data_cube = iris,         # Required for BCa
+      fun = mean_sepal_length   # Required for BCa
+    )
+  },
+  times = 20
+)
+
+results_ci_boot_whole <- microbenchmark(
+  {
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = bootstrap_mean_boot_whole,
+      type = c("perc", "bca", "norm", "basic"),
+      conf = 0.95
+    )
+  },
+  times = 20
+)
+
+results_ci_boot_group <- microbenchmark(
+  {
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = bootstrap_mean_boot_group,
+      type = c("perc", "bca", "norm", "basic"),
+      conf = 0.95
+    )
+  },
+  times = 20
+)
+
+# Create dataframes
+bench_df <- bind_rows(
+  as.data.frame(results_whole) %>%
+    mutate(
+      method = "whole-cube",
+      boot   = "no boot"
+    ),
+  as.data.frame(results_group) %>%
+    mutate(
+      method = "group-specific",
+      boot   = "no boot"
+    ),
+  as.data.frame(results_boot_whole) %>%
+    mutate(
+      method = "whole-cube",
+      boot   = "boot"
+    ),
+  as.data.frame(results_boot_group) %>%
+    mutate(
+      method = "group-specific",
+      boot   = "boot"
+    )
+) %>%
+  mutate(
+    time_ms = time / 1e6  # nanoseconds → milliseconds
+  )
+
+bench_ci_df <- bind_rows(
+  as.data.frame(results_ci_whole) %>%
+    mutate(
+      method = "whole-cube",
+      boot   = "no boot"
+    ),
+  as.data.frame(results_ci_group) %>%
+    mutate(
+      method = "group-specific",
+      boot   = "no boot"
+    ),
+  as.data.frame(results_ci_boot_whole) %>%
+    mutate(
+      method = "whole-cube",
+      boot   = "boot"
+    ),
+  as.data.frame(results_ci_boot_group) %>%
+    mutate(
+      method = "group-specific",
+      boot   = "boot"
+    )
+) %>%
+  mutate(
+    time_ms = time / 1e6  # nanoseconds → milliseconds
+  )
+
+# Create boxplots to visualise results
+bind_rows(
+  bench_df %>%
+    mutate(cat = "bootstrapping"),
+  bench_ci_df %>%
+    mutate(cat = "CI calculation (all)")
+) %>%
+  ggplot(aes(x = boot, y = time_ms, fill = boot)) +
+  geom_boxplot(outlier.alpha = 0.6) +
+  labs(x = "", y = "Execution time (ms)") +
+  facet_grid(cat ~ method, scales = "free") +
+  theme_minimal() +
+  theme(legend.position = "")
+```

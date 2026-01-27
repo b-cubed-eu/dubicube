@@ -113,13 +113,8 @@ bootstrap_results <- bootstrap_cube(
   fun = mean_obs_grid,
   grouping_var = "cellCode",
   samples = 1000,
-  method = "group_specific",
   seed = 123
 )
-```
-
-```{r}
-head(bootstrap_results)
 ```
 
 ### Interval calculation
@@ -132,9 +127,7 @@ ci_mean_obs <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results,
   grouping_var = "cellCode",
   type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  data_cube = processed_cube,   # Required for BCa
-  fun = mean_obs_grid           # Required for Bca
+  conf = 0.95
 )
 
 # Make interval type factor

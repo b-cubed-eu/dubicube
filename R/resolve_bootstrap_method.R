@@ -3,12 +3,13 @@
 #' Resolves the effective bootstrap method to be used by
 #' [bootstrap_cube()], combining:
 #'
-#' - the *scope* of the indicator (group-specific vs whole-cube), and
+#' - the scope of the indicator (group-specific vs whole-cube), and
 #' - whether a reference group is used.
 #'
 #' When `method = "smart"`, the scope of the indicator is inferred using
 #' [derive_bootstrap_method()]. If no reference group is specified
-#' (`ref_group = NA`), the corresponding `boot_*` method is selected.
+#' (`ref_group = NA`) and exactly one grouping variable is used
+#' (`length(cat_var) == 1`), the corresponding `boot_*` method is selected.
 #'
 #' @param df A dataframe.
 #' @param fun A function which, when applied to `df`, returns the
@@ -37,9 +38,13 @@
 #' 1. If `method` is not `"smart"`, it is returned unchanged.
 #' 2. If `method = "smart"`, the indicator scope is inferred using
 #'    [derive_bootstrap_method()].
-#' 3. If `ref_group = NA`, the resolved method is prefixed with `"boot_"`,
-#'    resulting in `"boot_group_specific"` or `"boot_whole_cube"`.
-#' 4. If a reference group is specified, the non-boot variants
+#' 3. If more than one grouping variable is specified
+#'    (`length(cat_var) > 1`), bootstrapping via the \pkg{boot} package
+#'    is disabled and the inferred non-boot method is returned.
+#' 4. If exactly one grouping variable is used and `ref_group = NA`,
+#'    the resolved method is prefixed with `"boot_"`, resulting in
+#'    `"boot_group_specific"` or `"boot_whole_cube"`.
+#' 5. If a reference group is specified, the non-boot variants
 #'    `"group_specific"` or `"whole_cube"` are returned.
 #'
 #' @export
@@ -102,6 +107,15 @@ resolve_bootstrap_method <- function(
   if (!is.na(ref_group) && grepl("^boot_", method)) {
     stop("Cannot use a 'boot' method when a reference group is specified.")
   }
+
+  # Disallow boot methods when multiple grouping variables are used
+  # (boot delegation is only supported for a single grouping dimension)
+  if (length(cat_var) > 1 && grepl("^boot_", method)) {
+    stop(
+      "Bootstrap methods using the 'boot' package are not supported ",
+      "when multiple grouping variables are specified."
+    )
+  }
   ### End checks
 
   if (method != "smart") {
@@ -115,6 +129,15 @@ resolve_bootstrap_method <- function(
     cat_var = cat_var
   )
 
+  # If multiple grouping variables are used, never delegate to 'boot'
+  # even when method = "smart"
+  if (length(cat_var) > 1) {
+    return(scope_method)
+  }
+
+  # Single grouping variable:
+  # - use boot methods when no reference group is specified
+  # - otherwise fall back to non-boot variants
   if (is.na(ref_group)) {
     paste0("boot_", scope_method)
   } else {

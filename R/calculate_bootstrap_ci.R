@@ -41,11 +41,12 @@
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.
-#' @param data_cube Only used when `type = "bca"`. A data cube object (class
+#' @param data_cube Only used when `type = "bca"`  and no boot method is used.
+#'  A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (cf. `$data` slot of 'processed_cube' or 'sim_cube'). As used by
 #' `bootstrap_cube()`.
-#' @param fun Only used when `type = "bca"`.
+#' @param fun Only used when `type = "bca"`  and no boot method is used.
 #' A function which, when applied to `data_cube$data` returns the
 #' statistic(s) of interest (or just `data_cube` in case of a dataframe).
 #' This function must return a dataframe with a column `diversity_val`
@@ -280,7 +281,7 @@ calculate_bootstrap_ci <- function(
       )
 
       # Overwrite stat_index
-      ci$stat_index <- names(bootstrap_samples_df)
+      ci$stat_index <- names(bootstrap_samples_df)[i]
       names(ci)[names(ci) == "stat_index"] <- grouping_var
 
       return(ci)

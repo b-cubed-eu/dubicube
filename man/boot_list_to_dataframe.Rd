@@ -18,18 +18,16 @@ returned data frame.}
 }
 \value{
 A data frame with the following columns:
-\describe{
-\item{sample}{Bootstrap replicate index.}
-\item{<grouping_var>}{Value of the grouping variable (from list names).}
-\item{est_original}{Statistic computed on the original (non-bootstrapped)
-data.}
-\item{rep_boot}{Statistic computed on a bootstrap replicate.}
-\item{est_boot}{Bootstrap estimate (mean of bootstrap replicates) for the
-group.}
-\item{se_boot}{Bootstrap standard error (standard deviation of bootstrap
-replicates) for the group.}
-\item{bias_boot}{Bootstrap bias, defined as
-\code{est_boot - est_original}.}
+\itemize{
+\item \code{sample}: Sample ID of the bootstrap replicate
+\item \code{est_original}: The statistic based on the full dataset per group
+\item \code{rep_boot}: The statistic based on a bootstrapped dataset (bootstrap
+replicate)
+\item \code{est_boot}: The bootstrap estimate (mean of bootstrap replicates per
+group)
+\item \code{se_boot}: The standard error of the bootstrap estimate (standard
+deviation of the bootstrap replicates per group)
+\item \code{bias_boot}: The bias of the bootstrap estimate per group
 }
 }
 \description{

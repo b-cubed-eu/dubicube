@@ -27,7 +27,7 @@ In this tutorial, we explain the differences, discuss the strengths and limitati
 
 ## Methods
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Load packages
 library(ggplot2)      # Data visualisation
 library(dplyr)        # Data wrangling
@@ -47,7 +47,6 @@ b3data_package <- read_package(
 
 # Load bird cube data
 bird_cube_belgium <- read_resource(b3data_package, "bird_cube_belgium_mgrs10")
-head(bird_cube_belgium)
 
 set.seed(123)
 
@@ -86,19 +85,19 @@ The smart option (`method = "smart"`) is the default behaviour of the `bootstrap
    If a reference group is specified (`ref_group` not `NA`), bootstrapping via the **boot** package is disabled, because reference-based indicators require explicit resampling logic.
 
 3. **The number of grouping variables**
-   If more than one grouping variable is supplied (`length(grouping_var) > 1`), bootstrapping via the **boot** package is never used, even when `ref_group = NA`. In this case, `method = "smart"` always resolves to a non-boot method (`group_specific` or `whole_cube`), because multi-dimensional grouping is not compatible with the `boot` delegation used internally.
+   If more than one grouping variable is supplied, bootstrapping via the **boot** package is never used, even when `ref_group = NA`. In this case, `method = "smart"` always resolves to a non-boot method (`group_specific` or `whole_cube`), because multi-dimensional grouping is not compatible with the `boot` delegation used internally.
 
 If no reference group is used *and* exactly one grouping variable is supplied, **dubicube** may delegate bootstrapping to the **boot** package for efficiency and robustness.
 
 
 | Scope of indicator calculation | Reference group used? | Number of grouping variables | Method chosen by `method = "smart"` | Uses **boot** package? |
 | ------------------------------ | --------------------- | ---------------------------- | ----------------------------------- | ---------------------- |
-| Group-specific                 | No (`ref_group = NA`) | 1                            | `boot_group_specific`               | yes                    |
-| Whole cube                     | No (`ref_group = NA`) | 1                            | `boot_whole_cube`                   | yes                    |
+| Group-specific                 | No | 1                            | `boot_group_specific`               | yes                    |
+| Whole cube                     | No | 1                            | `boot_whole_cube`                   | yes                    |
 | Group-specific                 | Yes                   | any                          | `group_specific`                    | no                     |
 | Whole cube                     | Yes                   | any                          | `whole_cube`                        | no                     |
-| Group-specific                 | No (`ref_group = NA`) | > 1                          | `group_specific`                    | no                     |
-| Whole cube                     | No (`ref_group = NA`) | > 1                          | `whole_cube`                        | no                     |
+| Group-specific                 | No | > 1                          | `group_specific`                    | no                     |
+| Whole cube                     | No | > 1                          | `whole_cube`                        | no                     |
 
 In practice, users rarely need to set the `method` argument explicitly. The default `method = "smart"` reliably selects an appropriate and valid bootstrap strategy. Explicitly setting `method` is mainly useful for advanced workflows, debugging, or methodological comparisons.
 
@@ -218,7 +217,7 @@ sapply(bootstrap_mean_boot_group, class)
 ## Comparison between methods
 ### Comparing results
 
-We perform bootstrapping and confidence interval calculation for the period **2015–2018**, following the same procedure as in previous tutorials. The results show that the bootstrap distributions and confidence intervals are very similar, regardless of whether the **boot** package is used.
+We perform bootstrapping and confidence interval calculation for the period 2015–2018, following the same procedure as in other tutorials. The results show that the bootstrap distributions and confidence intervals are very similar, regardless of whether the **boot** package is used.
 
 ```{r, echo=FALSE}
 # Whole-cube to dataframe
@@ -234,7 +233,7 @@ bootstrap_mean_boot_group_df <- boot_list_to_dataframe(
 )
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 # Calculate confidence intervals
 ci_mean_whole <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_whole,
@@ -321,7 +320,7 @@ estimate_mean_obs <- bias_mean_obs %>%
                          ordered = TRUE))
 ```
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, out.height="150%"}
 #| fig.alt: >
 #|   Comparison of results between bootstrap methods.
 # Visualise
@@ -591,7 +590,7 @@ bench_ci_df <- bind_rows(
   )
 ```
 
-```{r, echo=TRUE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, out.height="150%"}
 #| fig.alt: >
 #|   Comparison of execution time between methods.
 # Combine bootstrapping and CI into one table

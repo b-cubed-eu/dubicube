@@ -112,13 +112,8 @@ bootstrap_results <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  method = "whole_cube",
   seed = 123
 )
-```
-
-```{r}
-head(bootstrap_results)
 ```
 
 ### Interval calculation
@@ -131,14 +126,13 @@ ci_mean_obs <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  data_cube = processed_cube,   # Required for BCa
-  fun = mean_obs                # Required for BCa
+  conf = 0.95
 )
 
 # Make interval type factor
 ci_mean_obs <- ci_mean_obs %>%
   mutate(
+    year = as.numeric(year),
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
@@ -178,8 +172,15 @@ A good idea is to compare different interval types next to each other together w
 #| fig.alt: >
 #|   Confidence intervals with bootstrap distribution for mean number of
 #|   occurrences over time.
+# Convert bootstrap replicates to dataframe
+bootstrap_results_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_results,
+  grouping_var = "year"
+) %>%
+  mutate(year = as.numeric(year))
+
 # Get bias vales
-bias_mean_obs <- bootstrap_results %>%
+bias_mean_obs <- bootstrap_results_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
 # Get estimate values
@@ -189,7 +190,7 @@ estimate_mean_obs <- bias_mean_obs %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 # Visualise
-bootstrap_results %>%
+bootstrap_results_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -204,7 +205,7 @@ bootstrap_results %>%
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_df$year))) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -393,7 +394,7 @@ Therefore, we check the assumption of normality by making a Q-Q plot of the boot
 ```{r, fig.height=10}
 #| fig.alt: >
 #|   Q-Q plot of bootstrap replications.
-ggplot(bootstrap_results, aes(sample = rep_boot)) +
+ggplot(bootstrap_results_df, aes(sample = rep_boot)) +
   # Q-Q plot
   stat_qq() +
   stat_qq_line(col = "red") +
@@ -410,7 +411,7 @@ If we log-transform the bootstrap replications, the Q-Q plots look better.
 ```{r, fig.height=10}
 #| fig.alt: >
 #|   Q-Q plot of log-transformed bootstrap replications.
-ggplot(bootstrap_results, aes(sample = log(rep_boot))) +
+ggplot(bootstrap_results_df, aes(sample = log(rep_boot))) +
   # Q-Q plot
   stat_qq() +
   stat_qq_line(col = "red") +
@@ -442,10 +443,14 @@ The log-normal intervals look indeed more correct then the normal intervals, alt
 # Combine interval data
 ci_mean_obs_new <- ci_mean_obs %>%
   filter(int_type %in% c("bca", "norm")) %>%
-  bind_rows(ci_mean_obs_lognorm %>% mutate(int_type = "log_norm"))
+  bind_rows(
+    ci_mean_obs_lognorm %>%
+      mutate(year = as.numeric(year),
+             int_type = "log_norm")
+  )
 
 # Visualise
-bootstrap_results %>%
+bootstrap_results_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -475,7 +480,7 @@ As noted in the previous section, year is a discrete variable in our data cube. 
 ```{r}
 #| fig.alt: >
 #|   Categorical fan plot of log-normal interval with effectclass.
-bootstrap_results %>%
+bootstrap_results_df %>%
   # Calculate standard error on link scale
   mutate(rep_boot_log = log(rep_boot),
          est_boot_log = mean(rep_boot_log), # Needed for bias calculation
@@ -520,15 +525,16 @@ for (i in seq_along(coverages)) {
     type = c("bca", "norm"),
     conf = cov,
     h = log,
-    hinv = exp,
-    data_cube = processed_cube,   # Required for BCa
-    fun = mean_obs                # Required for BCa
+    hinv = exp
   )
 
   out_ci_list[[i]] <- ci_cov
 }
 out_ci <- bind_rows(out_ci_list) %>%
-  mutate(int_type = ifelse(int_type == "norm", "log_norm", int_type))
+  mutate(
+    year = as.numeric(year), 
+    int_type = ifelse(int_type == "norm", "log_norm", int_type)
+  )
 ```
 
 We can visualise this in a categorical way with `geom_rect()` from **ggplot2**.

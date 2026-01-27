@@ -203,6 +203,7 @@ bootstrap_results <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
+  method = "whole_cube",
   seed = 123
 )
 ```
@@ -493,6 +494,7 @@ bootstrap_results_evenness <- bootstrap_cube(
   fun = calc_evenness,
   grouping_var = "year",
   samples = 1000,
+  method = "whole_cube",
   seed = 123
 )
 ```
@@ -663,6 +665,7 @@ bootstrap_results_richness <- bootstrap_cube(
   fun = calc_richness,
   grouping_var = "year",
   samples = 1000,
+  method = "whole_cube",
   seed = 123
 )
 ```

@@ -177,10 +177,8 @@
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
-#'   seed = 123,
-#'   progress = FALSE
+#'   seed = 123
 #' )
-#' head(bootstrap_mean_obs)
 #' }
 # nolint end
 
@@ -330,12 +328,6 @@ bootstrap_cube <- function(
     return(dplyr::bind_rows(bootstrap_samples_list))
 
   } else {
-    # Wrapper for boot::boot() to match expected output
-    boot_stat_wrapper <- function(data, indices) {
-      sampled_data <- data[indices, , drop = FALSE]
-      fun(sampled_data, ...) %>% dplyr::pull("diversity_val")
-    }
-
     # Set seed if provided
     if (!is.na(seed)) {
       if (exists(".Random.seed", envir = .GlobalEnv)) {
@@ -347,33 +339,63 @@ bootstrap_cube <- function(
 
     if (method == "boot_whole_cube") {
 
+      stopifnot(
+        "`boot_whole_cube` requires exactly one grouping variable." =
+          length(grouping_var) == 1
+      )
       print("Performing whole-cube bootstrap with `boot::boot()`.")
 
-      # Call boot::boot() with user-specified arguments
-      boot_res <- do.call(
-        boot::boot,
-        c(
-          list(
-            data = data_cube,
-            statistic = boot_stat_wrapper,
-            R = samples
-          ),
-          boot_args
-        )
-      )
+      # Wrapper for boot::boot() to match expected output
+      make_boot_stat_wrapper <- function(group_value) {
+        function(data, indices) {
+          sampled_data <- data[indices, , drop = FALSE]
 
-      # Return boot object
-      return(boot_res)
+          res <- fun(sampled_data, ...)
+
+          res %>%
+            dplyr::filter(.data[[grouping_var]] == group_value) %>%
+            dplyr::pull("diversity_val")
+        }
+      }
+
+      groups <- unique(data_cube[[grouping_var]])
+
+
+      # Call boot::boot() with user-specified arguments
+      boot_list <- lapply(groups, function(g) {
+        stat_fun <- make_boot_stat_wrapper(g)
+
+        do.call(
+          boot::boot,
+          c(
+            list(
+              data = data_cube,
+              statistic = stat_fun,
+              R = samples
+            ),
+            boot_args
+          )
+        )
+      })
+
+      names(boot_list) <- as.character(groups)
+      return(boot_list)
 
     }
 
     if (method == "boot_group_specific") {
 
       stopifnot(
-        "boot_group_specific requires exactly one grouping variable." =
+        "`boot_group_specific` requires exactly one grouping variable." =
           length(grouping_var) == 1
       )
       print("Performing group-specific bootstrap with `boot::boot()`.")
+
+      # Wrapper for boot::boot() to match expected output
+      boot_stat_wrapper <- function(data, indices) {
+        sampled_data <- data[indices, , drop = FALSE]
+        fun(sampled_data, ...) %>% dplyr::pull("diversity_val")
+      }
 
       # Split data per group
       cube_split <- split(

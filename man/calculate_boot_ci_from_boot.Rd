@@ -82,6 +82,7 @@ ci_df
 }
 \seealso{
 Other indicator_uncertainty_helper: 
+\code{\link{boot_list_to_dataframe}()},
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{derive_bootstrap_method}()},
 \code{\link{resolve_bootstrap_method}()}

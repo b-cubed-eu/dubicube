@@ -40,21 +40,26 @@ Resolves the effective bootstrap method to be used by
 }
 \details{
 \itemize{
-\item the \emph{scope} of the indicator (group-specific vs whole-cube), and
+\item the scope of the indicator (group-specific vs whole-cube), and
 \item whether a reference group is used.
 }
 
 When \code{method = "smart"}, the scope of the indicator is inferred using
 \code{\link[=derive_bootstrap_method]{derive_bootstrap_method()}}. If no reference group is specified
-(\code{ref_group = NA}), the corresponding \verb{boot_*} method is selected.
+(\code{ref_group = NA}) and exactly one grouping variable is used
+(\code{length(cat_var) == 1}), the corresponding \verb{boot_*} method is selected.
 
 The resolution follows these rules:
 \enumerate{
 \item If \code{method} is not \code{"smart"}, it is returned unchanged.
 \item If \code{method = "smart"}, the indicator scope is inferred using
 \code{\link[=derive_bootstrap_method]{derive_bootstrap_method()}}.
-\item If \code{ref_group = NA}, the resolved method is prefixed with \code{"boot_"},
-resulting in \code{"boot_group_specific"} or \code{"boot_whole_cube"}.
+\item If more than one grouping variable is specified
+(\code{length(cat_var) > 1}), bootstrapping via the \pkg{boot} package
+is disabled and the inferred non-boot method is returned.
+\item If exactly one grouping variable is used and \code{ref_group = NA},
+the resolved method is prefixed with \code{"boot_"}, resulting in
+\code{"boot_group_specific"} or \code{"boot_whole_cube"}.
 \item If a reference group is specified, the non-boot variants
 \code{"group_specific"} or \code{"whole_cube"} are returned.
 }
@@ -104,6 +109,7 @@ resolve_bootstrap_method(
 }
 \seealso{
 Other indicator_uncertainty_helper: 
+\code{\link{boot_list_to_dataframe}()},
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_boot_ci_from_boot}()},
 \code{\link{derive_bootstrap_method}()}

@@ -124,3 +124,48 @@ test_that("resolve_bootstrap_method throws errors for invalid inputs", {
     "Cannot use a 'boot' method when a reference group is specified"
   )
 })
+
+# Group-specific indicator: each group is independent
+fun_group_specific2 <- function(x) {
+  out <- aggregate(Sepal.Length ~ Species + Habitat, x, mean)
+  names(out) <- c("Species", "Habitat", "diversity_val")
+  out
+}
+
+# Whole-cube indicator: result per group depends on all groups
+fun_whole_cube2 <- function(x) {
+  out <- aggregate(Sepal.Length ~ Species + Habitat, x, mean)
+  out$Sepal.Length <- out$Sepal.Length / nrow(out)
+  names(out) <- c("Species", "Habitat", "diversity_val")
+  out
+}
+
+iris2 <- iris
+iris2$Habitat <- rep(c("A", "B"), nrow(iris) / 2)
+
+test_that("resolve_bootstrap_method handles multiple grouping variables", {
+
+  # Group-specific indicator with multiple grouping variables
+  expect_equal(
+    resolve_bootstrap_method(
+      df = iris2,
+      fun = fun_group_specific2,
+      cat_var = c("Species", "Habitat"),
+      ref_group = NA,
+      method = "smart"
+    ),
+    "group_specific"
+  )
+
+  # Whole-cube indicator with multiple grouping variables
+  expect_equal(
+    resolve_bootstrap_method(
+      df = iris2,
+      fun = fun_whole_cube2,
+      cat_var = c("Species", "Habitat"),
+      ref_group = NA,
+      method = "smart"
+    ),
+    "whole_cube"
+  )
+})

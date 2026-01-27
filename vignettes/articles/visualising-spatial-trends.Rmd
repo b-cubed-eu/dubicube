@@ -113,6 +113,7 @@ bootstrap_results <- bootstrap_cube(
   fun = mean_obs_grid,
   grouping_var = "cellCode",
   samples = 1000,
+  method = "group_specific",
   seed = 123
 )
 ```

@@ -112,6 +112,7 @@ bootstrap_results <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
+  method = "whole_cube",
   seed = 123
 )
 ```

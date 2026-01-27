@@ -66,6 +66,8 @@ processed_cube <- process_cube(
 # Function to calculate statistic of interest
 # Mean number of observations per grid cell per year
 mean_obs <- function(data) {
+  obs <- x <- NULL
+
   data %>%
     dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
     dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
@@ -75,16 +77,30 @@ mean_obs <- function(data) {
 
 ### `dubicube`'s smart method
 
-The smart option (`method = "smart"`) is the default functionality of the `bootstrap_cube()` function. With this option, **dubicube** automatically chooses the most suitable method. It does so by comparing indicator values calculated on larger versus smaller subsets of the data, checking whether the common groups yield identical results. If so, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used. If no reference group is used (`ref_group = NA`), the **boot** package is used for bootstrapping.
+The smart option (`method = "smart"`) is the default behaviour of the `bootstrap_cube()` function. With this option, **dubicube** automatically selects the most appropriate bootstrap strategy based on:
 
-| Scope of indicator calculation | Reference group used? | Method chosen by `method = "smart"` | Uses **boot** package? |
-| ------------------------------ | --------------------- | --------------------- | --- |
-| Group-specific                 | No (`ref_group = NA`) | `boot_group_specific` | yes |
-| Whole cube                     | No (`ref_group = NA`) | `boot_whole_cube`     | yes |
-| Group-specific                 | Yes                   | `group_specific`      | no  |
-| Whole cube                     | Yes                   | `whole_cube`          | no  |
+1. **The scope of the indicator**
+   Whether indicator values for each group are independent (group-specific) or depend on the full dataset (whole-cube). This is inferred by comparing indicator values computed on progressively smaller subsets of the data.
 
-In practice, users rarely need to set method explicitly: `method = "smart"` selects the appropriate strategy based on indicator behaviour and the presence of a reference group.
+2. **The presence of a reference group**
+   If a reference group is specified (`ref_group` not `NA`), bootstrapping via the **boot** package is disabled, because reference-based indicators require explicit resampling logic.
+
+3. **The number of grouping variables**
+   If more than one grouping variable is supplied (`length(grouping_var) > 1`), bootstrapping via the **boot** package is never used, even when `ref_group = NA`. In this case, `method = "smart"` always resolves to a non-boot method (`group_specific` or `whole_cube`), because multi-dimensional grouping is not compatible with the `boot` delegation used internally.
+
+If no reference group is used *and* exactly one grouping variable is supplied, **dubicube** may delegate bootstrapping to the **boot** package for efficiency and robustness.
+
+
+| Scope of indicator calculation | Reference group used? | Number of grouping variables | Method chosen by `method = "smart"` | Uses **boot** package? |
+| ------------------------------ | --------------------- | ---------------------------- | ----------------------------------- | ---------------------- |
+| Group-specific                 | No (`ref_group = NA`) | 1                            | `boot_group_specific`               | yes                    |
+| Whole cube                     | No (`ref_group = NA`) | 1                            | `boot_whole_cube`                   | yes                    |
+| Group-specific                 | Yes                   | any                          | `group_specific`                    | no                     |
+| Whole cube                     | Yes                   | any                          | `whole_cube`                        | no                     |
+| Group-specific                 | No (`ref_group = NA`) | > 1                          | `group_specific`                    | no                     |
+| Whole cube                     | No (`ref_group = NA`) | > 1                          | `whole_cube`                        | no                     |
+
+In practice, users rarely need to set the `method` argument explicitly. The default `method = "smart"` reliably selects an appropriate and valid bootstrap strategy. Explicitly setting `method` is mainly useful for advanced workflows, debugging, or methodological comparisons.
 
 ### Whole-cube bootstrap
 
@@ -162,14 +178,14 @@ head(bootstrap_mean_group)
 
 For most use cases, **dubicube** delegates the resampling procedure to the well-established **boot** package (Canty et al., [2025](https://doi.org/10.32614/CRAN.package.boot)). This happens when:
 
-* Automatically with `method = "smart"` (default) and no reference group is specified (default)
+* Automatically with `method = "smart"` (default), one grouping variable, and no reference group is specified (default)
 * Manually with `method = "boot_whole_cube"` or `method = "boot_group_specific"`
 
 In these cases, `bootstrap_cube()` returns the native objects produced by `boot::boot()`, rather than a summarised data frame.
 
 #### Whole-cube bootstrap with **boot**
 
-When whole-cube bootstrapping is performed via **boot**, a single `"boot"` object is returned.
+When whole-cube bootstrapping is performed via **boot**, `bootstrap_cube()` returns a named list of `"boot"` objects, one per group.
 
 ```{r}
 bootstrap_mean_boot_whole <- bootstrap_cube(
@@ -180,7 +196,7 @@ bootstrap_mean_boot_whole <- bootstrap_cube(
   seed = 123,
   method = "boot_whole_cube"
 )
-class(bootstrap_mean_boot_whole)
+sapply(bootstrap_mean_boot_whole, class)
 ```
 
 #### Group-specific bootstrap with **boot**
@@ -202,65 +218,22 @@ sapply(bootstrap_mean_boot_group, class)
 ## Comparison between methods
 ### Comparing results
 
-```{r}
-boot_to_dataframe <- function(boot, grouping_var) {
-  out_df <- data.frame(
-    sample = rep(seq_len(boot$R), 4), # 4 should be number of groups
-    year = rep( # column name should be grouping var
-      unique(boot$data[[grouping_var]]),
-      each = boot$R
-    ),
-    est_original = rep(
-      boot$t0,
-      each = boot$R
-    ),
-    rep_boot = as.vector(boot$t),
-    est_boot = rep(
-      apply(boot$t, 2, mean),
-      each = boot$R
-    ),
-    se_boot = rep(
-      apply(boot$t, 2, sd),
-      each = boot$R
-    )
-  )
-  out_df$bias_boot <- out_df$est_boot - out_df$est_original
-
-  return(out_df)
-}
-```
-
-```{r}
+```{r, echo=FALSE}
 # Whole-cube to dataframe
-bootstrap_mean_boot_whole_df <- boot_to_dataframe(
-  bootstrap_mean_boot_whole, "year"
+bootstrap_mean_boot_whole_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_mean_boot_whole,
+  grouping_var = "year"
 )
 
 # Group-specific to dataframe
-bootstrap_mean_boot_group_df <- lapply(
-  names(bootstrap_mean_boot_group),
-  function(name) {
-    boot_to_dataframe(bootstrap_mean_boot_group[[name]], "year") %>%
-      filter(year == name)
-  }
-) %>%
-  bind_rows()
+bootstrap_mean_boot_group_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_mean_boot_group,
+  grouping_var = "year"
+)
 ```
 
-```{r}
-bootstrap_mean_whole %>%
-  distinct(year, est_original, est_boot, se_boot, bias_boot)
-bootstrap_mean_group %>%
-  distinct(year, est_original, est_boot, se_boot, bias_boot)
-bootstrap_mean_boot_whole_df %>%
-  distinct(year, est_original, est_boot, se_boot, bias_boot)
-bootstrap_mean_boot_group_df %>%
-  distinct(year, est_original, est_boot, se_boot, bias_boot)
-```
-
-Calculate confidence intervals:
-
-```{r}
+```{r, echo=FALSE}
+# Calculate confidence intervals
 ci_mean_whole <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_whole,
   grouping_var = "year",
@@ -279,17 +252,20 @@ ci_mean_group <- calculate_bootstrap_ci(
 )
 ci_mean_boot_whole <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_boot_whole,
+  grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
 )
 ci_mean_boot_group <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_boot_group,
+  grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
 )
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE}
+# Combine datasets
 bootstrap_results <- bind_rows(
   bootstrap_mean_whole %>%
     mutate(method = "whole_cube",
@@ -298,10 +274,12 @@ bootstrap_results <- bind_rows(
     mutate(method = "group_specific",
            boot = "no boot"),
   bootstrap_mean_boot_whole_df %>%
-    mutate(method = "whole_cube",
+    mutate(year = as.numeric(year),
+           method = "whole_cube",
            boot = "boot"),
   bootstrap_mean_boot_group_df %>%
-    mutate(method = "group_specific",
+    mutate(year = as.numeric(year),
+           method = "group_specific",
            boot = "boot")
 )
 
@@ -355,7 +333,7 @@ bootstrap_results %>%
                 position = position_dodge(0.8), linewidth = 0.8) +
   facet_grid(year ~ method, scales = "free") +
   # Settings
-  labs(y = "Mean Number of Observations\nper Grid Cell",
+  labs(y = "Mean Number of Observations per Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
   theme_minimal() +
   theme(legend.position = "bottom",

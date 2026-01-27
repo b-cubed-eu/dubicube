@@ -607,7 +607,7 @@ total_df <- combined_df %>%
     names_from = "cat",
     values_from = "time_ms"
   ) %>%
-  mutate(total = bootstrapping + ci_calculation) %>%   # sum the columns directly
+  mutate(total = bootstrapping + ci_calculation) %>%
   pivot_longer(
     cols = c("bootstrapping", "ci_calculation", "total"),
     names_to = "cat",
@@ -627,7 +627,7 @@ total_df %>%
   ggplot(aes(x = boot, y = time_ms, fill = cat)) +
   geom_boxplot(position = "dodge", outlier.alpha = 0.6) +
   labs(
-    x = "", 
+    x = "",
     y = "Execution time (ms)",
     fill = "Computation step"
   ) +

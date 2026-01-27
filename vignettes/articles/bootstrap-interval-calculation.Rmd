@@ -262,7 +262,7 @@ We visualise the distribution of the bootstrap replicates and the confidence int
 # Make interval type a factor
 ci_mean_obs <- ci_mean_obs %>%
   mutate(
-     year = as.numeric(year),
+    year = as.numeric(year),
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
@@ -558,7 +558,9 @@ bootstrap_results_evenness_df %>%
                 position = position_dodge(0.8), linewidth = 0.8) +
   # Settings
   labs(y = "Evenness", x = "", shape = "Legend:", colour = "Interval type:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results_evenness_df$year))) +
+  scale_x_continuous(
+    breaks = sort(unique(bootstrap_results_evenness_df$year))
+  ) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -624,7 +626,9 @@ bootstrap_results_evenness_df %>%
   # Settings
   labs(y = "Evenness", x = "", shape = "Legend:", colour = "Interval type:") +
   scale_y_continuous(limits = c(NA, 1)) +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results_evenness_df$year))) +
+  scale_x_continuous(
+    breaks = sort(unique(bootstrap_results_evenness_df$year))
+  ) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))

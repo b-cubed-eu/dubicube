@@ -64,7 +64,7 @@ has_redundant_grouping_vars <- function(data, grouping_var) {# nolint: cyclocomp
 #' Extract data from a processed data cube or from a dataframe
 #'
 #' Returns the underlying data from a processed or simulated biodiversity data
-#' cube, or directly returns the data frame if `processed_cube = FALSE`.
+#' cube, or directly returns the dataframe if `processed_cube = FALSE`.
 #'
 #' @param data_cube An object of class `processed_cube`, `sim_cube`, or a
 #' `data.frame`. If `processed_cube = TRUE`, this must be a processed or
@@ -184,12 +184,16 @@ calc_stat_by_group <- function(
     ref_val <- t0_full %>%
       dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
       dplyr::rename("ref_val" = "diversity_val") %>%
-      dplyr::select(-matching_col)
+      dplyr::select(-dplyr::all_of(matching_col))
 
     # Calculate true statistic
     t0 <- t0_full %>%
       dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
-      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      safe_join(
+        ref_val,
+        by = setdiff(grouping_var, matching_col),
+        type = "left"
+      ) %>%
       dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
       dplyr::select(-"ref_val")
 
@@ -198,4 +202,75 @@ calc_stat_by_group <- function(
 
   # Calculate true statistic
   return(fun(data_cube, ...))
+}
+
+
+#' Safely perform left or right joins (with cross-join fallback)
+#'
+#' A wrapper around [dplyr::left_join()] and [dplyr::right_join()] that
+#' gracefully handles empty join keys. When `by` is a character vector of
+#' length zero, a cross join is performed using [dplyr::cross_join()] instead
+#' of a standard join.
+#'
+#' This is useful in workflows where join keys are constructed
+#' programmatically (e.g., via [base::setdiff()]) and may sometimes be empty.
+#'
+#' @param x,y Dataframes to join.
+#' @param by A character vector of column names to join by. If `character(0)`,
+#'   a cross join is performed.
+#' @param type The type of join: `"left"` or `"right"`. Defaults to `"left"`.
+#' @param ... Additional arguments passed to the join function (e.g.,
+#'   `relationship`).
+#'
+#' @return A dataframe resulting from the specified join or cross join of
+#'   `x` and `y`.
+#'
+#' @noRd
+#' @import dplyr
+safe_join <- function(x, y, by, type = c("left", "right"), ...) {
+  type <- match.arg(type)
+
+  join_fun <- switch(type,
+                     left  = dplyr::left_join,
+                     right = dplyr::right_join)
+
+  if (length(by) == 0) {
+    # Cross join fallback
+    dplyr::cross_join(x, y)
+  } else {
+    join_fun(x, y, by = by, ...)
+  }
+}
+
+
+#' Assign group/statistic index to a bootstrap CI dataframe
+#'
+#' This function adds a `stat_index` column to a bootstrap CI dataframe and
+#' optionally renames it to a grouping variable.
+#'
+#' @param df A dataframe containing bootstrap confidence intervals.
+#' @param index Index of the current bootstrap sample or list element.
+#' @param names Optional character vector of names for the bootstrap samples.
+#' If `NULL`, the numeric index is used.
+#' @param grouping_var Optional character string; if provided, renames
+#' `stat_index` to this.
+#'
+#' @return A dataframe with `stat_index` or grouping variable column
+#' added/renamed.
+#'
+#' @noRd
+assign_stat_index <- function(df, index, names = NULL, grouping_var = NULL) {
+  # Assign stat_index based on names or numeric index
+  if (!is.null(names)) {
+    df$stat_index <- names[index]
+  } else {
+    df$stat_index <- index
+  }
+
+  # Rename stat_index to grouping_var if provided
+  if (!is.null(grouping_var)) {
+    names(df)[names(df) == "stat_index"] <- grouping_var
+  }
+
+  return(df)
 }

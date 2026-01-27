@@ -105,11 +105,10 @@ derive_bootstrap_method(
 )
 }
 \seealso{
-Other indicator_uncertainty: 
-\code{\link{add_effect_classification}()},
-\code{\link{bootstrap_cube}()},
+Other indicator_uncertainty_helper: 
+\code{\link{boot_list_to_dataframe}()},
 \code{\link{bootstrap_cube_raw}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{calculate_bootstrap_ci}()}
+\code{\link{calculate_boot_ci_from_boot}()},
+\code{\link{resolve_bootstrap_method}()}
 }
-\concept{indicator_uncertainty}
+\concept{indicator_uncertainty_helper}

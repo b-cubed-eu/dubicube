@@ -6,7 +6,7 @@
 \usage{
 calculate_bootstrap_ci(
   bootstrap_samples_df,
-  grouping_var,
+  grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   h = function(t) t,
@@ -23,10 +23,10 @@ calculate_bootstrap_ci(
 )
 }
 \arguments{
-\item{bootstrap_samples_df}{A dataframe with bootstrap replicates, or a
-\code{boot} object. For dataframes, each row is a bootstrap sample; must include
-columns \code{rep_boot}, \code{est_original}, and the grouping variables. For \code{boot}
-objects, the function uses \code{boot::boot.ci()} internally.}
+\item{bootstrap_samples_df}{A dataframe with bootstrap replicates, or a list
+of \code{boot} objects. For dataframes, each row is a bootstrap sample; must
+include columns \code{rep_boot}, \code{est_original}, and the grouping variables.
+For \code{boot} objects, the function uses \code{boot::boot.ci()} internally.}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
 for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
@@ -61,18 +61,20 @@ original scale. The default is the identity function. If \code{h} is supplied bu
 \code{hinv} is not, then the intervals returned will be on the transformed scale.}
 
 \item{no_bias}{Logical. If \code{TRUE} intervals are centered around the original
-estimates (bias is ignored). Default is \code{FALSE}.}
+estimates (bias is ignored). Default is \code{FALSE}.Cannot be used with a boot
+method.}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to
 the original bootstrap dataframe \code{bootstrap_samples_df}.}
 
-\item{data_cube}{Only used when \code{type = "bca"}. A data cube object (class
+\item{data_cube}{Only used when \code{type = "bca"}  and no boot method is used.
+A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
 (cf. \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
 \code{bootstrap_cube()}.}
 
-\item{fun}{Only used when \code{type = "bca"}.
+\item{fun}{Only used when \code{type = "bca"}  and no boot method is used.
 A function which, when applied to \code{data_cube$data} returns the
 statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
 This function must return a dataframe with a column \code{diversity_val}
@@ -265,8 +267,6 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 Other indicator_uncertainty: 
 \code{\link{add_effect_classification}()},
 \code{\link{bootstrap_cube}()},
-\code{\link{bootstrap_cube_raw}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{derive_bootstrap_method}()}
+\code{\link{calculate_acceleration}()}
 }
 \concept{indicator_uncertainty}

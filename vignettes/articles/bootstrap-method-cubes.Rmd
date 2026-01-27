@@ -192,8 +192,16 @@ bootstrap_results <- bootstrap_cube(
 )
 ```
 
+This returned a list of `"boot"` objects. We can convert this to a dataframe 
+
 ```{r}
-head(bootstrap_results)
+bootstrap_results_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_results,
+  grouping_var = "year"
+) %>%
+  mutate(year = as.numeric(year))
+
+head(bootstrap_results_df)
 ```
 
 We can visualise the bootstrap distributions using a violin plot.
@@ -202,7 +210,7 @@ We can visualise the bootstrap distributions using a violin plot.
 #| fig.alt: >
 #|   Bootstrap distributions for mean number of occurrences over time.
 # Get bias vales
-bias_mean_obs <- bootstrap_results %>%
+bias_mean_obs <- bootstrap_results_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
 # Get estimate values
@@ -213,7 +221,7 @@ estimate_mean_obs <- bias_mean_obs %>%
                          ordered = TRUE))
 
 # Visualise bootrap distributions
-bootstrap_results %>%
+bootstrap_results_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -224,7 +232,7 @@ bootstrap_results %>%
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_df$year))) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -243,6 +251,7 @@ bootstrap_results_df <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
+  method = "whole_cube",
   seed = 123,
   processed_cube = FALSE
 )
@@ -271,6 +280,8 @@ bootstrap_results_ref <- bootstrap_cube(
   seed = 123
 )
 ```
+
+This time, a dataframe is returned since the **boot** package cannot be used with a reference group (see Bootstrap method section).
 
 ```{r}
 head(bootstrap_results_ref)
@@ -326,16 +337,38 @@ In a way, this also avoids the arbitrariness of choosing the reference period.
 You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
 Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability.
 
-### Bootstrap Method
+### Bootstrap method
 
-The bootstrap method in **dubicube** can be performed in different ways depending on the structure of your data and the indicator of interest. There are two main approaches which are compared in more detail in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
+The **dubicube** package supports multiple bootstrap strategies depending on the type of indicator, the structure of your data, and whether a reference group is used. Users rarely need to specify the method explicitly, as the default `method = "smart"` automatically selects the appropriate approach. More info in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
 
-1. **Whole-cube bootstrapping** (`method = "whole_cube"`)
-   In this method, resampling is performed across all rows in the cube, ignoring any grouping variables. This is appropriate when the statistic of interest uses data from multiple groups simultaneously, such as overall biodiversity measures or aggregated metrics that combine multiple species, years, or locations.
+#### 1. Smart (`method = "smart"`)
 
-2. **Group-specific bootstrapping** (`method = "group_specific"`)
-   Here, resampling occurs only within each group defined by the grouping variable (e.g., species, year, or habitat). This is suitable for indicators calculated independently for each group, where maintaining the group structure is essential for a meaningful estimate of variability.
+This is the default and recommended option. **dubicube** infers the most suitable bootstrap method by comparing indicator values across subsets of the data. If the values of common groups are identical when calculated separately, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used (see further).
 
-The smart option (`method = "smart"`, default) lets **dubicube** automatically choose the most suitable approach. It does so by comparing indicator values calculated on larger versus smaller subsets of the data, checking whether the common groups yield identical results. If so, group-specific bootstrapping is applied; otherwise, whole-cube bootstrapping is used.
+#### 2. Whole-cube bootstrap (`method = "whole_cube"`)
 
-Additionally, there is an experimental option (`method = "boot"`) that uses the `boot::boot()` function from the **boot** package. This allows for advanced bootstrapping techniques but is still under development.
+In whole-cube bootstrapping, resampling is performed across all rows of the dataset, ignoring the grouping variable. This is suitable for indicators that depend on the full dataset (e.g., aggregate biodiversity metrics).
+
+* Can be used with a reference group.
+* Does not use the **boot** package.
+
+#### 3. Group-specific bootstrap (`method = "group_specific"`)
+
+Here, resampling occurs independently within each group defined by the grouping variable (e.g., per species, year, or habitat). This method preserves group structure and is suitable for indicators calculated independently per group.
+
+* Can be used with a reference group.
+* Does not use the **boot** package.
+
+#### 4. Boot-based whole-cube (`method = "boot_whole_cube"`)
+
+Performs whole-cube bootstrapping using the **boot** package. Resampling occurs across all rows.
+
+* Cannot be used with a reference group.
+* Only valid when there is a single grouping variable.
+
+#### 5. Boot-based group-specific (`method = "boot_group_specific"`)
+
+Performs group-specific bootstrapping using the **boot** package. Resampling occurs independently within each group.
+
+* Cannot be used with a reference group.
+* Only valid when there is a single grouping variable.

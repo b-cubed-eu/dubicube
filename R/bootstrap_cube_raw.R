@@ -102,7 +102,7 @@
 #'
 #' @export
 #'
-#' @family indicator_uncertainty
+#' @family indicator_uncertainty_helper
 #'
 #' @import dplyr
 #' @import assertthat
@@ -241,6 +241,10 @@ bootstrap_cube_raw <- function(
     grouping_var = grouping_var,
     ref_group = ref_group
   )
+  stopifnot(
+    "Not enough variables specified in `grouping_var`." =
+      identical(sort(names(t0)), sort(c(grouping_var, "diversity_val")))
+  )
 
   # Take difference with reference group if specified
   if (!is.na(ref_group)) {
@@ -255,7 +259,7 @@ bootstrap_cube_raw <- function(
       ref_val <- df %>%
         dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
         dplyr::rename("ref_val" = "diversity_val") %>%
-        dplyr::select(-matching_col, -"sample")
+        dplyr::select(-dplyr::all_of(matching_col), -"sample")
 
       df %>%
         dplyr::filter(.data[[matching_col]] != !!ref_group) %>%

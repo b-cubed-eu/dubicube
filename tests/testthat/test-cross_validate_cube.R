@@ -127,7 +127,7 @@ results_ls <- c(loo_results, kfold_results)
 ## Perform tests
 # Test cross_validate_cube output
 test_that("cross_validate_cube returns a dataframe with expected structure", {
-  # Data frame
+  # Dataframe
   lapply(results_ls, function(df) {
     expect_s3_class(df, "data.frame")
   })
@@ -393,7 +393,7 @@ test_that("grouping_var length > 1", {
     progress = FALSE
   )
 
-  # Data frame
+  # Dataframe
   expect_s3_class(result, "data.frame")
 
   # Correct column names

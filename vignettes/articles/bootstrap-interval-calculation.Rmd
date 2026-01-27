@@ -207,10 +207,6 @@ bootstrap_results <- bootstrap_cube(
 )
 ```
 
-```{r}
-head(bootstrap_results)
-```
-
 ### Interval calculation
 
 Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits. It relies on the following arguments:
@@ -236,24 +232,23 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
   Logical. If `TRUE` (default), the function returns confidence limits per group. If `FALSE`, the confidence limits are added to the original bootstrap dataframe `bootstrap_samples_df`.
 
 - **`data_cube`**:
-  Only used when `type = "bca"`. The input data as a processed data cube (from `b3gbi::process_cube()`).
+  Only used when `type = "bca"` and no boot method is used. The input data as a processed data cube (from `b3gbi::process_cube()`).
 
 - **`fun`**:
-  Only used when `type = "bca"`. A user-defined function that computes the statistic(s) of interest from `data_cube$data`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
+  Only used when `type = "bca"` and no boot method is used. A user-defined function that computes the statistic(s) of interest from `data_cube$data`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
 
 - **`progress`**:
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
 We get a warning message for BCa calculation because we are using a relatively small dataset.
+Since we are working with `"boot"` objects, we do not need to specify `data_cube` or `fun`.
 
 ```{r}
 ci_mean_obs <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  data_cube = processed_cube,   # Required for BCa
-  fun = mean_obs                # Required for BCa
+  conf = 0.95
 )
 ```
   
@@ -267,6 +262,7 @@ We visualise the distribution of the bootstrap replicates and the confidence int
 # Make interval type a factor
 ci_mean_obs <- ci_mean_obs %>%
   mutate(
+    year = as.numeric(year),
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
@@ -276,8 +272,15 @@ ci_mean_obs <- ci_mean_obs %>%
 ```{r, warning=FALSE}
 #| fig.alt: >
 #|   Confidence intervals for mean number of occurrences over time.
+# Convert bootstrap replicates to dataframe
+bootstrap_results_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_results,
+  grouping_var = "year"
+) %>%
+  mutate(year = as.numeric(year))
+
 # Get bias values
-bias_mean_obs <- bootstrap_results %>%
+bias_mean_obs <- bootstrap_results_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
 # Get estimate values
@@ -287,7 +290,7 @@ estimate_mean_obs <- bias_mean_obs %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 # Visualise
-bootstrap_results %>%
+bootstrap_results_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -302,7 +305,7 @@ bootstrap_results %>%
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_df$year))) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -347,6 +350,7 @@ $\hat{\theta}_{-i} = \hat{\theta}_{1,-i} - \hat{\theta}_2 \text{ for } i = 1, \l
 $\hat{\theta}_{-i} = \hat{\theta}_{1} - \hat{\theta}_{2,-i} \text{ for } i = n_1 + 1, \ldots, n_1 + n_2$
 
 Therefore, if you want to calculate the BCa intervals using `calculate_bootstrap_ci()`, you also need to provide `ref_group = 2011`.
+Since we are not working with `"boot"` objects, we need to specify `data_cube` and `fun` as well.
 
 ```{r}
 ci_mean_obs_ref <- calculate_bootstrap_ci(
@@ -504,9 +508,7 @@ We get a warning message for BCa calculation because we are using a relatively s
 ci_evenness <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_results_evenness,
   grouping_var = "year",
-  type = c("perc", "bca", "norm", "basic"),
-  data_cube = processed_cube_even,
-  fun = calc_evenness
+  type = c("perc", "bca", "norm", "basic")
 )
 ```
 
@@ -514,17 +516,25 @@ ci_evenness <- calculate_bootstrap_ci(
 # Make interval type factor
 ci_evenness <- ci_evenness %>%
   mutate(
+    year = as.numeric(year),
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
   )
 ```
 
-```{r}
+```{r, warning=FALSE}
 #| fig.alt: >
 #|   Confidence intervals for evenness over time.
+# Convert bootstrap replicates to dataframe
+bootstrap_results_evenness_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_results_evenness,
+  grouping_var = "year"
+) %>%
+  mutate(year = as.numeric(year))
+
 # Get bias vales
-bias_mean_obs <- bootstrap_results_evenness %>%
+bias_mean_obs <- bootstrap_results_evenness_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
 # Get estimate values
@@ -534,7 +544,7 @@ estimate_mean_obs <- bias_mean_obs %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
 # Visualise
-bootstrap_results_evenness %>%
+bootstrap_results_evenness_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -548,7 +558,9 @@ bootstrap_results_evenness %>%
                 position = position_dodge(0.8), linewidth = 0.8) +
   # Settings
   labs(y = "Evenness", x = "", shape = "Legend:", colour = "Interval type:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results_evenness$year))) +
+  scale_x_continuous(
+    breaks = sort(unique(bootstrap_results_evenness_df$year))
+  ) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -580,9 +592,7 @@ ci_evenness_trans <- calculate_bootstrap_ci(
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   h = logit,
-  hinv = inv_logit,
-  data_cube = processed_cube_even,
-  fun = calc_evenness
+  hinv = inv_logit
 )
 ```
 
@@ -590,27 +600,18 @@ ci_evenness_trans <- calculate_bootstrap_ci(
 # Make interval type factor
 ci_evenness_trans <- ci_evenness_trans %>%
   mutate(
+    year = as.numeric(year),
     int_type = factor(
       int_type, levels = c("perc", "bca", "norm", "basic")
     )
   )
 ```
 
-```{r}
+```{r, warning=FALSE}
 #| fig.alt: >
 #|   Confidence intervals for evenness over time.
-# Get bias vales
-bias_mean_obs <- bootstrap_results_evenness %>%
-  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
-
-# Get estimate values
-estimate_mean_obs <- bias_mean_obs %>%
-  pivot_longer(cols = c("estimate", "bootstrap estimate"),
-               names_to = "Legend", values_to = "value") %>%
-  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
-                         ordered = TRUE))
 # Visualise
-bootstrap_results_evenness %>%
+bootstrap_results_evenness_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -625,7 +626,9 @@ bootstrap_results_evenness %>%
   # Settings
   labs(y = "Evenness", x = "", shape = "Legend:", colour = "Interval type:") +
   scale_y_continuous(limits = c(NA, 1)) +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results_evenness$year))) +
+  scale_x_continuous(
+    breaks = sort(unique(bootstrap_results_evenness_df$year))
+  ) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -655,7 +658,7 @@ calc_richness <- function(data) {
 # nolint end
 ```
 
-We perform bootstrapping as before. Note that you can also perform bootstrapping of `processed_cube_small` using the **b3gbi** function `obs_richness_ts()`. In this case, a group-specific bootstrap would be more appropriate, but for the sake of simplicity we stick to the whole-cube bootstrap here. For a detailed discussion of when to use each approach, see [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
+We perform bootstrapping as before. We will not use any boot method (`method = "group_specific"`).
 
 ```{r}
 bootstrap_results_richness <- bootstrap_cube(
@@ -663,6 +666,7 @@ bootstrap_results_richness <- bootstrap_cube(
   fun = calc_richness,
   grouping_var = "year",
   samples = 1000,
+  method = "group_specific",
   seed = 123
 )
 ```
@@ -770,16 +774,6 @@ ci_richness_no_bias <- ci_richness_no_bias %>%
 ```{r}
 #| fig.alt: >
 #|   Confidence intervals for richness over time.
-# Get bias vales
-bias_mean_obs <- bootstrap_results_richness %>%
-  distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
-
-# Get estimate values
-estimate_mean_obs <- bias_mean_obs %>%
-  pivot_longer(cols = c("estimate", "bootstrap estimate"),
-               names_to = "Legend", values_to = "value") %>%
-  mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
-                         ordered = TRUE))
 # Visualise
 bootstrap_results_richness %>%
   ggplot(aes(x = year)) +

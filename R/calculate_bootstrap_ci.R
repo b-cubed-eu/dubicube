@@ -7,10 +7,10 @@
 #' (`basic`). The function also supports a `boot` object from the \pkg{boot}
 #' package.
 #'
-#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a
-#' `boot` object. For dataframes, each row is a bootstrap sample; must include
-#' columns `rep_boot`, `est_original`, and the grouping variables. For `boot`
-#' objects, the function uses `boot::boot.ci()` internally.
+#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a list
+#' of `boot` objects. For dataframes, each row is a bootstrap sample; must
+#' include columns `rep_boot`, `est_original`, and the grouping variables.
+#' For `boot` objects, the function uses `boot::boot.ci()` internally.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -37,15 +37,17 @@
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
 #' @param no_bias Logical. If `TRUE` intervals are centered around the original
-#' estimates (bias is ignored). Default is `FALSE`.
+#' estimates (bias is ignored). Default is `FALSE`.Cannot be used with a boot
+#' method.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.
-#' @param data_cube Only used when `type = "bca"`. A data cube object (class
+#' @param data_cube Only used when `type = "bca"`  and no boot method is used.
+#'  A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (cf. `$data` slot of 'processed_cube' or 'sim_cube'). As used by
 #' `bootstrap_cube()`.
-#' @param fun Only used when `type = "bca"`.
+#' @param fun Only used when `type = "bca"`  and no boot method is used.
 #' A function which, when applied to `data_cube$data` returns the
 #' statistic(s) of interest (or just `data_cube` in case of a dataframe).
 #' This function must return a dataframe with a column `diversity_val`
@@ -177,7 +179,6 @@
 #' @import assertthat
 #' @importFrom rlang .data inherits_any
 #' @importFrom stats setNames
-#' @importFrom boot boot.ci
 #'
 #' @examples
 #' \dontrun{
@@ -231,7 +232,7 @@
 
 calculate_bootstrap_ci <- function(
   bootstrap_samples_df,
-  grouping_var,
+  grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   h = function(t) t,
@@ -248,54 +249,50 @@ calculate_bootstrap_ci <- function(
 ) {
   # If the bootstrap samples are a boot object, use the boot package
   if (inherits(bootstrap_samples_df, "boot")) {
-    boot_out <- bootstrap_samples_df
-    n_stats <- length(boot_out$t0)
-    ci_types <- if (any(type == "all")) {
-      c("norm", "basic", "perc", "bca")
-    } else {
-      type
-    }
+    stopifnot(
+      "Cannot use a 'boot' method when a no bias is specified." =
+        no_bias == FALSE
+    )
 
-    ci_out <- lapply(seq_len(n_stats), function(idx) {
-      res <- do.call(boot::boot.ci, c(
-        list(
-          boot.out = boot_out,
-          conf = conf,
-          type = ci_types,
-          index = idx,
-          t0 = boot_out$t0[idx],
-          t = boot_out$t[, idx, drop = TRUE],
-          h = h,
-          hinv = hinv
-        ),
-        boot_args
-      ))
+    ci_df <- calculate_boot_ci_from_boot(
+      boot_obj = bootstrap_samples_df,
+      type = type,
+      conf = conf,
+      h = h,
+      hinv = hinv,
+      boot_args = boot_args
+    )
+    return(ci_df)
+  }
 
-      # Convert to tidy dataframe
-      data.frame(
-        stat_index = idx,
-        est_original = rep(boot_out$t0[idx], length(ci_types)),
-        int_type = names(res)[names(res) %in%
-                                c("normal", "basic", "percent", "bca")],
-        ll = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
-                    function(x) x[length(x) - 1]),
-        ul = sapply(res[names(res) %in% c("normal", "basic", "percent", "bca")],
-                    function(x) x[length(x)]),
-        conf = conf
-      ) %>%
-        dplyr::mutate(
-          int_type = dplyr::case_when(
-            .data$int_type == "percent" ~ "perc",
-            .data$int_type == "normal" ~ "norm",
-            TRUE ~ .data$int_type
-          )
-        )
-    }) %>%
-      dplyr::bind_rows()
+  # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
+  if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
+    stopifnot(
+      "Cannot use a 'boot' method when a no bias is specified." =
+        no_bias == FALSE
+    )
 
-    # Return dataframe without rownames
-    rownames(ci_out) <- NULL
-    return(ci_out)
+    ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
+      ci <- calculate_boot_ci_from_boot(
+        boot_obj = bootstrap_samples_df[[i]],
+        type = type,
+        conf = conf,
+        h = h,
+        hinv = hinv,
+        boot_args = boot_args
+      )
+
+      # Overwrite stat_index
+      ci <- assign_stat_index(
+        df = ci,
+        index = i,
+        names = names(bootstrap_samples_df),
+        grouping_var = grouping_var
+      )
+
+      return(ci)
+    })
+    return(dplyr::bind_rows(ci_list))
   }
 
   ### Start checks

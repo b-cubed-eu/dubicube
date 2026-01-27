@@ -131,18 +131,18 @@ test_that("bootstrap_cube validates inputs and method", {
 
 test_that("bootstrap_cube supports boot::boot() method", {
   # boot_whole_cube
-  res <- bootstrap_cube(
+  res_list <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = c("year", "taxonKey"),
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,
     method = "boot_whole_cube"
   )
-  expect_s3_class(res, "boot")
-  expect_equal(res$R, 5)
-  expect_true(nrow(res$t) == 5)
+  expect_type(res_list, "list")
+  expect_true(all(sapply(res_list, inherits, "boot")))
+  expect_true(all(sapply(res_list, function(x) x$R == 5)))
 
   # boot_group_specific
   res_list <- bootstrap_cube(
@@ -160,25 +160,26 @@ test_that("bootstrap_cube supports boot::boot() method", {
 })
 
 test_that("bootstrap_cube passes boot_args correctly", {
-  res <- bootstrap_cube(
+  res_list <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = c("year", "taxonKey"),
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,
     method = "boot_whole_cube",
     boot_args = list(parallel = "no")
   )
-  expect_s3_class(res, "boot")
-  expect_equal(res$R, 5)
+  expect_type(res_list, "list")
+  expect_true(all(sapply(res_list, inherits, "boot")))
+  expect_true(all(sapply(res_list, function(x) x$R == 5)))
 })
 
 test_that("bootstrap_cube boot method respects seed for reproducibility", {
   res1 <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = c("year", "taxonKey"),
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,
@@ -186,8 +187,8 @@ test_that("bootstrap_cube boot method respects seed for reproducibility", {
   )
   res2 <- bootstrap_cube(
     data_cube = cube_df,
-    fun = mean_obs,
-    grouping_var = c("year", "taxonKey"),
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
     samples = 5,
     seed = 123,
     processed_cube = FALSE,

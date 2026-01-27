@@ -280,8 +280,10 @@ calculate_bootstrap_ci <- function(
       )
 
       # Overwrite stat_index
-      ci$stat_index <- i
-      ci
+      ci$stat_index <- names(bootstrap_samples_df)
+      names(ci)[names(ci) == "stat_index"] <- grouping_var
+
+      return(ci)
     })
     return(dplyr::bind_rows(ci_list))
   }

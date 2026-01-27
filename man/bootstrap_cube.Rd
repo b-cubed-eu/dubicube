@@ -207,10 +207,8 @@ bootstrap_mean_obs <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  seed = 123,
-  progress = FALSE
+  seed = 123
 )
-head(bootstrap_mean_obs)
 }
 }
 \references{

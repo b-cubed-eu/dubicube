@@ -7,10 +7,10 @@
 #' (`basic`). The function also supports a `boot` object from the \pkg{boot}
 #' package.
 #'
-#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a
-#' `boot` object. For dataframes, each row is a bootstrap sample; must include
-#' columns `rep_boot`, `est_original`, and the grouping variables. For `boot`
-#' objects, the function uses `boot::boot.ci()` internally.
+#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a list
+#' of `boot` objects. For dataframes, each row is a bootstrap sample; must
+#' include columns `rep_boot`, `est_original`, and the grouping variables.
+#' For `boot` objects, the function uses `boot::boot.ci()` internally.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -37,7 +37,8 @@
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
 #' @param no_bias Logical. If `TRUE` intervals are centered around the original
-#' estimates (bias is ignored). Default is `FALSE`.
+#' estimates (bias is ignored). Default is `FALSE`.Cannot be used with a boot
+#' method.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.
@@ -231,7 +232,7 @@
 
 calculate_bootstrap_ci <- function(
   bootstrap_samples_df,
-  grouping_var,
+  grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   h = function(t) t,
@@ -270,6 +271,7 @@ calculate_bootstrap_ci <- function(
       "Cannot use a 'boot' method when a no bias is specified." =
         no_bias == FALSE
     )
+
     ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
       ci <- calculate_boot_ci_from_boot(
         boot_obj = bootstrap_samples_df[[i]],
@@ -281,8 +283,12 @@ calculate_bootstrap_ci <- function(
       )
 
       # Overwrite stat_index
-      ci$stat_index <- names(bootstrap_samples_df)[i]
-      names(ci)[names(ci) == "stat_index"] <- grouping_var
+      ci <- assign_stat_index(
+        df = ci,
+        index = i,
+        names = names(bootstrap_samples_df),
+        grouping_var = grouping_var
+      )
 
       return(ci)
     })

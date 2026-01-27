@@ -241,3 +241,36 @@ safe_join <- function(x, y, by, type = c("left", "right"), ...) {
     join_fun(x, y, by = by, ...)
   }
 }
+
+
+#' Assign group/stat index to a bootstrap CI dataframe
+#'
+#' This function adds a `stat_index` column to a bootstrap CI dataframe and
+#' optionally renames it to a grouping variable.
+#'
+#' @param df A dataframe containing bootstrap confidence intervals.
+#' @param index Index of the current bootstrap sample or list element.
+#' @param names Optional character vector of names for the bootstrap samples.
+#'              If NULL, the numeric index is used.
+#' @param grouping_var Optional character string; if provided, renames
+#' `stat_index` to this.
+#'
+#' @return A dataframe with `stat_index` or grouping variable column
+#' added/renamed.
+#'
+#' @noRd
+assign_stat_index <- function(df, index, names = NULL, grouping_var = NULL) {
+  # Assign stat_index based on names or numeric index
+  if (!is.null(names)) {
+    df$stat_index <- names[index]
+  } else {
+    df$stat_index <- index
+  }
+
+  # Rename stat_index to grouping_var if provided
+  if (!is.null(grouping_var)) {
+    names(df)[names(df) == "stat_index"] <- grouping_var
+  }
+
+  return(df)
+}

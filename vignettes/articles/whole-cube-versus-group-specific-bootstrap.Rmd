@@ -320,7 +320,7 @@ estimate_mean_obs <- bias_mean_obs %>%
                          ordered = TRUE))
 ```
 
-```{r, echo=FALSE, warning=FALSE, out.height="200%"}
+```{r, echo=FALSE, warning=FALSE, fig.height=6}
 #| fig.alt: >
 #|   Comparison of results between bootstrap methods.
 # Visualise
@@ -589,7 +589,7 @@ bench_ci_df <- bind_rows(
   )
 ```
 
-```{r, echo=FALSE, warning=FALSE, out.height="200%"}
+```{r, echo=FALSE, warning=FALSE, fig.height=6}
 #| fig.alt: >
 #|   Comparison of execution time between methods.
 # Combine bootstrapping and CI into one table

@@ -67,12 +67,13 @@ estimates (bias is ignored). Default is \code{FALSE}.}
 confidence limits per group. If \code{FALSE}, the confidence limits are added to
 the original bootstrap dataframe \code{bootstrap_samples_df}.}
 
-\item{data_cube}{Only used when \code{type = "bca"}. A data cube object (class
+\item{data_cube}{Only used when \code{type = "bca"}  and no boot method is used.
+A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
 (cf. \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
 \code{bootstrap_cube()}.}
 
-\item{fun}{Only used when \code{type = "bca"}.
+\item{fun}{Only used when \code{type = "bca"}  and no boot method is used.
 A function which, when applied to \code{data_cube$data} returns the
 statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
 This function must return a dataframe with a column \code{diversity_val}

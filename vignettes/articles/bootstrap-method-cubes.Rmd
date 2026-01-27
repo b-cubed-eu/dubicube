@@ -188,13 +188,20 @@ bootstrap_results <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  seed = 123,
-  method = "whole_cube"
+  seed = 123
 )
 ```
 
+This returned a list of `"boot"` objects. We can convert this to a data frame 
+
 ```{r}
-head(bootstrap_results)
+bootstrap_results_df <- boot_list_to_dataframe(
+  boot_list = bootstrap_results,
+  grouping_var = "year"
+) %>%
+  mutate(year = as.numeric(year))
+
+head(bootstrap_results_df)
 ```
 
 We can visualise the bootstrap distributions using a violin plot.
@@ -203,7 +210,7 @@ We can visualise the bootstrap distributions using a violin plot.
 #| fig.alt: >
 #|   Bootstrap distributions for mean number of occurrences over time.
 # Get bias vales
-bias_mean_obs <- bootstrap_results %>%
+bias_mean_obs <- bootstrap_results_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
 # Get estimate values
@@ -214,7 +221,7 @@ estimate_mean_obs <- bias_mean_obs %>%
                          ordered = TRUE))
 
 # Visualise bootrap distributions
-bootstrap_results %>%
+bootstrap_results_df %>%
   ggplot(aes(x = year)) +
   # Distribution
   geom_violin(aes(y = rep_boot, group = year),
@@ -225,7 +232,7 @@ bootstrap_results %>%
   # Settings
   labs(y = "Mean Number of Observations\nper Grid Cell",
        x = "", shape = "Legend:") +
-  scale_x_continuous(breaks = sort(unique(bootstrap_results$year))) +
+  scale_x_continuous(breaks = sort(unique(bootstrap_results_df$year))) +
   theme_minimal() +
   theme(legend.position = "bottom",
         legend.title = element_text(face = "bold"))
@@ -273,6 +280,8 @@ bootstrap_results_ref <- bootstrap_cube(
   seed = 123
 )
 ```
+
+This time, a data frame is returned since the **boot** package cannot be used with a reference group (see Bootstrap method section).
 
 ```{r}
 head(bootstrap_results_ref)
@@ -328,7 +337,7 @@ In a way, this also avoids the arbitrariness of choosing the reference period.
 You compare previous situations with the current situation (last year), where you could repeat this comparison annually, for example.
 Finally, when comparing multiple indicators, we recommend using a consistent reference period to maintain comparability.
 
-### Bootstrap Method
+### Bootstrap method
 
 The **dubicube** package supports multiple bootstrap strategies depending on the type of indicator, the structure of your data, and whether a reference group is used. Users rarely need to specify the method explicitly, as the default `method = "smart"` automatically selects the appropriate approach. More info in [this tutorial](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.html).
 

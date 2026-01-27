@@ -64,7 +64,7 @@ has_redundant_grouping_vars <- function(data, grouping_var) {# nolint: cyclocomp
 #' Extract data from a processed data cube or from a dataframe
 #'
 #' Returns the underlying data from a processed or simulated biodiversity data
-#' cube, or directly returns the data frame if `processed_cube = FALSE`.
+#' cube, or directly returns the dataframe if `processed_cube = FALSE`.
 #'
 #' @param data_cube An object of class `processed_cube`, `sim_cube`, or a
 #' `data.frame`. If `processed_cube = TRUE`, this must be a processed or
@@ -215,14 +215,14 @@ calc_stat_by_group <- function(
 #' This is useful in workflows where join keys are constructed
 #' programmatically (e.g., via [base::setdiff()]) and may sometimes be empty.
 #'
-#' @param x,y Data frames to join.
+#' @param x,y Dataframes to join.
 #' @param by A character vector of column names to join by. If `character(0)`,
 #'   a cross join is performed.
 #' @param type The type of join: `"left"` or `"right"`. Defaults to `"left"`.
 #' @param ... Additional arguments passed to the join function (e.g.,
 #'   `relationship`).
 #'
-#' @return A data frame resulting from the specified join or cross join of
+#' @return A dataframe resulting from the specified join or cross join of
 #'   `x` and `y`.
 #'
 #' @noRd
@@ -243,7 +243,7 @@ safe_join <- function(x, y, by, type = c("left", "right"), ...) {
 }
 
 
-#' Assign group/stat index to a bootstrap CI dataframe
+#' Assign group/statistic index to a bootstrap CI dataframe
 #'
 #' This function adds a `stat_index` column to a bootstrap CI dataframe and
 #' optionally renames it to a grouping variable.
@@ -251,7 +251,7 @@ safe_join <- function(x, y, by, type = c("left", "right"), ...) {
 #' @param df A dataframe containing bootstrap confidence intervals.
 #' @param index Index of the current bootstrap sample or list element.
 #' @param names Optional character vector of names for the bootstrap samples.
-#'              If NULL, the numeric index is used.
+#' If `NULL`, the numeric index is used.
 #' @param grouping_var Optional character string; if provided, renames
 #' `stat_index` to this.
 #'

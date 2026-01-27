@@ -113,7 +113,7 @@ example_results <- list(
 ## Perform tests
 # Test calculate_acceleration output
 test_that("calculate_acceleration returns a df with expected structure", {
-  # Data frame
+  # Dataframe
   lapply(example_results, function(df) {
     expect_s3_class(df, "data.frame")
   })

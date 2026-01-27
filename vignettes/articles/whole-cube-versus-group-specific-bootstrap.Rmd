@@ -181,7 +181,7 @@ For most use cases, **dubicube** delegates the resampling procedure to the well-
 * Automatically with `method = "smart"` (default), one grouping variable, and no reference group is specified (default)
 * Manually with `method = "boot_whole_cube"` or `method = "boot_group_specific"`
 
-In these cases, `bootstrap_cube()` returns the native objects produced by `boot::boot()`, rather than a summarised data frame.
+In these cases, `bootstrap_cube()` returns the native objects produced by `boot::boot()`, rather than a summarised dataframe.
 
 #### Whole-cube bootstrap with **boot**
 

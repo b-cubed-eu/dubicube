@@ -14,7 +14,7 @@ cube_df <- expand.grid(
   obs = rpois(5, 50)
 )
 
-test_that("boot_list_to_dataframe returns a tidy data frame", {
+test_that("boot_list_to_dataframe returns a tidy dataframe", {
 
   # Create simple boot objects per year
   stat_fun <- function(data, indices) {

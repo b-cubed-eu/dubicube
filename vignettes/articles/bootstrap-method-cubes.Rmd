@@ -192,7 +192,7 @@ bootstrap_results <- bootstrap_cube(
 )
 ```
 
-This returned a list of `"boot"` objects. We can convert this to a data frame 
+This returned a list of `"boot"` objects. We can convert this to a dataframe 
 
 ```{r}
 bootstrap_results_df <- boot_list_to_dataframe(
@@ -281,7 +281,7 @@ bootstrap_results_ref <- bootstrap_cube(
 )
 ```
 
-This time, a data frame is returned since the **boot** package cannot be used with a reference group (see Bootstrap method section).
+This time, a dataframe is returned since the **boot** package cannot be used with a reference group (see Bootstrap method section).
 
 ```{r}
 head(bootstrap_results_ref)

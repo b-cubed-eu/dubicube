@@ -2,7 +2,7 @@
 % Please edit documentation in R/boot_list_to_dataframe.R
 \name{boot_list_to_dataframe}
 \alias{boot_list_to_dataframe}
-\title{Convert a list of \code{boot} objects to a tidy data frame}
+\title{Convert a list of \code{boot} objects to a tidy dataframe}
 \usage{
 boot_list_to_dataframe(boot_list, grouping_var)
 }
@@ -14,10 +14,10 @@ variable.}
 
 \item{grouping_var}{A character string giving the name of the grouping
 variable (e.g. \code{"year"}). This will be used as the column name in the
-returned data frame.}
+returned dataframe.}
 }
 \value{
-A data frame with the following columns:
+A dataframe with the following columns:
 \itemize{
 \item \code{sample}: Sample ID of the bootstrap replicate
 \item \code{est_original}: The statistic based on the full dataset per group
@@ -33,7 +33,7 @@ deviation of the bootstrap replicates per group)
 \description{
 This function converts a named list of \code{"boot"} objects
 (typically produced by \code{\link[=bootstrap_cube]{bootstrap_cube()}} into a single
-long-format data frame. Each element of the list is assumed to correspond
+long-format dataframe. Each element of the list is assumed to correspond
 to one group, with the list names defining the values of the grouping
 variable.
 }

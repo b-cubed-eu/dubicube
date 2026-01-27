@@ -1,8 +1,8 @@
-#' Convert a list of `boot` objects to a tidy data frame
+#' Convert a list of `boot` objects to a tidy dataframe
 #'
 #' This function converts a named list of `"boot"` objects
 #' (typically produced by [bootstrap_cube()] into a single
-#' long-format data frame. Each element of the list is assumed to correspond
+#' long-format dataframe. Each element of the list is assumed to correspond
 #' to one group, with the list names defining the values of the grouping
 #' variable.
 #'
@@ -12,9 +12,9 @@
 #' variable.
 #' @param grouping_var A character string giving the name of the grouping
 #' variable (e.g. `"year"`). This will be used as the column name in the
-#' returned data frame.
+#' returned dataframe.
 #'
-#' @returns A data frame with the following columns:
+#' @returns A dataframe with the following columns:
 #'   - `sample`: Sample ID of the bootstrap replicate
 #'   - `est_original`: The statistic based on the full dataset per group
 #'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
@@ -92,7 +92,7 @@ boot_list_to_dataframe <- function(boot_list, grouping_var) {
     )
   }
 
-  # Convert each boot object to a data frame
+  # Convert each boot object to a dataframe
   out <- lapply(seq_along(boot_list), function(i) {
 
     # Extract the boot object and its corresponding group value
@@ -108,7 +108,7 @@ boot_list_to_dataframe <- function(boot_list, grouping_var) {
     # Bootstrap standard error: sd of bootstrap replications
     se_boot <- stats::sd(boot$t)
 
-    # Construct a long-format data frame:
+    # Construct a long-format dataframe:
     # one row per bootstrap replicate for this group
     data.frame(
       sample = seq_len(replicates),  # bootstrap replicate index
@@ -121,7 +121,7 @@ boot_list_to_dataframe <- function(boot_list, grouping_var) {
     )
   })
 
-  # Combine all groups into a single data frame
+  # Combine all groups into a single dataframe
   out_df <- dplyr::bind_rows(out)
 
   # Rename the generic 'group' column to the user-specified grouping variable

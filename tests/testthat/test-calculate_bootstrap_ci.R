@@ -191,7 +191,7 @@ result_perc2 <- calculate_bootstrap_ci(
 ## Perform tests
 # Test calculate_bootstrap_ci output
 test_that("calculate_bootstrap_ci returns a df with expected structure", {
-  # Data frame
+  # Dataframe
   lapply(c(example_ci_results, list(result_perc2)), function(df) {
     expect_s3_class(df, "data.frame")
   })

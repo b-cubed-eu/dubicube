@@ -532,7 +532,7 @@ for (i in seq_along(coverages)) {
 }
 out_ci <- bind_rows(out_ci_list) %>%
   mutate(
-    year = as.numeric(year), 
+    year = as.numeric(year),
     int_type = ifelse(int_type == "norm", "log_norm", int_type)
   )
 ```

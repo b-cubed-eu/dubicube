@@ -218,6 +218,8 @@ sapply(bootstrap_mean_boot_group, class)
 ## Comparison between methods
 ### Comparing results
 
+We perform bootstrapping and confidence interval calculation for the period **2015–2018**, following the same procedure as in previous tutorials. The results show that the bootstrap distributions and confidence intervals are very similar, regardless of whether the **boot** package is used.
+
 ```{r, echo=FALSE}
 # Whole-cube to dataframe
 bootstrap_mean_boot_whole_df <- boot_list_to_dataframe(
@@ -264,7 +266,7 @@ ci_mean_boot_group <- calculate_bootstrap_ci(
 )
 ```
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE}
 # Combine datasets
 bootstrap_results <- bind_rows(
   bootstrap_mean_whole %>%
@@ -317,7 +319,11 @@ estimate_mean_obs <- bias_mean_obs %>%
                names_to = "Legend", values_to = "value") %>%
   mutate(Legend = factor(Legend, levels = c("estimate", "bootstrap estimate"),
                          ordered = TRUE))
+```
 
+```{r, echo=FALSE, warning=FALSE}
+#| fig.alt: >
+#|   Comparison of results between bootstrap methods.
 # Visualise
 bootstrap_results %>%
   ggplot(aes(x = boot)) +
@@ -365,15 +371,15 @@ Two computational steps are evaluated separately:
 For each step, we compare:
 
 * Whole-cube vs group-specific resampling strategies, and
-* Internal `dubicube` implementations vs delegation to the `boot` package.
+* Internal `dubicube` implementations vs delegation to the **boot** package.
 
-The label "boot" indicates that `dubicube` relies on the `boot` package for resampling or interval calculation, whereas "no boot" denotes that the same task is performed using `dubicube`'s internal code paths.
+The label "boot" indicates that `dubicube` relies on the **boot** package for resampling or interval calculation, whereas "no boot" denotes that the same task is performed using `dubicube`'s internal code paths.
 Each method is executed 20 times and timings are reported in milliseconds.
 All benchmarks are run with identical inputs and a fixed random seed to ensure comparability.
 
-> discuss results
+We observe that using the **boot** package results in faster performance for both bootstrapping and confidence interval calculation in the case of group-specific bootstrapping. For whole-cube bootstrapping, while interval calculation is faster with **boot**, the bootstrapping step itself is slower, which leads to a higher total computation time overall.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, results='hide'}
 library(microbenchmark)
 
 set.seed(123)
@@ -436,6 +442,46 @@ results_boot_group <- microbenchmark(
 )
 
 # Time confidence interval calculation
+bootstrap_mean_whole <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  processed_cube = FALSE,
+  method = "whole_cube",
+  seed = 123
+)
+
+bootstrap_mean_group <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  processed_cube = FALSE,
+  method = "group_specific",
+  seed = 123
+)
+
+bootstrap_mean_boot_whole <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  processed_cube = FALSE,
+  method = "boot_whole_cube",
+  seed = 123
+)
+
+bootstrap_mean_boot_group <- bootstrap_cube(
+  data_cube = iris,
+  fun = mean_sepal_length,
+  grouping_var = "Species",
+  samples = 1000,
+  processed_cube = FALSE,
+  method = "boot_group_specific",
+  seed = 123
+)
+
 results_ci_whole <- microbenchmark(
   {
     calculate_bootstrap_ci(
@@ -468,6 +514,7 @@ results_ci_boot_whole <- microbenchmark(
   {
     calculate_bootstrap_ci(
       bootstrap_samples_df = bootstrap_mean_boot_whole,
+      grouping_var = "Species",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95
     )
@@ -479,13 +526,17 @@ results_ci_boot_group <- microbenchmark(
   {
     calculate_bootstrap_ci(
       bootstrap_samples_df = bootstrap_mean_boot_group,
+      grouping_var = "Species",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95
     )
   },
   times = 20
 )
+```
 
+
+```{r, echo=FALSE}
 # Create dataframes
 bench_df <- bind_rows(
   as.data.frame(results_whole) %>%
@@ -538,18 +589,53 @@ bench_ci_df <- bind_rows(
   mutate(
     time_ms = time / 1e6  # nanoseconds → milliseconds
   )
-
-# Create boxplots to visualise results
-bind_rows(
-  bench_df %>%
-    mutate(cat = "bootstrapping"),
-  bench_ci_df %>%
-    mutate(cat = "CI calculation (all)")
-) %>%
-  ggplot(aes(x = boot, y = time_ms, fill = boot)) +
-  geom_boxplot(outlier.alpha = 0.6) +
-  labs(x = "", y = "Execution time (ms)") +
-  facet_grid(cat ~ method, scales = "free") +
-  theme_minimal() +
-  theme(legend.position = "")
 ```
+
+```{r, echo=TRUE, warning=FALSE}
+#| fig.alt: >
+#|   Comparison of execution time between methods.
+# Combine bootstrapping and CI into one table
+combined_df <- bind_rows(
+  bench_df %>% mutate(id = row_number(), cat = "bootstrapping"),
+  bench_ci_df %>% mutate(id = row_number(), cat = "ci_calculation")
+)
+
+# Compute total times per run
+total_df <- combined_df %>%
+  pivot_wider(
+    id_cols = c("id", "method", "boot"),
+    names_from = "cat",
+    values_from = "time_ms"
+  ) %>%
+  mutate(total = bootstrapping + ci_calculation) %>%   # sum the columns directly
+  pivot_longer(
+    cols = c("bootstrapping", "ci_calculation", "total"),
+    names_to = "cat",
+    values_to = "time_ms"
+  ) %>%
+  mutate(cat = factor(
+    cat,
+    levels = c("bootstrapping", "ci_calculation", "total"),
+    labels = c("Bootstrapping", "CI calculation", "Total")
+  ))
+
+# Visualisation
+total_df %>%
+  mutate(
+    boot = factor(boot, levels = c("no boot", "boot"))
+  ) %>%
+  ggplot(aes(x = boot, y = time_ms, fill = cat)) +
+  geom_boxplot(position = "dodge", outlier.alpha = 0.6) +
+  labs(
+    x = "", 
+    y = "Execution time (ms)",
+    fill = "Computation step"
+  ) +
+  facet_wrap(~method, scales = "free", nrow = 2) +
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold", size = 14)
+  )
+```
+

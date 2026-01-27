@@ -320,7 +320,7 @@ estimate_mean_obs <- bias_mean_obs %>%
                          ordered = TRUE))
 ```
 
-```{r, echo=FALSE, warning=FALSE, out.height="150%"}
+```{r, echo=FALSE, warning=FALSE, out.height="200%"}
 #| fig.alt: >
 #|   Comparison of results between bootstrap methods.
 # Visualise
@@ -534,7 +534,6 @@ results_ci_boot_group <- microbenchmark(
 )
 ```
 
-
 ```{r, echo=FALSE}
 # Create dataframes
 bench_df <- bind_rows(
@@ -590,7 +589,7 @@ bench_ci_df <- bind_rows(
   )
 ```
 
-```{r, echo=FALSE, warning=FALSE, out.height="150%"}
+```{r, echo=FALSE, warning=FALSE, out.height="200%"}
 #| fig.alt: >
 #|   Comparison of execution time between methods.
 # Combine bootstrapping and CI into one table
@@ -637,4 +636,3 @@ total_df %>%
     strip.text = element_text(face = "bold", size = 14)
   )
 ```
-

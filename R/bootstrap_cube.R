@@ -62,8 +62,8 @@
 #'   - `bias_boot`: The bias of the bootstrap estimate per group
 #'
 #' If `method` resolves to `"boot_whole_cube"` or `"boot_group_specific"`,
-#' the returned value is an object of class `"boot"`, as produced by
-#' [boot::boot()].
+#' the returned value is a named list of objects of class `"boot"`, as produced
+#' by [boot::boot()].
 #'
 #' @details
 #' Bootstrapping is a statistical technique used to estimate the distribution of

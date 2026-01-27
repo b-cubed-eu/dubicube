@@ -90,8 +90,8 @@ deviation of the bootstrap replicates per group)
 }
 
 If \code{method} resolves to \code{"boot_whole_cube"} or \code{"boot_group_specific"},
-the returned value is an object of class \code{"boot"}, as produced by
-\code{\link[boot:boot]{boot::boot()}}.
+the returned value is a named list of objects of class \code{"boot"}, as produced
+by \code{\link[boot:boot]{boot::boot()}}.
 }
 \description{
 This function generate \code{samples} bootstrap replicates of a statistic applied

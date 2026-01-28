@@ -566,4 +566,85 @@ test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
     unique(ci_boot_list$stat_index),
     c(1, 2)
   )
+
+  # Named list
+  names(boot_list) <- c("spec_1", "spec_2")
+
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_list,
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "stat_index",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both indicators should be present via stat_index
+  expect_setequal(
+    unique(ci_boot_list$stat_index),
+    c("spec_1", "spec_2")
+  )
+
+  # With grouping variable
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_list,
+    grouping_var = "species",
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "species",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both indicators should be present via species
+  expect_setequal(
+    unique(ci_boot_list$species),
+    c("spec_1", "spec_2")
+  )
 })

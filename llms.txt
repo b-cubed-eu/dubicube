@@ -1,0 +1,164 @@
+# dubicube
+
+The **dubicube** package aims to deliver measures for assessing the
+applicability of biodiversity data cubes, whether for general use or
+specific biodiversity indicators. These measures facilitate data
+exploration by providing insights into data quality and reliability.
+Additionally, the package includes functions for calculating indicator
+uncertainty using bootstrapping, as well as tools for interpreting and
+visualising uncertainty in biodiversity indicators derived from
+occurrence cubes.
+
+## Installation
+
+Install **dubicube** in R:
+
+``` r
+
+install.packages("dubicube", repos = c("https://b-cubed-eu.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+You can install the development version from
+[GitHub](https://github.com/) with:
+
+``` r
+
+# install.packages("remotes")
+remotes::install_github("b-cubed-eu/dubicube")
+```
+
+## Key Features
+
+The **dubicube** package offers:
+
+### 🔍 1. Data Exploration & Variability Assessment
+
+Gain insights into the structure and sensitivity of biodiversity data
+cubes.
+
+- [`cross_validate_cube()`](https://b-cubed-eu.github.io/dubicube/reference/cross_validate_cube.md)  
+  Perform cross-validation (leave-one-out or k-fold) to assess
+  group-level sensitivity of indicators and evaluate how individual
+  categories influence results.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/group-level-sensitivity.html)
+
+> 🛠️ Additional data quality diagnostics are on the way!
+
+### 📈 2. Estimating Indicator Uncertainty
+
+Use bootstrap methods to understand variability, bias, and confidence in
+your indicators.
+
+- [`bootstrap_cube()`](https://b-cubed-eu.github.io/dubicube/reference/bootstrap_cube.md)  
+  Create bootstrap replicates to estimate indicator variability, bias,
+  and standard error.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html)
+
+- [`calculate_bootstrap_ci()`](https://b-cubed-eu.github.io/dubicube/reference/calculate_bootstrap_ci.md)  
+  Compute confidence intervals (percentile, BCa, normal, basic), with
+  optional transformations and bias correction.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-interval-calculation.html)
+
+### 🧠 3. Interpretation & Visualisation
+
+Put your results in context with reference values and uncertainty
+thresholds.
+
+- [`add_effect_classification()`](https://b-cubed-eu.github.io/dubicube/reference/add_effect_classification.md)  
+  Classify indicator trends (e.g. increase, stable, decrease) by
+  comparing confidence intervals to thresholds.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/effect-classification.html)
+
+- **Spatial and temporal interpretation**  
+  Learn how to visualise and assess patterns across space and time using
+  indicator uncertainty.  
+  📘 [Best practices for temporal trends
+  →](https://b-cubed-eu.github.io/dubicube/articles/visualising-temporal-trends.html)  
+  📘 [Best practices for spatial trends
+  →](https://b-cubed-eu.github.io/dubicube/articles/visualising-spatial-trends.html)
+
+------------------------------------------------------------------------
+
+🔗 Learn more at our [website](https://b-cubed-eu.github.io/dubicube/)
+or explore the
+[documentation](https://b-cubed-eu.github.io/dubicube/reference/).
+
+# Package index
+
+## Data variability and exploration
+
+- [`cross_validate_cube()`](https://b-cubed-eu.github.io/dubicube/reference/cross_validate_cube.md)
+  : Leave-one-out cross-validation for data cubes
+
+## Indicator uncertainty and interpretation
+
+- [`add_effect_classification()`](https://b-cubed-eu.github.io/dubicube/reference/add_effect_classification.md)
+  : Add effect classifications to a dataframe by comparing the
+  confidence intervals with a reference and thresholds
+- [`bootstrap_cube()`](https://b-cubed-eu.github.io/dubicube/reference/bootstrap_cube.md)
+  : Perform bootstrapping over a data cube for a calculated statistic
+- [`calculate_acceleration()`](https://b-cubed-eu.github.io/dubicube/reference/calculate_acceleration.md)
+  : Calculate acceleration for a statistic in a dataframe
+- [`calculate_bootstrap_ci()`](https://b-cubed-eu.github.io/dubicube/reference/calculate_bootstrap_ci.md)
+  : Calculate confidence intervals for a dataframe with bootstrap
+  replicates
+
+## Bootstrap interval helper functions
+
+- [`basic_ci()`](https://b-cubed-eu.github.io/dubicube/reference/basic_ci.md)
+  : Calculate basic bootstrap confidence interval
+- [`bca_ci()`](https://b-cubed-eu.github.io/dubicube/reference/bca_ci.md)
+  : Calculate Bias-Corrected and Accelerated (BCa) bootstrap confidence
+  interval
+- [`norm_ci()`](https://b-cubed-eu.github.io/dubicube/reference/norm_ci.md)
+  : Calculate normal bootstrap confidence interval
+- [`perc_ci()`](https://b-cubed-eu.github.io/dubicube/reference/perc_ci.md)
+  : Calculate percentile bootstrap confidence interval
+
+## Bootstrap helper functions
+
+- [`boot_list_to_dataframe()`](https://b-cubed-eu.github.io/dubicube/reference/boot_list_to_dataframe.md)
+  :
+
+  Convert a list of `boot` objects to a tidy dataframe
+
+- [`bootstrap_cube_raw()`](https://b-cubed-eu.github.io/dubicube/reference/bootstrap_cube_raw.md)
+  : Perform bootstrapping over a dataframe for a calculated statistic
+
+- [`calculate_boot_ci_from_boot()`](https://b-cubed-eu.github.io/dubicube/reference/calculate_boot_ci_from_boot.md)
+  : Calculate confidence intervals from a 'boot' object
+
+- [`derive_bootstrap_method()`](https://b-cubed-eu.github.io/dubicube/reference/derive_bootstrap_method.md)
+  : Derive bootstrap method for a statistic
+
+- [`resolve_bootstrap_method()`](https://b-cubed-eu.github.io/dubicube/reference/resolve_bootstrap_method.md)
+  : Resolve bootstrap method including use of the boot package
+
+# Articles
+
+### Data variability and exploration
+
+- [Group-Level Sensitivity
+  Analysis](https://b-cubed-eu.github.io/dubicube/articles/group-level-sensitivity.md):
+
+### Indicator uncertainty calculation
+
+- [Bootstrap Method for Data
+  Cubes](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.md):
+- [Calculating Bootstrap Confidence
+  Intervals](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-interval-calculation.md):
+- [Whole-cube Bootstrap versus Group-specific
+  Bootstrap](https://b-cubed-eu.github.io/dubicube/articles/whole-cube-versus-group-specific-bootstrap.md):
+
+### Indicator interpretation and visualisation
+
+- [Classifying Effects Using Confidence
+  Limits](https://b-cubed-eu.github.io/dubicube/articles/effect-classification.md):
+- [Visualising Temporal
+  Trends](https://b-cubed-eu.github.io/dubicube/articles/visualising-temporal-trends.md):
+- [Visualising Spatial
+  Trends](https://b-cubed-eu.github.io/dubicube/articles/visualising-spatial-trends.md):

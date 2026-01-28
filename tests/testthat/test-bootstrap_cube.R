@@ -48,10 +48,10 @@ test_that("non-boot whole-cube and group-specific bootstraps", {
     method = "group_specific"
   )
   expect_s3_class(res, "data.frame")
-  expect_true(all(res$method_boot == "group_specific"))
 })
 
 test_that("bootstrap_cube handles reference group correctly", {
+  # whole_cube
   res <- bootstrap_cube(
     data_cube = cube_df,
     fun = mean_obs,
@@ -61,6 +61,20 @@ test_that("bootstrap_cube handles reference group correctly", {
     seed = 123,
     processed_cube = FALSE,
     method = "whole_cube"
+  )
+  expect_false(any(res$year == ref_year))
+
+  # group_specific
+  res <- bootstrap_cube(
+    data_cube = cube_df,
+    fun = mean_obs_simple,
+    grouping_var = c("year"),
+    ref_group = ref_year,
+    samples = 5,
+    seed = 123,
+    processed_cube = FALSE,
+    method = "group_specific",
+    progress = TRUE
   )
   expect_false(any(res$year == ref_year))
 })

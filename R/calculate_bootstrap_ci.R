@@ -4,15 +4,13 @@
 #' This function calculates confidence intervals for a dataframe containing
 #' bootstrap replicates based on different methods, including percentile
 #' (`perc`), bias-corrected and accelerated (`bca`), normal (`norm`), and basic
-#' (`basic`).
+#' (`basic`). The function also supports a `boot` object from the \pkg{boot}
+#' package.
 #'
-#' @param bootstrap_samples_df A dataframe containing the bootstrap replicates,
-#' where each row represents a bootstrap sample. As returned by
-#' `bootstrap_cube()`. Apart from the `grouping_var` column, the following
-#' columns should be present:
-#'   - `est_original`: The statistic based on the full dataset per group
-#'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap
-#'   replicate)
+#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a list
+#' of `boot` objects. For dataframes, each row is a bootstrap sample; must
+#' include columns `rep_boot`, `est_original`, and the grouping variables.
+#' For `boot` objects, the function uses `boot::boot.ci()` internally.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -39,15 +37,17 @@
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
 #' @param no_bias Logical. If `TRUE` intervals are centered around the original
-#' estimates (bias is ignored). Default is `FALSE`.
+#' estimates (bias is ignored). Default is `FALSE`.Cannot be used with a boot
+#' method.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.
-#' @param data_cube Only used when `type = "bca"`. A data cube object (class
+#' @param data_cube Only used when `type = "bca"`  and no boot method is used.
+#'  A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
 #' (cf. `$data` slot of 'processed_cube' or 'sim_cube'). As used by
 #' `bootstrap_cube()`.
-#' @param fun Only used when `type = "bca"`.
+#' @param fun Only used when `type = "bca"`  and no boot method is used.
 #' A function which, when applied to `data_cube$data` returns the
 #' statistic(s) of interest (or just `data_cube` in case of a dataframe).
 #' This function must return a dataframe with a column `diversity_val`
@@ -64,6 +64,8 @@
 #'   - `"pos"`: Positive jackknife
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
+#' @param boot_args Named list of additional arguments passed to
+#' `boot::boot.ci()`.
 #'
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:
@@ -184,8 +186,8 @@
 #'
 #' # Function to calculate statistic of interest
 #' # Mean observations per year
-#' mean_obs <- function(data) {
-#'   out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+#' mean_obs <- function(x) {
+#'   out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
 #'   names(out_df) <- c("year", "diversity_val") # Rename columns
 #'   return(out_df)
 #' }
@@ -197,52 +199,86 @@
 #'   fun = mean_obs,
 #'   grouping_var = "year",
 #'   samples = 1000,
-#'   seed = 123,
-#'   progress = FALSE
+#'   seed = 123
 #' )
-#' head(bootstrap_mean_obs)
 #'
 #' # Calculate confidence limits
 #' # Percentile interval
-#' ci_mean_obs1 <- calculate_bootstrap_ci(
+#' ci_mean_obs <- calculate_bootstrap_ci(
 #'   bootstrap_samples_df = bootstrap_mean_obs,
 #'   grouping_var = "year",
 #'   type = "perc",
-#'   conf = 0.95,
-#'   aggregate = TRUE
+#'   conf = 0.95
 #' )
-#' ci_mean_obs1
-#'
-#' # All intervals
-#' ci_mean_obs2 <- calculate_bootstrap_ci(
-#'   bootstrap_samples_df = bootstrap_mean_obs,
-#'   grouping_var = "year",
-#'   type = c("perc", "bca", "norm", "basic"),
-#'   conf = 0.95,
-#'   aggregate = TRUE,
-#'   data_cube = processed_cube, # Required for BCa
-#'   fun = mean_obs,             # Required for BCa
-#'   progress = FALSE
-#' )
-#' ci_mean_obs2
+#' ci_mean_obs
 #' }
 # nolint end
 
 calculate_bootstrap_ci <- function(
-    bootstrap_samples_df,
-    grouping_var,
-    type = c("perc", "bca", "norm", "basic"),
-    conf = 0.95,
-    h = function(t) t,
-    hinv = function(t) t,
-    no_bias = FALSE,
-    aggregate = TRUE,
-    data_cube = NA,
-    fun = NA,
-    ...,
-    ref_group = NA,
-    influence_method = ifelse(is.element("bca", type), "usual", NA),
-    progress = FALSE) {
+  bootstrap_samples_df,
+  grouping_var = NULL,
+  type = c("perc", "bca", "norm", "basic"),
+  conf = 0.95,
+  h = function(t) t,
+  hinv = function(t) t,
+  no_bias = FALSE,
+  aggregate = TRUE,
+  data_cube = NA,
+  fun = NA,
+  ...,
+  ref_group = NA,
+  influence_method = ifelse(is.element("bca", type), "usual", NA),
+  progress = FALSE,
+  boot_args = list()
+) {
+  # If the bootstrap samples are a boot object, use the boot package
+  if (inherits(bootstrap_samples_df, "boot")) {
+    stopifnot(
+      "Cannot use a 'boot' method when a no bias is specified." =
+        no_bias == FALSE
+    )
+
+    ci_df <- calculate_boot_ci_from_boot(
+      boot_obj = bootstrap_samples_df,
+      type = type,
+      conf = conf,
+      h = h,
+      hinv = hinv,
+      boot_args = boot_args
+    )
+    return(ci_df)
+  }
+
+  # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
+  if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
+    stopifnot(
+      "Cannot use a 'boot' method when a no bias is specified." =
+        no_bias == FALSE
+    )
+
+    ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
+      ci <- calculate_boot_ci_from_boot(
+        boot_obj = bootstrap_samples_df[[i]],
+        type = type,
+        conf = conf,
+        h = h,
+        hinv = hinv,
+        boot_args = boot_args
+      )
+
+      # Overwrite stat_index
+      ci <- assign_stat_index(
+        df = ci,
+        index = i,
+        names = names(bootstrap_samples_df),
+        grouping_var = grouping_var
+      )
+
+      return(ci)
+    })
+    return(dplyr::bind_rows(ci_list))
+  }
+
   ### Start checks
   # Arguments fun, ref_group, influence_method, and progress
   # arguments are checked in the calculate_acceleration() function

@@ -30,6 +30,14 @@ mean_obs <- function(data) {
   return(out_df)
 }
 
+mean_obs_simple <- function(data) {
+  # Calculate mean obs per year
+  out_df <- aggregate(obs ~ year, data, mean)
+  # Rename columns
+  names(out_df) <- c("year", "diversity_val")
+  return(out_df)
+}
+
 ## Calculate acceleration
 # Input dataframe
 acceleration_df1 <- calculate_acceleration(
@@ -67,22 +75,58 @@ acceleration_df4 <- calculate_acceleration(
   influence_method = "usual"
 )
 
+# Single grouping variable
+acceleration_df12 <- calculate_acceleration(
+  data_cube = cube_df,
+  fun = mean_obs_simple,
+  grouping_var = c("year"),
+  influence_method = "usual",
+  processed_cube = FALSE
+)
+acceleration_df22 <- calculate_acceleration(
+  data_cube = processed_cube,
+  fun = mean_obs_simple,
+  grouping_var = c("year"),
+  influence_method = "pos"
+)
+acceleration_df32 <- calculate_acceleration(
+  data_cube = cube_df,
+  fun = mean_obs_simple,
+  grouping_var = c("year"),
+  ref_group = ref_year,
+  influence_method = "pos",
+  processed_cube = FALSE
+)
+acceleration_df42 <- calculate_acceleration(
+  data_cube = processed_cube,
+  fun = mean_obs_simple,
+  grouping_var = c("year"),
+  ref_group = ref_year,
+  influence_method = "usual"
+)
+
 example_results <- list(
-  acceleration_df1, acceleration_df2, acceleration_df3, acceleration_df4
+  acceleration_df1, acceleration_df2, acceleration_df3, acceleration_df4,
+  acceleration_df12, acceleration_df22, acceleration_df32, acceleration_df42
 )
 
 ## Perform tests
 # Test calculate_acceleration output
 test_that("calculate_acceleration returns a df with expected structure", {
-  # Data frame
+  # Dataframe
   lapply(example_results, function(df) {
     expect_s3_class(df, "data.frame")
   })
 
   # Correct column names
-  lapply(example_results, function(df) {
+  lapply(example_results[1:4], function(df) {
     expect_true(all(
       c("year", "taxonKey", "acceleration") %in% names(df)
+    ))
+  })
+  lapply(example_results[5:8], function(df) {
+    expect_true(all(
+      c("year", "acceleration") %in% names(df)
     ))
   })
 
@@ -135,4 +179,26 @@ test_that("Identical results for processed cube and dataframe", {
   expect_identical(acceleration_df1, acceleration_df22)
   expect_identical(acceleration_df4, acceleration_df32)
   expect_identical(acceleration_df3, acceleration_df42)
+})
+
+test_that("Duplicate rows are detected", {
+  cube_df$y <- as.numeric(factor(cube_df$year))
+
+  mean_obs_simple2 <- function(data) {
+    # Calculate mean obs per year
+    out_df <- aggregate(obs ~ year + y, data, mean)
+    # Rename columns
+    names(out_df) <- c("year", "y", "diversity_val")
+    return(out_df)
+  }
+
+  expect_warning(
+    calculate_acceleration(
+      data_cube = cube_df,
+      fun = mean_obs_simple2,
+      grouping_var = c("year", "y"),
+      processed_cube = FALSE
+    ),
+    "duplicate groups"
+  )
 })

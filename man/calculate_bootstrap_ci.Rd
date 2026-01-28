@@ -6,7 +6,7 @@
 \usage{
 calculate_bootstrap_ci(
   bootstrap_samples_df,
-  grouping_var,
+  grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
   h = function(t) t,
@@ -18,19 +18,15 @@ calculate_bootstrap_ci(
   ...,
   ref_group = NA,
   influence_method = ifelse(is.element("bca", type), "usual", NA),
-  progress = FALSE
+  progress = FALSE,
+  boot_args = list()
 )
 }
 \arguments{
-\item{bootstrap_samples_df}{A dataframe containing the bootstrap replicates,
-where each row represents a bootstrap sample. As returned by
-\code{bootstrap_cube()}. Apart from the \code{grouping_var} column, the following
-columns should be present:
-\itemize{
-\item \code{est_original}: The statistic based on the full dataset per group
-\item \code{rep_boot}: The statistic based on a bootstrapped dataset (bootstrap
-replicate)
-}}
+\item{bootstrap_samples_df}{A dataframe with bootstrap replicates, or a list
+of \code{boot} objects. For dataframes, each row is a bootstrap sample; must
+include columns \code{rep_boot}, \code{est_original}, and the grouping variables.
+For \code{boot} objects, the function uses \code{boot::boot.ci()} internally.}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
 for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
@@ -65,18 +61,20 @@ original scale. The default is the identity function. If \code{h} is supplied bu
 \code{hinv} is not, then the intervals returned will be on the transformed scale.}
 
 \item{no_bias}{Logical. If \code{TRUE} intervals are centered around the original
-estimates (bias is ignored). Default is \code{FALSE}.}
+estimates (bias is ignored). Default is \code{FALSE}.Cannot be used with a boot
+method.}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to
 the original bootstrap dataframe \code{bootstrap_samples_df}.}
 
-\item{data_cube}{Only used when \code{type = "bca"}. A data cube object (class
+\item{data_cube}{Only used when \code{type = "bca"}  and no boot method is used.
+A data cube object (class
 'processed_cube' or 'sim_cube', see \code{b3gbi::process_cube()}) or a dataframe
 (cf. \verb{$data} slot of 'processed_cube' or 'sim_cube'). As used by
 \code{bootstrap_cube()}.}
 
-\item{fun}{Only used when \code{type = "bca"}.
+\item{fun}{Only used when \code{type = "bca"}  and no boot method is used.
 A function which, when applied to \code{data_cube$data} returns the
 statistic(s) of interest (or just \code{data_cube} in case of a dataframe).
 This function must return a dataframe with a column \code{diversity_val}
@@ -99,6 +97,9 @@ the influence values.
 
 \item{progress}{Logical. Whether to show a progress bar for jackknifing. Set
 to \code{TRUE} to display a progress bar, \code{FALSE} (default) to suppress it.}
+
+\item{boot_args}{Named list of additional arguments passed to
+\code{boot::boot.ci()}.}
 }
 \value{
 A dataframe containing the bootstrap results with the following
@@ -123,7 +124,8 @@ When \code{aggregate = FALSE}, the dataframe contains the columns from
 This function calculates confidence intervals for a dataframe containing
 bootstrap replicates based on different methods, including percentile
 (\code{perc}), bias-corrected and accelerated (\code{bca}), normal (\code{norm}), and basic
-(\code{basic}).
+(\code{basic}). The function also supports a \code{boot} object from the \pkg{boot}
+package.
 }
 \details{
 We consider four different types of intervals (with confidence level
@@ -199,8 +201,8 @@ where \eqn{\hat{\theta}^*_{(\alpha/2)}} and
 
 # Function to calculate statistic of interest
 # Mean observations per year
-mean_obs <- function(data) {
-  out_df <- aggregate(obs ~ year, data, mean) # Calculate mean obs per year
+mean_obs <- function(x) {
+  out_df <- aggregate(obs ~ year, x, mean) # Calculate mean obs per year
   names(out_df) <- c("year", "diversity_val") # Rename columns
   return(out_df)
 }
@@ -212,34 +214,18 @@ bootstrap_mean_obs <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  seed = 123,
-  progress = FALSE
+  seed = 123
 )
-head(bootstrap_mean_obs)
 
 # Calculate confidence limits
 # Percentile interval
-ci_mean_obs1 <- calculate_bootstrap_ci(
+ci_mean_obs <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_obs,
   grouping_var = "year",
   type = "perc",
-  conf = 0.95,
-  aggregate = TRUE
+  conf = 0.95
 )
-ci_mean_obs1
-
-# All intervals
-ci_mean_obs2 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_obs,
-  grouping_var = "year",
-  type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  aggregate = TRUE,
-  data_cube = processed_cube, # Required for BCa
-  fun = mean_obs,             # Required for BCa
-  progress = FALSE
-)
-ci_mean_obs2
+ci_mean_obs
 }
 }
 \references{

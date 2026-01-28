@@ -20,6 +20,8 @@ processed_cube$meta <- "This is a processed occurrence cube"
 processed_cube$data <- cube_df
 class(processed_cube) <- "processed_cube"
 
+### Whole cube
+
 ## Function to calculate statistic of interest
 # Mean observations per year per species
 mean_obs <- function(data) {
@@ -38,7 +40,8 @@ boot_df1 <- bootstrap_cube(
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
-  processed_cube = FALSE
+  processed_cube = FALSE,
+  method = "whole_cube"
 )
 
 # Perform bootstrapping 'processed_cube'
@@ -47,7 +50,8 @@ boot_df2 <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
-  seed = 123
+  seed = 123,
+  method = "whole_cube"
 )
 
 # Perform bootstrapping dataframe with reference group
@@ -58,7 +62,8 @@ boot_df3 <- bootstrap_cube(
   samples = 1000,
   seed = 123,
   ref_group = ref_year,
-  processed_cube = FALSE
+  processed_cube = FALSE,
+  method = "whole_cube"
 )
 
 # Perform bootstrapping 'processed_cube' with reference group
@@ -68,7 +73,8 @@ boot_df4 <- bootstrap_cube(
   grouping_var = c("year", "taxonKey"),
   samples = 1000,
   seed = 123,
-  ref_group = ref_year
+  ref_group = ref_year,
+  method = "whole_cube"
 )
 
 ## Calculate confidence intervals
@@ -185,7 +191,7 @@ result_perc2 <- calculate_bootstrap_ci(
 ## Perform tests
 # Test calculate_bootstrap_ci output
 test_that("calculate_bootstrap_ci returns a df with expected structure", {
-  # Data frame
+  # Dataframe
   lapply(c(example_ci_results, list(result_perc2)), function(df) {
     expect_s3_class(df, "data.frame")
   })
@@ -407,5 +413,238 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
     ),
     "`influence_method` must be one of 'usual', 'pos'.",
     fixed = TRUE
+  )
+})
+
+## ------------------------------------------------------------------
+## Boot implementation
+## ------------------------------------------------------------------
+suppressWarnings(library(boot))
+
+# Statistic function (single statistic)
+stat_fun <- function(data, indices) mean(data[indices])
+
+# Create a simple numeric vector
+x <- cube_df$obs + rnorm(length(cube_df$obs), 0, 0.1)
+
+# Create boot object
+set.seed(123)
+boot_obj <- boot::boot(x, statistic = stat_fun, R = 100)
+
+ci_boot <- calculate_bootstrap_ci(
+  bootstrap_samples_df = boot_obj,
+  type = c("perc", "norm", "basic"),
+  conf = 0.95
+)
+
+test_that("calculate_bootstrap_ci handles boot objects correctly", {
+  # Output structure
+  expect_s3_class(ci_boot, "data.frame")
+
+  # Required columns for boot-based output
+  expect_true(all(c(
+    "stat_index",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot$conf == 0.95))
+
+  # Interval bounds are ordered
+  expect_true(all(ci_boot$ll <= ci_boot$ul))
+
+  # Interval types limited to requested ones
+  expect_true(all(ci_boot$int_type %in% c("perc", "norm", "basic")))
+})
+
+
+test_that("boot objects reject no_bias = TRUE", {
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_samples_df = boot_obj,
+      type = "perc",
+      no_bias = TRUE
+    ),
+    "Cannot use a 'boot' method when a no bias is specified.",
+    fixed = TRUE
+  )
+})
+
+# Statistic function returning multiple statistics
+stat_fun_multi <- function(data, indices) {
+  subset <- data[indices]
+  c(mean_val = mean(subset), median_val = median(subset))
+}
+
+# Create boot object with multiple statistics
+set.seed(123)
+boot_obj_multi <- boot::boot(x, statistic = stat_fun_multi, R = 100)
+
+
+test_that("boot objects with multiple statistics are handled correctly", {
+  ci_boot_multi <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_obj_multi,
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_multi, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "stat_index",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot_multi)))
+
+  # Confidence level
+  expect_true(all(ci_boot_multi$conf == 0.95))
+
+  # Interval bounds
+  expect_true(all(ci_boot_multi$ll <= ci_boot_multi$ul))
+
+  # Interval types
+  expect_true(all(ci_boot_multi$int_type %in% c("perc", "norm", "basic")))
+
+  # Both statistics should be present via stat_index
+  expect_setequal(
+    unique(ci_boot_multi$stat_index),
+    c(1, 2)
+  )
+})
+
+test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
+  # Create a second boot object with a different seed
+  set.seed(456)
+  boot_obj2 <- boot::boot(x, statistic = stat_fun, R = 100)
+
+  # Combine into a list of boot objects
+  boot_list <- list(boot_obj, boot_obj2)
+
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_list,
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "stat_index",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both statistics should be present via stat_index
+  expect_setequal(
+    unique(ci_boot_list$stat_index),
+    c(1, 2)
+  )
+
+  # Named list
+  names(boot_list) <- c("spec_1", "spec_2")
+
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_list,
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "stat_index",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both indicators should be present via stat_index
+  expect_setequal(
+    unique(ci_boot_list$stat_index),
+    c("spec_1", "spec_2")
+  )
+
+  # With grouping variable
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_samples_df = boot_list,
+    grouping_var = "species",
+    type = c("perc", "norm", "basic"),
+    conf = 0.95
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "species",
+    "est_original",
+    "int_type",
+    "ll",
+    "ul",
+    "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both indicators should be present via species
+  expect_setequal(
+    unique(ci_boot_list$species),
+    c("spec_1", "spec_2")
   )
 })

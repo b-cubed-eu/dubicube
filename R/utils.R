@@ -1,4 +1,4 @@
-#' Check for redundant grouping variables
+#' Detect redundant grouping variables
 #'
 #' This function checks whether any of the specified grouping variables contain
 #' redundant information. Two grouping variables are considered redundant if
@@ -8,14 +8,8 @@
 #' @param grouping_var A character vector specifying the names of the grouping
 #' variables.
 #'
-#' @return Returns `TRUE` if no redundancy is found. Otherwise, it throws an
-#' error.
-#'
-#' @noRd
-#'
-#' @import dplyr
-#' @importFrom rlang .data
-#' @importFrom stats setNames
+#' @return Logical. Returns `TRUE` if redundant grouping variables are detected,
+#' otherwise `FALSE`.
 #'
 #' @examples
 #' years <- 2000:2002
@@ -25,56 +19,52 @@
 #'   region = rep(c("A", "B", "C"), each = 2)
 #' )
 #'
-#' # Will throw an error
-#' check_redundant_grouping_vars(df, c("year", "time_point"))
-#' # No error
-#' check_redundant_grouping_vars(df, c("year", "region"))
+#' # year and time_point encode the same information
+#' has_redundant_grouping_vars(df, c("year", "time_point"))
+#' #> TRUE
+#'
+#' # year and region are not redundant
+#' has_redundant_grouping_vars(df, c("year", "region"))
+#' #> FALSE
+#'
+#' @noRd
+#'
+#' @import dplyr
+#' @importFrom rlang .data
+has_redundant_grouping_vars <- function(data, grouping_var) {# nolint: cyclocomp_linter
 
-check_redundant_grouping_vars <- function(data, grouping_var) {
-  if (length(grouping_var) > 1) {
-    # Subset the data to keep only the specified grouping variables
-    grouping_data <- data[, grouping_var, drop = FALSE]
+  if (length(grouping_var) < 2) {
+    return(FALSE)
+  }
 
-    # Loop over all pairs of grouping variables
-    for (i in seq_along(grouping_var)) {
-      for (j in seq_along(grouping_var)) {
-        if (i != j) { # Avoid self-comparisons
+  grouping_data <- data[, grouping_var, drop = FALSE]
 
-          # Check for a one-to-one mapping between the two variables
-          mapping_check <- grouping_data %>%
-            dplyr::select(grouping_var[i], grouping_var[j]) %>%
-            dplyr::distinct() %>%
-            dplyr::count(.data[[grouping_var[i]]]) %>%
-            dplyr::pull(n) %>%
-            unique()
+  for (i in seq_along(grouping_var)) {
+    for (j in seq_along(grouping_var)) {
+      if (i != j) {
 
-          # If there is only one unique count and it equals 1, then the
-          # variables are redundant
-          error_message <- paste0(
-            "Grouping variables '", grouping_var[i], "' and '",
-            grouping_var[j], "' contain redundant information. ",
-            "Please use only one of them."
-          )
+        mapping_check <- grouping_data %>%
+          dplyr::select(all_of(grouping_var[c(i, j)])) %>%
+          dplyr::distinct() %>%
+          dplyr::count(.data[[grouping_var[i]]]) %>%
+          dplyr::pull(n) %>%
+          unique()
 
-          do.call(
-            stopifnot,
-            stats::setNames(
-              list(
-                !(length(mapping_check) == 1 && mapping_check == 1)
-              ),
-              error_message
-            )
-          )
+        if (length(mapping_check) == 1 && mapping_check == 1) {
+          return(TRUE)
         }
       }
     }
   }
+
+  FALSE
 }
+
 
 #' Extract data from a processed data cube or from a dataframe
 #'
 #' Returns the underlying data from a processed or simulated biodiversity data
-#' cube, or directly returns the data frame if `processed_cube = FALSE`.
+#' cube, or directly returns the dataframe if `processed_cube = FALSE`.
 #'
 #' @param data_cube An object of class `processed_cube`, `sim_cube`, or a
 #' `data.frame`. If `processed_cube = TRUE`, this must be a processed or
@@ -194,12 +184,16 @@ calc_stat_by_group <- function(
     ref_val <- t0_full %>%
       dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
       dplyr::rename("ref_val" = "diversity_val") %>%
-      dplyr::select(-matching_col)
+      dplyr::select(-dplyr::all_of(matching_col))
 
     # Calculate true statistic
     t0 <- t0_full %>%
       dplyr::filter(.data[[matching_col]] != !!ref_group) %>%
-      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      safe_join(
+        ref_val,
+        by = setdiff(grouping_var, matching_col),
+        type = "left"
+      ) %>%
       dplyr::mutate(diversity_val = .data$diversity_val - .data$ref_val) %>%
       dplyr::select(-"ref_val")
 
@@ -208,4 +202,75 @@ calc_stat_by_group <- function(
 
   # Calculate true statistic
   return(fun(data_cube, ...))
+}
+
+
+#' Safely perform left or right joins (with cross-join fallback)
+#'
+#' A wrapper around [dplyr::left_join()] and [dplyr::right_join()] that
+#' gracefully handles empty join keys. When `by` is a character vector of
+#' length zero, a cross join is performed using [dplyr::cross_join()] instead
+#' of a standard join.
+#'
+#' This is useful in workflows where join keys are constructed
+#' programmatically (e.g., via [base::setdiff()]) and may sometimes be empty.
+#'
+#' @param x,y Dataframes to join.
+#' @param by A character vector of column names to join by. If `character(0)`,
+#'   a cross join is performed.
+#' @param type The type of join: `"left"` or `"right"`. Defaults to `"left"`.
+#' @param ... Additional arguments passed to the join function (e.g.,
+#'   `relationship`).
+#'
+#' @return A dataframe resulting from the specified join or cross join of
+#'   `x` and `y`.
+#'
+#' @noRd
+#' @import dplyr
+safe_join <- function(x, y, by, type = c("left", "right"), ...) {
+  type <- match.arg(type)
+
+  join_fun <- switch(type,
+                     left  = dplyr::left_join,
+                     right = dplyr::right_join)
+
+  if (length(by) == 0) {
+    # Cross join fallback
+    dplyr::cross_join(x, y)
+  } else {
+    join_fun(x, y, by = by, ...)
+  }
+}
+
+
+#' Assign group/statistic index to a bootstrap CI dataframe
+#'
+#' This function adds a `stat_index` column to a bootstrap CI dataframe and
+#' optionally renames it to a grouping variable.
+#'
+#' @param df A dataframe containing bootstrap confidence intervals.
+#' @param index Index of the current bootstrap sample or list element.
+#' @param names Optional character vector of names for the bootstrap samples.
+#' If `NULL`, the numeric index is used.
+#' @param grouping_var Optional character string; if provided, renames
+#' `stat_index` to this.
+#'
+#' @return A dataframe with `stat_index` or grouping variable column
+#' added/renamed.
+#'
+#' @noRd
+assign_stat_index <- function(df, index, names = NULL, grouping_var = NULL) {
+  # Assign stat_index based on names or numeric index
+  if (!is.null(names)) {
+    df$stat_index <- names[index]
+  } else {
+    df$stat_index <- index
+  }
+
+  # Rename stat_index to grouping_var if provided
+  if (!is.null(grouping_var)) {
+    names(df)[names(df) == "stat_index"] <- grouping_var
+  }
+
+  return(df)
 }

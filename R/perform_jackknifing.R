@@ -50,7 +50,12 @@ perform_jackknifing <- function(
               is.character(grouping_var))
 
   # Check if grouping_var contains redundant variables
-  check_redundant_grouping_vars(df, grouping_var)
+  if (has_redundant_grouping_vars(df, grouping_var)) {
+    warning(
+      paste("Some grouping variables are redundant; results may contain",
+            "duplicate groups.")
+    )
+  }
 
   # Check if ref_group is NA or a number or a string
   stopifnot(
@@ -120,12 +125,17 @@ perform_jackknifing <- function(
     ref_val <- group_estimates %>%
       dplyr::filter(.data[[matching_col]] == !!ref_group) %>%
       dplyr::rename("theta2" = "diversity_val") %>%
-      dplyr::select(-matching_col)
+      dplyr::select(-dplyr::all_of(matching_col))
 
     # Calculate jackknife estimates for difference for non-reference groups
     thetai_nonref <- jackknife_df %>%
       dplyr::filter(.data[[matching_col]] != ref_group) %>%
-      dplyr::left_join(ref_val, by = setdiff(grouping_var, matching_col)) %>%
+      safe_join(
+        ref_val,
+        by = setdiff(grouping_var, matching_col),
+        type = "left",
+        relationship = "many-to-many"
+      ) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$jack_rep - .data$theta2) %>%
       dplyr::ungroup()
@@ -137,9 +147,13 @@ perform_jackknifing <- function(
 
     thetai_ref <- jackknife_df %>%
       dplyr::filter(.data[[matching_col]] == ref_group) %>%
-      dplyr::select(-matching_col) %>%
-      dplyr::right_join(non_ref_val,
-                        by = setdiff(grouping_var, matching_col)) %>%
+      dplyr::select(-dplyr::all_of(matching_col)) %>%
+      safe_join(
+        non_ref_val,
+        by = setdiff(grouping_var, matching_col),
+        type = "right",
+        relationship = "many-to-many"
+      ) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(jack_rep = .data$theta1 - .data$jack_rep) %>%
       dplyr::ungroup()

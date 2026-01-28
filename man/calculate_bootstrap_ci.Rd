@@ -214,34 +214,18 @@ bootstrap_mean_obs <- bootstrap_cube(
   fun = mean_obs,
   grouping_var = "year",
   samples = 1000,
-  seed = 123,
-  progress = FALSE
+  seed = 123
 )
-head(bootstrap_mean_obs)
 
 # Calculate confidence limits
 # Percentile interval
-ci_mean_obs1 <- calculate_bootstrap_ci(
+ci_mean_obs <- calculate_bootstrap_ci(
   bootstrap_samples_df = bootstrap_mean_obs,
   grouping_var = "year",
   type = "perc",
-  conf = 0.95,
-  aggregate = TRUE
+  conf = 0.95
 )
-ci_mean_obs1
-
-# All intervals
-ci_mean_obs2 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_obs,
-  grouping_var = "year",
-  type = c("perc", "bca", "norm", "basic"),
-  conf = 0.95,
-  aggregate = TRUE,
-  data_cube = processed_cube, # Required for BCa
-  fun = mean_obs,             # Required for BCa
-  progress = FALSE
-)
-ci_mean_obs2
+ci_mean_obs
 }
 }
 \references{

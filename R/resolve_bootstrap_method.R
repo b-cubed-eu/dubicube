@@ -18,11 +18,11 @@
 #' @param ... Additional arguments passed to `fun`.
 #' @param cat_var A character vector specifying the grouping variable(s)
 #' used by `fun`.
-#' @param ref_group A value indicating the reference group. If `NA`,
+#' @param ref_group A value indicating the reference group. If `NA` (default),
 #' bootstrapping may be delegated to the \pkg{boot} package.
 #' @param method Character string specifying the bootstrap method.
 #' One of `"whole_cube"`, `"group_specific"`, `"boot_whole_cube"`,
-#' `"boot_group_specific"`, or `"smart"`.
+#' `"boot_group_specific"`, or `"smart"` (default).
 #'
 #' @return
 #' A single character string giving the resolved bootstrap method:
@@ -97,8 +97,8 @@ resolve_bootstrap_method <- function(
     fun,
     ...,
     cat_var,
-    ref_group,
-    method) {
+    ref_group = NA,
+    method = "smart") {
   ### Start checks
   stopifnot("`method` must be a character string of length 1." =
               is.character(method) && length(method) == 1)

@@ -4,7 +4,14 @@
 \alias{resolve_bootstrap_method}
 \title{Resolve bootstrap method including use of the boot package}
 \usage{
-resolve_bootstrap_method(df, fun, ..., cat_var, ref_group, method)
+resolve_bootstrap_method(
+  df,
+  fun,
+  ...,
+  cat_var,
+  ref_group = NA,
+  method = "smart"
+)
 }
 \arguments{
 \item{df}{A dataframe.}
@@ -18,12 +25,12 @@ column \code{diversity_val}.}
 \item{cat_var}{A character vector specifying the grouping variable(s)
 used by \code{fun}.}
 
-\item{ref_group}{A value indicating the reference group. If \code{NA},
+\item{ref_group}{A value indicating the reference group. If \code{NA} (default),
 bootstrapping may be delegated to the \pkg{boot} package.}
 
 \item{method}{Character string specifying the bootstrap method.
 One of \code{"whole_cube"}, \code{"group_specific"}, \code{"boot_whole_cube"},
-\code{"boot_group_specific"}, or \code{"smart"}.}
+\code{"boot_group_specific"}, or \code{"smart"} (default).}
 }
 \value{
 A single character string giving the resolved bootstrap method:

@@ -168,4 +168,15 @@ test_that("resolve_bootstrap_method handles multiple grouping variables", {
     ),
     "whole_cube"
   )
+
+  # Illegal combination: boot_* + multiple groups
+  expect_error(
+    resolve_bootstrap_method(
+      df = iris,
+      fun = fun_whole_cube2,
+      cat_var = c("Species", "Habitat"),
+      method = "boot_group_specific"
+    ),
+    "methods using the 'boot' package are not supported when multiple grouping"
+  )
 })

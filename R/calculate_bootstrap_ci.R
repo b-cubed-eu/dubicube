@@ -235,7 +235,9 @@ calculate_bootstrap_ci <- function(
               assertthat::is.flag(no_bias))
 
   # If the bootstrap samples are a boot object, use the boot package
-  if (inherits(bootstrap_samples_df, "boot")) bootstrap_samples_df <- list(bootstrap_samples_df)
+  if (inherits(bootstrap_samples_df, "boot")) {
+    bootstrap_samples_df <- list(bootstrap_samples_df)
+  }
 
   # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
   if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
@@ -244,7 +246,6 @@ calculate_bootstrap_ci <- function(
         boot_list = bootstrap_samples_df,
         grouping_var = grouping_var
       )
-
     } else {
       ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
         ci <- calculate_boot_ci_from_boot(

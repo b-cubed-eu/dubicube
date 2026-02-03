@@ -1,3 +1,8 @@
+# dubicube 0.11.0
+
+* Improve figures of whole-cube versus group-specific tutorial #88
+* Automate no bias option for boot functionality #89
+
 # dubicube 0.10.0
 
 * Fix chunk option in article #73

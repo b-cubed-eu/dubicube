@@ -231,52 +231,44 @@ calculate_bootstrap_ci <- function(
   progress = FALSE,
   boot_args = list()
 ) {
-  # If the bootstrap samples are a boot object, use the boot package
-  if (inherits(bootstrap_samples_df, "boot")) {
-    stopifnot(
-      "Cannot use a 'boot' method when a no bias is specified." =
-        no_bias == FALSE
-    )
+  # Check if aggregate is a logical vector of length 1
+  stopifnot("`no_bias` must be a logical vector of length 1." =
+              assertthat::is.flag(no_bias))
 
-    ci_df <- calculate_boot_ci_from_boot(
-      boot_obj = bootstrap_samples_df,
-      type = type,
-      conf = conf,
-      h = h,
-      hinv = hinv,
-      boot_args = boot_args
-    )
-    return(ci_df)
-  }
+  # If the bootstrap samples are a boot object, use the boot package
+  if (inherits(bootstrap_samples_df, "boot")) bootstrap_samples_df <- list(bootstrap_samples_df)
 
   # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
   if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
-    stopifnot(
-      "Cannot use a 'boot' method when a no bias is specified." =
-        no_bias == FALSE
-    )
-
-    ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
-      ci <- calculate_boot_ci_from_boot(
-        boot_obj = bootstrap_samples_df[[i]],
-        type = type,
-        conf = conf,
-        h = h,
-        hinv = hinv,
-        boot_args = boot_args
-      )
-
-      # Overwrite stat_index
-      ci <- assign_stat_index(
-        df = ci,
-        index = i,
-        names = names(bootstrap_samples_df),
+    if (no_bias) {
+      bootstrap_samples_df <- boot_list_to_dataframe(
+        boot_list = bootstrap_samples_df,
         grouping_var = grouping_var
       )
 
-      return(ci)
-    })
-    return(dplyr::bind_rows(ci_list))
+    } else {
+      ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
+        ci <- calculate_boot_ci_from_boot(
+          boot_obj = bootstrap_samples_df[[i]],
+          type = type,
+          conf = conf,
+          h = h,
+          hinv = hinv,
+          boot_args = boot_args
+        )
+
+        # Overwrite stat_index
+        ci <- assign_stat_index(
+          df = ci,
+          index = i,
+          names = names(bootstrap_samples_df),
+          grouping_var = grouping_var
+        )
+
+        return(ci)
+      })
+      return(dplyr::bind_rows(ci_list))
+    }
   }
 
   ### Start checks

@@ -37,8 +37,7 @@
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
 #' @param no_bias Logical. If `TRUE` intervals are centered around the original
-#' estimates (bias is ignored). Default is `FALSE`.Cannot be used with a boot
-#' method.
+#' estimates (bias is ignored). Default is `FALSE`.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
 #' the original bootstrap dataframe `bootstrap_samples_df`.

@@ -61,8 +61,7 @@ original scale. The default is the identity function. If \code{h} is supplied bu
 \code{hinv} is not, then the intervals returned will be on the transformed scale.}
 
 \item{no_bias}{Logical. If \code{TRUE} intervals are centered around the original
-estimates (bias is ignored). Default is \code{FALSE}.Cannot be used with a boot
-method.}
+estimates (bias is ignored). Default is \code{FALSE}.}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to

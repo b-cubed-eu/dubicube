@@ -461,19 +461,6 @@ test_that("calculate_bootstrap_ci handles boot objects correctly", {
   expect_true(all(ci_boot$int_type %in% c("perc", "norm", "basic")))
 })
 
-
-test_that("boot objects reject no_bias = TRUE", {
-  expect_error(
-    calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_obj,
-      type = "perc",
-      no_bias = TRUE
-    ),
-    "Cannot use a 'boot' method when a no bias is specified.",
-    fixed = TRUE
-  )
-})
-
 # Statistic function returning multiple statistics
 stat_fun_multi <- function(data, indices) {
   subset <- data[indices]

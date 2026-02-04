@@ -85,7 +85,7 @@ calculate_boot_ci_from_boot <- function(
   # Not supported for multiple statistics
   stopifnot(
     "Interval calculation only supported for a single statistic." =
-    length(boot_obj$t0) == 1
+      length(boot_obj$t0) == 1
   )
   ### End checks
 

@@ -119,6 +119,7 @@ Other indicator_uncertainty_helper:
 \code{\link{boot_list_to_dataframe}()},
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_boot_ci_from_boot}()},
-\code{\link{derive_bootstrap_method}()}
+\code{\link{derive_bootstrap_method}()},
+\code{\link{process_boot_input}()}
 }
 \concept{indicator_uncertainty_helper}

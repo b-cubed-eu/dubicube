@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_bootstrap_ci.R
 \name{calculate_bootstrap_ci}
 \alias{calculate_bootstrap_ci}
-\title{Calculate confidence intervals for a dataframe with bootstrap replicates}
+\title{Calculate confidence intervals from bootstrap results}
 \usage{
 calculate_bootstrap_ci(
   bootstrap_results,
@@ -26,8 +26,10 @@ calculate_bootstrap_ci(
 \item{bootstrap_results}{A dataframe with bootstrap replicates,
 or a \code{boot} object, or a list of \code{boot} objects.
 For dataframes, each row is a bootstrap replicate and must include
-columns \code{rep_boot}, \code{est_original}, and grouping variables
-For \code{boot} objects, the function uses \code{boot::boot.ci()} internally.}
+columns \code{rep_boot}, \code{est_original}, and grouping variables.
+For \code{boot} objects, confidence intervals are either computed directly
+using \code{boot::boot.ci()} or the objects are converted to a dataframe,
+depending on the value of \code{no_bias}.}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
 for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
@@ -106,7 +108,6 @@ A dataframe containing the bootstrap results with the following
 columns:
 \itemize{
 \item \code{est_original}: The statistic based on the full dataset per group
-\item rep_boo
 \item \code{est_boot}: The bootstrap estimate (mean of bootstrap replicates per
 group)
 \item \code{se_boot}: The standard error of the bootstrap estimate (standard

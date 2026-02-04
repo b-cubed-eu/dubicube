@@ -1,5 +1,5 @@
 # nolint start: line_length_linter.
-#' Calculate confidence intervals for a dataframe with bootstrap replicates
+#' Calculate confidence intervals from bootstrap results
 #'
 #' This function calculates confidence intervals for a dataframe containing
 #' bootstrap replicates based on different methods, including percentile
@@ -10,8 +10,10 @@
 #' @param bootstrap_results A dataframe with bootstrap replicates,
 #' or a `boot` object, or a list of `boot` objects.
 #' For dataframes, each row is a bootstrap replicate and must include
-#' columns `rep_boot`, `est_original`, and grouping variables
-#' For `boot` objects, the function uses `boot::boot.ci()` internally.
+#' columns `rep_boot`, `est_original`, and grouping variables.
+#' For `boot` objects, confidence intervals are either computed directly
+#' using `boot::boot.ci()` or the objects are converted to a dataframe,
+#' depending on the value of `no_bias`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -70,7 +72,6 @@
 #' @returns A dataframe containing the bootstrap results with the following
 #' columns:
 #'   - `est_original`: The statistic based on the full dataset per group
-#'   - rep_boo
 #'   - `est_boot`: The bootstrap estimate (mean of bootstrap replicates per
 #'   group)
 #'   - `se_boot`: The standard error of the bootstrap estimate (standard
@@ -231,54 +232,42 @@ calculate_bootstrap_ci <- function(
   progress = FALSE,
   boot_args = list()
 ) {
-  # Check if aggregate is a logical vector of length 1
-  stopifnot("`no_bias` must be a logical vector of length 1." =
-              assertthat::is.flag(no_bias))
+  # ------------------------------------------------------------------
+  # Handle bootstrap input supplied as `boot` objects
+  #
+  # If `bootstrap_results` is a `boot` object or a list of `boot` objects,
+  # there are two possible pathways:
+  #  - no_bias = TRUE : convert boot objects to a bootstrap replicate
+  #    dataframe and continue with the standard dataframe workflow
+  #  - no_bias = FALSE: compute confidence intervals directly using
+  #    boot::boot.ci() logic and return early
+  #
+  # For dataframe input, this step is a no-op.
+  # ------------------------------------------------------------------
+  boot_processed <- process_boot_input(
+    bootstrap_results = bootstrap_results,
+    grouping_var = grouping_var,
+    type = type,
+    conf = conf,
+    h = h,
+    hinv = hinv,
+    no_bias = no_bias,
+    boot_args = boot_args
+  )
 
-  # If the bootstrap samples are a boot object, use the boot package
-  if (inherits(bootstrap_results, "boot")) {
-    bootstrap_results <- list(bootstrap_results)
+  # Early return if confidence intervals were computed directly
+  if (!is.null(boot_processed$result)) {
+    return(boot_processed$result)
   }
 
-  # If bootstrap_results is a list of boot objects, calculate CIs for each
-  if (all(sapply(bootstrap_results, inherits, "boot"))) {
-    if (no_bias) {
-      bootstrap_results <- boot_list_to_dataframe(
-        boot_list = bootstrap_results,
-        grouping_var = grouping_var
-      )
-    } else {
-      ci_list <- lapply(seq_along(bootstrap_results), function(i) {
-        ci <- calculate_boot_ci_from_boot(
-          boot_obj = bootstrap_results[[i]],
-          type = type,
-          conf = conf,
-          h = h,
-          hinv = hinv,
-          boot_args = boot_args
-        )
-
-        # Overwrite stat_index
-        ci <- assign_stat_index(
-          df = ci,
-          index = i,
-          names = names(bootstrap_results),
-          grouping_var = grouping_var
-        )
-
-        return(ci)
-      })
-      return(dplyr::bind_rows(ci_list))
-    }
-  }
+  # From here on, `bootstrap_results` is guaranteed to be a dataframe
+  bootstrap_results <- boot_processed$data
 
   ### Start checks
   # Arguments fun, ref_group, influence_method, and progress
-  # arguments are checked in the calculate_acceleration() function
-
-  # Check dataframe input
-  stopifnot("`bootstrap_results` must be a dataframe." =
-              inherits(bootstrap_results, "data.frame"))
+  # arguments are checked in the calculate_acceleration() function.
+  # Arguments bootstrap_results and no_bias are checked in the
+  # process_boot_input() function
 
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =

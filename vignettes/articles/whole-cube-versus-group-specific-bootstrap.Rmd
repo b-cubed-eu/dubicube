@@ -236,7 +236,7 @@ bootstrap_mean_boot_group_df <- boot_list_to_dataframe(
 ```{r, echo=FALSE, warning=FALSE}
 # Calculate confidence intervals
 ci_mean_whole <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_whole,
+  bootstrap_results = bootstrap_mean_whole,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
@@ -244,7 +244,7 @@ ci_mean_whole <- calculate_bootstrap_ci(
   fun = mean_obs                # Required for BCa
 )
 ci_mean_group <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_group,
+  bootstrap_results = bootstrap_mean_group,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
@@ -252,13 +252,13 @@ ci_mean_group <- calculate_bootstrap_ci(
   fun = mean_obs                # Required for BCa
 )
 ci_mean_boot_whole <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_boot_whole,
+  bootstrap_results = bootstrap_mean_boot_whole,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
 )
 ci_mean_boot_group <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_boot_group,
+  bootstrap_results = bootstrap_mean_boot_group,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
@@ -484,7 +484,7 @@ bootstrap_mean_boot_group <- bootstrap_cube(
 results_ci_whole <- microbenchmark(
   {
     calculate_bootstrap_ci(
-      bootstrap_samples_df = bootstrap_mean_whole,
+      bootstrap_results = bootstrap_mean_whole,
       grouping_var = "Species",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95,
@@ -498,7 +498,7 @@ results_ci_whole <- microbenchmark(
 results_ci_group <- microbenchmark(
   {
     calculate_bootstrap_ci(
-      bootstrap_samples_df = bootstrap_mean_group,
+      bootstrap_results = bootstrap_mean_group,
       grouping_var = "Species",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95,
@@ -512,7 +512,7 @@ results_ci_group <- microbenchmark(
 results_ci_boot_whole <- microbenchmark(
   {
     calculate_bootstrap_ci(
-      bootstrap_samples_df = bootstrap_mean_boot_whole,
+      bootstrap_results = bootstrap_mean_boot_whole,
       grouping_var = "Species",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95
@@ -524,7 +524,7 @@ results_ci_boot_whole <- microbenchmark(
 results_ci_boot_group <- microbenchmark(
   {
     calculate_bootstrap_ci(
-      bootstrap_samples_df = bootstrap_mean_boot_group,
+      bootstrap_results = bootstrap_mean_boot_group,
       grouping_var = "Species",
       type = c("perc", "bca", "norm", "basic"),
       conf = 0.95

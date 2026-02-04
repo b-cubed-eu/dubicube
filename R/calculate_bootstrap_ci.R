@@ -7,9 +7,10 @@
 #' (`basic`). The function also supports a `boot` object from the \pkg{boot}
 #' package.
 #'
-#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a list
-#' of `boot` objects. For dataframes, each row is a bootstrap sample; must
-#' include columns `rep_boot`, `est_original`, and the grouping variables.
+#' @param bootstrap_results A dataframe with bootstrap replicates,
+#' or a `boot` object, or a list of `boot` objects.
+#' For dataframes, each row is a bootstrap replicate and must include
+#' columns `rep_boot`, `est_original`, and grouping variables
 #' For `boot` objects, the function uses `boot::boot.ci()` internally.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
@@ -40,7 +41,7 @@
 #' estimates (bias is ignored). Default is `FALSE`.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
-#' the original bootstrap dataframe `bootstrap_samples_df`.
+#' the original bootstrap dataframe `bootstrap_results`.
 #' @param data_cube Only used when `type = "bca"`  and no boot method is used.
 #'  A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
@@ -80,7 +81,7 @@
 #'   - `ul`: The upper limit of the confidence interval
 #'   - `conf`: The confidence level of the interval
 #' When `aggregate = FALSE`, the dataframe contains the columns from
-#' `bootstrap_samples_df` with one row per bootstrap replicate.
+#' `bootstrap_results` with one row per bootstrap replicate.
 #'
 #' @details
 #' We consider four different types of intervals (with confidence level
@@ -204,7 +205,7 @@
 #' # Calculate confidence limits
 #' # Percentile interval
 #' ci_mean_obs <- calculate_bootstrap_ci(
-#'   bootstrap_samples_df = bootstrap_mean_obs,
+#'   bootstrap_results = bootstrap_mean_obs,
 #'   grouping_var = "year",
 #'   type = "perc",
 #'   conf = 0.95
@@ -214,7 +215,7 @@
 # nolint end
 
 calculate_bootstrap_ci <- function(
-  bootstrap_samples_df,
+  bootstrap_results,
   grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
@@ -235,21 +236,21 @@ calculate_bootstrap_ci <- function(
               assertthat::is.flag(no_bias))
 
   # If the bootstrap samples are a boot object, use the boot package
-  if (inherits(bootstrap_samples_df, "boot")) {
-    bootstrap_samples_df <- list(bootstrap_samples_df)
+  if (inherits(bootstrap_results, "boot")) {
+    bootstrap_results <- list(bootstrap_results)
   }
 
-  # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
-  if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
+  # If bootstrap_results is a list of boot objects, calculate CIs for each
+  if (all(sapply(bootstrap_results, inherits, "boot"))) {
     if (no_bias) {
-      bootstrap_samples_df <- boot_list_to_dataframe(
-        boot_list = bootstrap_samples_df,
+      bootstrap_results <- boot_list_to_dataframe(
+        boot_list = bootstrap_results,
         grouping_var = grouping_var
       )
     } else {
-      ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
+      ci_list <- lapply(seq_along(bootstrap_results), function(i) {
         ci <- calculate_boot_ci_from_boot(
-          boot_obj = bootstrap_samples_df[[i]],
+          boot_obj = bootstrap_results[[i]],
           type = type,
           conf = conf,
           h = h,
@@ -261,7 +262,7 @@ calculate_bootstrap_ci <- function(
         ci <- assign_stat_index(
           df = ci,
           index = i,
-          names = names(bootstrap_samples_df),
+          names = names(bootstrap_results),
           grouping_var = grouping_var
         )
 
@@ -276,8 +277,8 @@ calculate_bootstrap_ci <- function(
   # arguments are checked in the calculate_acceleration() function
 
   # Check dataframe input
-  stopifnot("`bootstrap_samples_df` must be a dataframe." =
-              inherits(bootstrap_samples_df, "data.frame"))
+  stopifnot("`bootstrap_results` must be a dataframe." =
+              inherits(bootstrap_results, "data.frame"))
 
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
@@ -285,7 +286,7 @@ calculate_bootstrap_ci <- function(
 
   # Check if "rep_boot", "est_original" and grouping_var columns are present
   colname_message <- paste(
-    "`bootstrap_samples_df` should contain columns: 'rep_boot', 'est_original'",
+    "`bootstrap_results` should contain columns: 'rep_boot', 'est_original'",
     "and `grouping_var`."
   )
   do.call(
@@ -293,7 +294,7 @@ calculate_bootstrap_ci <- function(
     stats::setNames(
       list(
         all(c(grouping_var, "rep_boot", "est_original") %in%
-              names(bootstrap_samples_df))
+              names(bootstrap_results))
       ),
       colname_message
     )
@@ -314,7 +315,7 @@ calculate_bootstrap_ci <- function(
   ### End checks
 
   # Adjust bias if required
-  bootstrap_samples_df <- bootstrap_samples_df %>%
+  bootstrap_results <- bootstrap_results %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
       rep_boot = ifelse(
@@ -333,8 +334,8 @@ calculate_bootstrap_ci <- function(
 
     if (t == "perc") {
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -352,7 +353,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }
@@ -388,10 +389,10 @@ calculate_bootstrap_ci <- function(
       )
 
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
         dplyr::left_join(acceleration_df,
                          by = grouping_var) %>%
-        split(bootstrap_samples_df %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -423,14 +424,14 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "norm") {
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -454,14 +455,14 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "basic") {
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -485,7 +486,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }

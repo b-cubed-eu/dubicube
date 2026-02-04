@@ -211,7 +211,7 @@ bootstrap_results <- bootstrap_cube(
 
 Now we can use the `calculate_bootstrap_ci()` function to calculate confidence limits. It relies on the following arguments:
 
-- **`bootstrap_samples_df`**:
+- **`bootstrap_results`**:
   A dataframe containing the bootstrap replicates, where each row represents a bootstrap sample. As returned by `bootstrap_cube()`.
 
 - **`grouping_var`**:
@@ -229,7 +229,7 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
   The confidence level of the intervals. Default is `0.95` (95 % confidence level).
 
 - **`aggregate`**:
-  Logical. If `TRUE` (default), the function returns confidence limits per group. If `FALSE`, the confidence limits are added to the original bootstrap dataframe `bootstrap_samples_df`.
+  Logical. If `TRUE` (default), the function returns confidence limits per group. If `FALSE`, the confidence limits are added to the original bootstrap dataframe `bootstrap_results`.
 
 - **`data_cube`**:
   Only used when `type = "bca"` and no boot method is used. The input data as a processed data cube (from `b3gbi::process_cube()`).
@@ -245,7 +245,7 @@ Since we are working with `"boot"` objects, we do not need to specify `data_cube
 
 ```{r}
 ci_mean_obs <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results,
+  bootstrap_results = bootstrap_results,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
@@ -354,7 +354,7 @@ Since we are not working with `"boot"` objects, we need to specify `data_cube` a
 
 ```{r}
 ci_mean_obs_ref <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results_ref,
+  bootstrap_results = bootstrap_results_ref,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   data_cube = processed_cube,   # Required for BCa
@@ -506,7 +506,7 @@ We get a warning message for BCa calculation because we are using a relatively s
 
 ```{r}
 ci_evenness <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results_evenness,
+  bootstrap_results = bootstrap_results_evenness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic")
 )
@@ -588,7 +588,7 @@ We enter them through `calculate_bootstrap_ci()`.
 
 ```{r}
 ci_evenness_trans <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results_evenness,
+  bootstrap_results = bootstrap_results_evenness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   h = logit,
@@ -677,7 +677,7 @@ The bias is infinite such that the BCa intervals cannot be calculated.
 
 ```{r}
 ci_richness <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results_richness,
+  bootstrap_results = bootstrap_results_richness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   data_cube = processed_cube_even,
@@ -750,7 +750,7 @@ However, it is important to note that these are alternative estimators — they 
 
 ```{r}
 ci_richness_no_bias <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results_richness,
+  bootstrap_results = bootstrap_results_richness,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   no_bias = TRUE,

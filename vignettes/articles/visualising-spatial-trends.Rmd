@@ -124,7 +124,7 @@ We get a warning message for BCa calculation because we are using a relatively s
 
 ```{r}
 ci_mean_obs <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results,
+  bootstrap_results = bootstrap_results,
   grouping_var = "cellCode",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95

@@ -471,40 +471,15 @@ stat_fun_multi <- function(data, indices) {
 set.seed(123)
 boot_obj_multi <- boot::boot(x, statistic = stat_fun_multi, R = 100)
 
-
 test_that("boot objects with multiple statistics are handled correctly", {
-  ci_boot_multi <- calculate_bootstrap_ci(
-    bootstrap_results = boot_obj_multi,
-    type = c("perc", "norm", "basic"),
-    conf = 0.95
-  )
-
-  # Output structure
-  expect_s3_class(ci_boot_multi, "data.frame")
-
-  # Required columns
-  expect_true(all(c(
-    "stat_index",
-    "est_original",
-    "int_type",
-    "ll",
-    "ul",
-    "conf"
-  ) %in% names(ci_boot_multi)))
-
-  # Confidence level
-  expect_true(all(ci_boot_multi$conf == 0.95))
-
-  # Interval bounds
-  expect_true(all(ci_boot_multi$ll <= ci_boot_multi$ul))
-
-  # Interval types
-  expect_true(all(ci_boot_multi$int_type %in% c("perc", "norm", "basic")))
-
-  # Both statistics should be present via stat_index
-  expect_setequal(
-    unique(ci_boot_multi$stat_index),
-    c(1, 2)
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_results = boot_obj_multi,
+      type = c("perc", "norm", "basic"),
+      conf = 0.95
+    ),
+    "Interval calculation only supported for a single statistic.",
+    fixed = TRUE
   )
 })
 
@@ -615,6 +590,59 @@ test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
     "ll",
     "ul",
     "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both indicators should be present via species
+  expect_setequal(
+    unique(ci_boot_list$species),
+    c("spec_1", "spec_2")
+  )
+})
+
+test_that("calculate_bootstrap_ci handles list of boot objects with no bias", {
+  # Create a second boot object with a different seed
+  set.seed(456)
+  boot_obj2 <- boot::boot(x, statistic = stat_fun, R = 100)
+
+  # Combine into a list of boot objects
+  boot_list <- list(boot_obj, boot_obj2)
+  names(boot_list) <- paste0("spec_", 1:2)
+
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_results = boot_list,
+    grouping_var = "species",
+    type = c("perc", "norm", "basic"),
+    conf = 0.95,
+    no_bias = TRUE
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "species",
+    "est_original",
+    "est_boot",
+    "se_boot",
+    "bias_boot",
+    "int_type",
+    "conf",
+    "ll",
+    "ul"
   ) %in% names(ci_boot_list)))
 
   # Confidence level propagated

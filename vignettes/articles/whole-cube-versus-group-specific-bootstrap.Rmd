@@ -269,34 +269,34 @@ ci_mean_boot_group <- calculate_bootstrap_ci(
 # Combine datasets
 bootstrap_results <- bind_rows(
   bootstrap_mean_whole %>%
-    mutate(method = "whole_cube",
+    mutate(method = "whole-cube",
            boot = "no boot"),
   bootstrap_mean_group %>%
-    mutate(method = "group_specific",
+    mutate(method = "group-specific",
            boot = "no boot"),
   bootstrap_mean_boot_whole_df %>%
     mutate(year = as.numeric(year),
-           method = "whole_cube",
+           method = "whole-cube",
            boot = "boot"),
   bootstrap_mean_boot_group_df %>%
     mutate(year = as.numeric(year),
-           method = "group_specific",
+           method = "group-specific",
            boot = "boot")
 )
 
 ci_results <- bind_rows(
   ci_mean_whole %>%
-    mutate(method = "whole_cube",
+    mutate(method = "whole-cube",
            boot = "no boot"),
   ci_mean_group %>%
-    mutate(method = "group_specific",
+    mutate(method = "group-specific",
            boot = "no boot"),
   ci_mean_boot_whole %>%
-    mutate(method = "whole_cube",
+    mutate(method = "whole-cube",
            boot = "boot",
            year = rep(sort(unique(processed_cube$data$year)), each = 4)),
   ci_mean_boot_group %>%
-    mutate(method = "group_specific",
+    mutate(method = "group-specific",
            boot = "boot",
            year = rep(sort(unique(processed_cube$data$year)), each = 4))
 ) %>%
@@ -340,9 +340,12 @@ bootstrap_results %>%
   # Settings
   labs(y = "Mean Number of Observations per Grid Cell",
        x = "", shape = "Legend:", colour = "Interval type:") +
-  theme_minimal() +
-  theme(legend.position = "bottom",
-        legend.title = element_text(face = "bold"))
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold", size = 14),
+    legend.title = element_text(face = "bold")
+  )
 ```
 
 ### Comparing speed
@@ -614,7 +617,7 @@ total_df <- combined_df %>%
   mutate(cat = factor(
     cat,
     levels = c("bootstrapping", "ci_calculation", "total"),
-    labels = c("Bootstrapping", "CI calculation", "Total")
+    labels = c("Bootstrapping", "CI calculation", "TOTAL")
   ))
 
 # Visualisation
@@ -622,17 +625,12 @@ total_df %>%
   mutate(
     boot = factor(boot, levels = c("no boot", "boot"))
   ) %>%
-  ggplot(aes(x = boot, y = time_ms, fill = cat)) +
+  ggplot(aes(x = cat, y = time_ms)) +
   geom_boxplot(position = "dodge", outlier.alpha = 0.6) +
-  labs(
-    x = "",
-    y = "Execution time (ms)",
-    fill = "Computation step"
-  ) +
-  facet_wrap(~method, scales = "free", nrow = 2) +
+  labs(x = "", y = "Execution time (ms)") +
+  facet_grid(method ~ boot, scales = "free") +
   theme_minimal(base_size = 13) +
   theme(
-    legend.position = "bottom",
     strip.text = element_text(face = "bold", size = 14)
   )
 ```

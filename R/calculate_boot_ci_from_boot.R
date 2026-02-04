@@ -82,6 +82,11 @@ calculate_boot_ci_from_boot <- function(
   stopifnot("`conf` must be a numeric value between 0 and 1." =
               assertthat::is.number(conf) &
               (conf > 0 & conf < 1))
+  # Not supported for multiple statistics
+  stopifnot(
+    "Interval calculation only supported for a single statistic." =
+    length(boot_obj$t0) == 1
+  )
   ### End checks
 
   # Determine which CI types to calculate

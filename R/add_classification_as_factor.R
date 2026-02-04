@@ -18,7 +18,7 @@
 #' @param coarse Logical, defaults to `TRUE`. If `TRUE`, add a coarse
 #' classification to the dataframe.
 #'
-#' @returns The returned value is a modified version of the original input
+#' @return The returned value is a modified version of the original input
 #' dataframe `df` with additional columns `effect_code` and `effect` containing
 #' respectively the effect symbols and descriptions as ordered factor variables.
 #' In case of `coarse = TRUE` (by default) also `effect_code_coarse` and

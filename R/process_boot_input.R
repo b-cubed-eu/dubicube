@@ -19,7 +19,7 @@
 #' @param boot_args Optional list of additional arguments passed to
 #' `boot::boot.ci()`.
 #'
-#' @returns A list with two elements:
+#' @return A list with two elements:
 #'   - `data`: A dataframe of bootstrap replicates, or `NULL` if confidence
 #'   intervals were computed directly
 #'   - `result`: A dataframe of confidence intervals, or `NULL` if the

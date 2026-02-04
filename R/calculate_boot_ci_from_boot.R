@@ -25,7 +25,7 @@
 #' @param boot_args Named list of additional arguments to pass to
 #' `boot::boot.ci()`.
 #'
-#' @returns A tidy dataframe with columns:
+#' @return A tidy dataframe with columns:
 #'   - `stat_index`: Index of statistic in the boot object
 #'   - `est_original`: Original estimate from full dataset
 #'   - `int_type`: Interval type

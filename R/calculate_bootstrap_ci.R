@@ -69,7 +69,7 @@
 #' @param boot_args Named list of additional arguments passed to
 #' `boot::boot.ci()`.
 #'
-#' @returns A dataframe containing the bootstrap results with the following
+#' @return A dataframe containing the bootstrap results with the following
 #' columns:
 #'   - `est_original`: The statistic based on the full dataset per group
 #'   - `est_boot`: The bootstrap estimate (mean of bootstrap replicates per

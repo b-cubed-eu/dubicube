@@ -14,7 +14,7 @@
 #' variable (e.g. `"year"`). This will be used as the column name in the
 #' returned dataframe.
 #'
-#' @returns A dataframe with the following columns:
+#' @return A dataframe with the following columns:
 #'   - `sample`: Sample ID of the bootstrap replicate
 #'   - `est_original`: The statistic based on the full dataset per group
 #'   - `rep_boot`: The statistic based on a bootstrapped dataset (bootstrap

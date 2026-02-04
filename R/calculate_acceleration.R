@@ -38,7 +38,7 @@
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe containing the acceleration values per `grouping_var`.
+#' @return A dataframe containing the acceleration values per `grouping_var`.
 #'
 #' @details
 #' Acceleration quantifies how sensitive the variability of a statistic

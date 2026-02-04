@@ -25,7 +25,7 @@
 #' @param boot_args Named list of additional arguments to pass to
 #' `boot::boot.ci()`.
 #'
-#' @returns A tidy dataframe with columns:
+#' @return A tidy dataframe with columns:
 #'   - `stat_index`: Index of statistic in the boot object
 #'   - `est_original`: Original estimate from full dataset
 #'   - `int_type`: Interval type
@@ -82,6 +82,11 @@ calculate_boot_ci_from_boot <- function(
   stopifnot("`conf` must be a numeric value between 0 and 1." =
               assertthat::is.number(conf) &
               (conf > 0 & conf < 1))
+  # Not supported for multiple statistics
+  stopifnot(
+    "Interval calculation only supported for a single statistic." =
+      length(boot_obj$t0) == 1
+  )
   ### End checks
 
   # Determine which CI types to calculate

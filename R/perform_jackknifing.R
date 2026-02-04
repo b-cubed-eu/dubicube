@@ -25,7 +25,7 @@
 #' @param progress Logical. Whether to show a progress bar for jackknifing. Set
 #' to `TRUE` to display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe with jackknife estimates for each group defined by
+#' @return A dataframe with jackknife estimates for each group defined by
 #' `grouping_var`.
 #'
 #' @import dplyr

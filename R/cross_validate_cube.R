@@ -41,7 +41,7 @@
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe containing the cross-validation results with the
+#' @return A dataframe containing the cross-validation results with the
 #' following columns:
 #'   - Cross-Validation id (`id_cv`)
 #'   - The grouping variable `grouping_var` (e.g., year)

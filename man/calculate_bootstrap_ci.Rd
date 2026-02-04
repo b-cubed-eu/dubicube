@@ -2,10 +2,10 @@
 % Please edit documentation in R/calculate_bootstrap_ci.R
 \name{calculate_bootstrap_ci}
 \alias{calculate_bootstrap_ci}
-\title{Calculate confidence intervals for a dataframe with bootstrap replicates}
+\title{Calculate confidence intervals from bootstrap results}
 \usage{
 calculate_bootstrap_ci(
-  bootstrap_samples_df,
+  bootstrap_results,
   grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
@@ -23,10 +23,13 @@ calculate_bootstrap_ci(
 )
 }
 \arguments{
-\item{bootstrap_samples_df}{A dataframe with bootstrap replicates, or a list
-of \code{boot} objects. For dataframes, each row is a bootstrap sample; must
-include columns \code{rep_boot}, \code{est_original}, and the grouping variables.
-For \code{boot} objects, the function uses \code{boot::boot.ci()} internally.}
+\item{bootstrap_results}{A dataframe with bootstrap replicates,
+or a \code{boot} object, or a list of \code{boot} objects.
+For dataframes, each row is a bootstrap replicate and must include
+columns \code{rep_boot}, \code{est_original}, and grouping variables.
+For \code{boot} objects, confidence intervals are either computed directly
+using \code{boot::boot.ci()} or the objects are converted to a dataframe,
+depending on the value of \code{no_bias}.}
 
 \item{grouping_var}{A character vector specifying the grouping variable(s)
 for the bootstrap analysis. The function \code{fun(data_cube$data, ...)} should
@@ -61,12 +64,11 @@ original scale. The default is the identity function. If \code{h} is supplied bu
 \code{hinv} is not, then the intervals returned will be on the transformed scale.}
 
 \item{no_bias}{Logical. If \code{TRUE} intervals are centered around the original
-estimates (bias is ignored). Default is \code{FALSE}.Cannot be used with a boot
-method.}
+estimates (bias is ignored). Default is \code{FALSE}.}
 
 \item{aggregate}{Logical. If \code{TRUE} (default), the function returns distinct
 confidence limits per group. If \code{FALSE}, the confidence limits are added to
-the original bootstrap dataframe \code{bootstrap_samples_df}.}
+the original bootstrap dataframe \code{bootstrap_results}.}
 
 \item{data_cube}{Only used when \code{type = "bca"}  and no boot method is used.
 A data cube object (class
@@ -106,7 +108,6 @@ A dataframe containing the bootstrap results with the following
 columns:
 \itemize{
 \item \code{est_original}: The statistic based on the full dataset per group
-\item rep_boo
 \item \code{est_boot}: The bootstrap estimate (mean of bootstrap replicates per
 group)
 \item \code{se_boot}: The standard error of the bootstrap estimate (standard
@@ -117,7 +118,7 @@ deviation of the bootstrap replicates per group)
 \item \code{ul}: The upper limit of the confidence interval
 \item \code{conf}: The confidence level of the interval
 When \code{aggregate = FALSE}, the dataframe contains the columns from
-\code{bootstrap_samples_df} with one row per bootstrap replicate.
+\code{bootstrap_results} with one row per bootstrap replicate.
 }
 }
 \description{
@@ -220,7 +221,7 @@ bootstrap_mean_obs <- bootstrap_cube(
 # Calculate confidence limits
 # Percentile interval
 ci_mean_obs <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_mean_obs,
+  bootstrap_results = bootstrap_mean_obs,
   grouping_var = "year",
   type = "perc",
   conf = 0.95

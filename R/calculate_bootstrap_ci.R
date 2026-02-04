@@ -1,5 +1,5 @@
 # nolint start: line_length_linter.
-#' Calculate confidence intervals for a dataframe with bootstrap replicates
+#' Calculate confidence intervals from bootstrap results
 #'
 #' This function calculates confidence intervals for a dataframe containing
 #' bootstrap replicates based on different methods, including percentile
@@ -7,10 +7,13 @@
 #' (`basic`). The function also supports a `boot` object from the \pkg{boot}
 #' package.
 #'
-#' @param bootstrap_samples_df A dataframe with bootstrap replicates, or a list
-#' of `boot` objects. For dataframes, each row is a bootstrap sample; must
-#' include columns `rep_boot`, `est_original`, and the grouping variables.
-#' For `boot` objects, the function uses `boot::boot.ci()` internally.
+#' @param bootstrap_results A dataframe with bootstrap replicates,
+#' or a `boot` object, or a list of `boot` objects.
+#' For dataframes, each row is a bootstrap replicate and must include
+#' columns `rep_boot`, `est_original`, and grouping variables.
+#' For `boot` objects, confidence intervals are either computed directly
+#' using `boot::boot.ci()` or the objects are converted to a dataframe,
+#' depending on the value of `no_bias`.
 #' @param grouping_var A character vector specifying the grouping variable(s)
 #' for the bootstrap analysis. The function `fun(data_cube$data, ...)` should
 #' return a row per group. The specified variables must not be redundant,
@@ -37,11 +40,10 @@
 #' original scale. The default is the identity function. If `h` is supplied but
 #' `hinv` is not, then the intervals returned will be on the transformed scale.
 #' @param no_bias Logical. If `TRUE` intervals are centered around the original
-#' estimates (bias is ignored). Default is `FALSE`.Cannot be used with a boot
-#' method.
+#' estimates (bias is ignored). Default is `FALSE`.
 #' @param aggregate Logical. If `TRUE` (default), the function returns distinct
 #' confidence limits per group. If `FALSE`, the confidence limits are added to
-#' the original bootstrap dataframe `bootstrap_samples_df`.
+#' the original bootstrap dataframe `bootstrap_results`.
 #' @param data_cube Only used when `type = "bca"`  and no boot method is used.
 #'  A data cube object (class
 #' 'processed_cube' or 'sim_cube', see `b3gbi::process_cube()`) or a dataframe
@@ -67,10 +69,9 @@
 #' @param boot_args Named list of additional arguments passed to
 #' `boot::boot.ci()`.
 #'
-#' @returns A dataframe containing the bootstrap results with the following
+#' @return A dataframe containing the bootstrap results with the following
 #' columns:
 #'   - `est_original`: The statistic based on the full dataset per group
-#'   - rep_boo
 #'   - `est_boot`: The bootstrap estimate (mean of bootstrap replicates per
 #'   group)
 #'   - `se_boot`: The standard error of the bootstrap estimate (standard
@@ -81,7 +82,7 @@
 #'   - `ul`: The upper limit of the confidence interval
 #'   - `conf`: The confidence level of the interval
 #' When `aggregate = FALSE`, the dataframe contains the columns from
-#' `bootstrap_samples_df` with one row per bootstrap replicate.
+#' `bootstrap_results` with one row per bootstrap replicate.
 #'
 #' @details
 #' We consider four different types of intervals (with confidence level
@@ -205,7 +206,7 @@
 #' # Calculate confidence limits
 #' # Percentile interval
 #' ci_mean_obs <- calculate_bootstrap_ci(
-#'   bootstrap_samples_df = bootstrap_mean_obs,
+#'   bootstrap_results = bootstrap_mean_obs,
 #'   grouping_var = "year",
 #'   type = "perc",
 #'   conf = 0.95
@@ -215,7 +216,7 @@
 # nolint end
 
 calculate_bootstrap_ci <- function(
-  bootstrap_samples_df,
+  bootstrap_results,
   grouping_var = NULL,
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95,
@@ -231,61 +232,42 @@ calculate_bootstrap_ci <- function(
   progress = FALSE,
   boot_args = list()
 ) {
-  # If the bootstrap samples are a boot object, use the boot package
-  if (inherits(bootstrap_samples_df, "boot")) {
-    stopifnot(
-      "Cannot use a 'boot' method when a no bias is specified." =
-        no_bias == FALSE
-    )
+  # ------------------------------------------------------------------
+  # Handle bootstrap input supplied as `boot` objects
+  #
+  # If `bootstrap_results` is a `boot` object or a list of `boot` objects,
+  # there are two possible pathways:
+  #  - no_bias = TRUE : convert boot objects to a bootstrap replicate
+  #    dataframe and continue with the standard dataframe workflow
+  #  - no_bias = FALSE: compute confidence intervals directly using
+  #    boot::boot.ci() logic and return early
+  #
+  # For dataframe input, this step is a no-op.
+  # ------------------------------------------------------------------
+  boot_processed <- process_boot_input(
+    bootstrap_results = bootstrap_results,
+    grouping_var = grouping_var,
+    type = type,
+    conf = conf,
+    h = h,
+    hinv = hinv,
+    no_bias = no_bias,
+    boot_args = boot_args
+  )
 
-    ci_df <- calculate_boot_ci_from_boot(
-      boot_obj = bootstrap_samples_df,
-      type = type,
-      conf = conf,
-      h = h,
-      hinv = hinv,
-      boot_args = boot_args
-    )
-    return(ci_df)
+  # Early return if confidence intervals were computed directly
+  if (!is.null(boot_processed$result)) {
+    return(boot_processed$result)
   }
 
-  # If bootstrap_samples_df is a list of boot objects, calculate CIs for each
-  if (all(sapply(bootstrap_samples_df, inherits, "boot"))) {
-    stopifnot(
-      "Cannot use a 'boot' method when a no bias is specified." =
-        no_bias == FALSE
-    )
-
-    ci_list <- lapply(seq_along(bootstrap_samples_df), function(i) {
-      ci <- calculate_boot_ci_from_boot(
-        boot_obj = bootstrap_samples_df[[i]],
-        type = type,
-        conf = conf,
-        h = h,
-        hinv = hinv,
-        boot_args = boot_args
-      )
-
-      # Overwrite stat_index
-      ci <- assign_stat_index(
-        df = ci,
-        index = i,
-        names = names(bootstrap_samples_df),
-        grouping_var = grouping_var
-      )
-
-      return(ci)
-    })
-    return(dplyr::bind_rows(ci_list))
-  }
+  # From here on, `bootstrap_results` is guaranteed to be a dataframe
+  bootstrap_results <- boot_processed$data
 
   ### Start checks
   # Arguments fun, ref_group, influence_method, and progress
-  # arguments are checked in the calculate_acceleration() function
-
-  # Check dataframe input
-  stopifnot("`bootstrap_samples_df` must be a dataframe." =
-              inherits(bootstrap_samples_df, "data.frame"))
+  # arguments are checked in the calculate_acceleration() function.
+  # Arguments bootstrap_results and no_bias are checked in the
+  # process_boot_input() function
 
   # Check if grouping_var is a character vector
   stopifnot("`grouping_var` must be a character vector." =
@@ -293,7 +275,7 @@ calculate_bootstrap_ci <- function(
 
   # Check if "rep_boot", "est_original" and grouping_var columns are present
   colname_message <- paste(
-    "`bootstrap_samples_df` should contain columns: 'rep_boot', 'est_original'",
+    "`bootstrap_results` should contain columns: 'rep_boot', 'est_original'",
     "and `grouping_var`."
   )
   do.call(
@@ -301,7 +283,7 @@ calculate_bootstrap_ci <- function(
     stats::setNames(
       list(
         all(c(grouping_var, "rep_boot", "est_original") %in%
-              names(bootstrap_samples_df))
+              names(bootstrap_results))
       ),
       colname_message
     )
@@ -322,7 +304,7 @@ calculate_bootstrap_ci <- function(
   ### End checks
 
   # Adjust bias if required
-  bootstrap_samples_df <- bootstrap_samples_df %>%
+  bootstrap_results <- bootstrap_results %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
       rep_boot = ifelse(
@@ -341,8 +323,8 @@ calculate_bootstrap_ci <- function(
 
     if (t == "perc") {
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -360,7 +342,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }
@@ -396,10 +378,10 @@ calculate_bootstrap_ci <- function(
       )
 
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
         dplyr::left_join(acceleration_df,
                          by = grouping_var) %>%
-        split(bootstrap_samples_df %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -431,14 +413,14 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "norm") {
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -462,14 +444,14 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }
     if (t == "basic") {
       # Calculate confidence limits per group
-      intervals_list <- bootstrap_samples_df %>%
-        split(bootstrap_samples_df %>%
+      intervals_list <- bootstrap_results %>%
+        split(bootstrap_results %>%
                 dplyr::select(dplyr::all_of(grouping_var)),
               drop = TRUE) %>%
         lapply(function(df) {
@@ -493,7 +475,7 @@ calculate_bootstrap_ci <- function(
       intervals_df <- do.call(rbind.data.frame, intervals_list)
 
       # Join with input data
-      conf_df <- bootstrap_samples_df %>%
+      conf_df <- bootstrap_results %>%
         dplyr::mutate(int_type = t) %>%
         dplyr::left_join(intervals_df, by = grouping_var)
     }

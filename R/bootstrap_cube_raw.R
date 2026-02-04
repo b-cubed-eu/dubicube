@@ -30,7 +30,7 @@
 #' @param progress Logical. Whether to show a progress bar. Set to `TRUE` to
 #' display a progress bar, `FALSE` (default) to suppress it.
 #'
-#' @returns A dataframe containing the bootstrap results with the following
+#' @return A dataframe containing the bootstrap results with the following
 #' columns:
 #'   - `sample`: Sample ID of the bootstrap replicate
 #'   - `est_original`: The statistic based on the full dataset per group

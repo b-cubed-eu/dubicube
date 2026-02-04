@@ -80,7 +80,7 @@ boot_df4 <- bootstrap_cube(
 ## Calculate confidence intervals
 # Percentile
 result_perc1 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df1,
+  bootstrap_results = boot_df1,
   grouping_var = c("year", "taxonKey"),
   type = "perc",
   conf = 0.95,
@@ -89,7 +89,7 @@ result_perc1 <- calculate_bootstrap_ci(
 
 # BCa with dataframe without reference group
 result_bca1 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df1,
+  bootstrap_results = boot_df1,
   grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
@@ -102,7 +102,7 @@ result_bca1 <- calculate_bootstrap_ci(
 
 # BCa with dataframe with reference group
 result_bca2 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df3,
+  bootstrap_results = boot_df3,
   grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
@@ -115,7 +115,7 @@ result_bca2 <- calculate_bootstrap_ci(
 
 # BCa with 'processed_cube' without reference group
 result_bca3 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df2,
+  bootstrap_results = boot_df2,
   grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
@@ -128,7 +128,7 @@ result_bca3 <- calculate_bootstrap_ci(
 
 # BCa with 'processed_cube' with reference group
 result_bca4 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df4,
+  bootstrap_results = boot_df4,
   grouping_var = c("year", "taxonKey"),
   type = "bca",
   conf = 0.95,
@@ -141,7 +141,7 @@ result_bca4 <- calculate_bootstrap_ci(
 
 # Normal
 result_norm1 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df1,
+  bootstrap_results = boot_df1,
   grouping_var = c("year", "taxonKey"),
   type = "norm",
   conf = 0.95,
@@ -150,7 +150,7 @@ result_norm1 <- calculate_bootstrap_ci(
 
 # Basic
 result_basic1 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df1,
+  bootstrap_results = boot_df1,
   grouping_var = c("year", "taxonKey"),
   type = "basic",
   conf = 0.95,
@@ -159,7 +159,7 @@ result_basic1 <- calculate_bootstrap_ci(
 
 # All with dataframe without reference group
 result_all1 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df1,
+  bootstrap_results = boot_df1,
   grouping_var = c("year", "taxonKey"),
   type = "all",
   conf = 0.95,
@@ -181,7 +181,7 @@ example_ci_results <- c(example_ci_results_noref, example_ci_results_ref)
 
 # Without aggregation
 result_perc2 <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_df1,
+  bootstrap_results = boot_df1,
   grouping_var = c("year", "taxonKey"),
   type = "perc",
   conf = 0.95,
@@ -241,7 +241,7 @@ test_that("calculate_bootstrap_ci computes values correctly", {
   expect_true(all(result_basic1$int_type == "basic"))
 
   result_test <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_df1,
+    bootstrap_results = boot_df1,
     grouping_var = c("year", "taxonKey"),
     type = c("perc", "norm"),
     conf = 0.95,
@@ -257,7 +257,7 @@ test_that("calculate_bootstrap_ci computes values correctly", {
 # Test whether processed cube and dataframe result in the same
 test_that("Identical results for processed cube and dataframe", {
   result_bca12 <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_df1,
+    bootstrap_results = boot_df1,
     grouping_var = c("year", "taxonKey"),
     type = "bca",
     conf = 0.95,
@@ -269,7 +269,7 @@ test_that("Identical results for processed cube and dataframe", {
   )
 
   result_bca32 <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_df2,
+    bootstrap_results = boot_df2,
     grouping_var = c("year", "taxonKey"),
     type = "bca",
     conf = 0.95,
@@ -285,7 +285,7 @@ test_that("Identical results for processed cube and dataframe", {
   expect_identical(result_bca2, result_bca4)
 
   result_all2 <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_df2,
+    bootstrap_results = boot_df2,
     grouping_var = c("year", "taxonKey"),
     type = "all",
     conf = 0.95,
@@ -302,7 +302,7 @@ test_that("Identical results for processed cube and dataframe", {
 # Smaller confidence intervals
 test_that("Confidence intervals are smaller with smaller conf argument", {
   result_all3 <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_df1,
+    bootstrap_results = boot_df1,
     grouping_var = c("year", "taxonKey"),
     type = "all",
     conf = 0.9,
@@ -321,7 +321,7 @@ test_that("Confidence intervals are smaller with smaller conf argument", {
 test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df1,
+      bootstrap_results = boot_df1,
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "normal"),
       conf = 0.95,
@@ -333,7 +333,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
 
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df1,
+      bootstrap_results = boot_df1,
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "norm"),
       conf = 0.95,
@@ -345,7 +345,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
 
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df1,
+      bootstrap_results = boot_df1,
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "norm"),
       conf = 1.5,
@@ -357,7 +357,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
 
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df1,
+      bootstrap_results = boot_df1,
       grouping_var = c("year", "taxonKey"),
       type = c("perc", "bca"),
       conf = 0.95,
@@ -372,20 +372,20 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
 
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df1,
+      bootstrap_results = boot_df1,
       grouping_var = "month",
       type = "perc",
       conf = 0.95,
       aggregate = TRUE
     ),
-    paste("`bootstrap_samples_df` should contain columns: 'rep_boot',",
+    paste("`bootstrap_results` should contain columns: 'rep_boot',",
           "'est_original' and `grouping_var`."),
     fixed = TRUE
   )
 
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df3,
+      bootstrap_results = boot_df3,
       grouping_var = c("year", "taxonKey"),
       type = "bca",
       conf = 0.95,
@@ -401,7 +401,7 @@ test_that("calculate_bootstrap_ci handles invalid inputs gracefully", {
 
   expect_error(
     calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_df3,
+      bootstrap_results = boot_df3,
       grouping_var = c("year", "taxonKey"),
       type = "bca",
       conf = 0.95,
@@ -432,7 +432,7 @@ set.seed(123)
 boot_obj <- boot::boot(x, statistic = stat_fun, R = 100)
 
 ci_boot <- calculate_bootstrap_ci(
-  bootstrap_samples_df = boot_obj,
+  bootstrap_results = boot_obj,
   type = c("perc", "norm", "basic"),
   conf = 0.95
 )
@@ -461,19 +461,6 @@ test_that("calculate_bootstrap_ci handles boot objects correctly", {
   expect_true(all(ci_boot$int_type %in% c("perc", "norm", "basic")))
 })
 
-
-test_that("boot objects reject no_bias = TRUE", {
-  expect_error(
-    calculate_bootstrap_ci(
-      bootstrap_samples_df = boot_obj,
-      type = "perc",
-      no_bias = TRUE
-    ),
-    "Cannot use a 'boot' method when a no bias is specified.",
-    fixed = TRUE
-  )
-})
-
 # Statistic function returning multiple statistics
 stat_fun_multi <- function(data, indices) {
   subset <- data[indices]
@@ -484,40 +471,15 @@ stat_fun_multi <- function(data, indices) {
 set.seed(123)
 boot_obj_multi <- boot::boot(x, statistic = stat_fun_multi, R = 100)
 
-
 test_that("boot objects with multiple statistics are handled correctly", {
-  ci_boot_multi <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_obj_multi,
-    type = c("perc", "norm", "basic"),
-    conf = 0.95
-  )
-
-  # Output structure
-  expect_s3_class(ci_boot_multi, "data.frame")
-
-  # Required columns
-  expect_true(all(c(
-    "stat_index",
-    "est_original",
-    "int_type",
-    "ll",
-    "ul",
-    "conf"
-  ) %in% names(ci_boot_multi)))
-
-  # Confidence level
-  expect_true(all(ci_boot_multi$conf == 0.95))
-
-  # Interval bounds
-  expect_true(all(ci_boot_multi$ll <= ci_boot_multi$ul))
-
-  # Interval types
-  expect_true(all(ci_boot_multi$int_type %in% c("perc", "norm", "basic")))
-
-  # Both statistics should be present via stat_index
-  expect_setequal(
-    unique(ci_boot_multi$stat_index),
-    c(1, 2)
+  expect_error(
+    calculate_bootstrap_ci(
+      bootstrap_results = boot_obj_multi,
+      type = c("perc", "norm", "basic"),
+      conf = 0.95
+    ),
+    "Interval calculation only supported for a single statistic.",
+    fixed = TRUE
   )
 })
 
@@ -531,7 +493,7 @@ test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
 
   # Calculate confidence intervals
   ci_boot_list <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_list,
+    bootstrap_results = boot_list,
     type = c("perc", "norm", "basic"),
     conf = 0.95
   )
@@ -572,7 +534,7 @@ test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
 
   # Calculate confidence intervals
   ci_boot_list <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_list,
+    bootstrap_results = boot_list,
     type = c("perc", "norm", "basic"),
     conf = 0.95
   )
@@ -611,7 +573,7 @@ test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
   # With grouping variable
   # Calculate confidence intervals
   ci_boot_list <- calculate_bootstrap_ci(
-    bootstrap_samples_df = boot_list,
+    bootstrap_results = boot_list,
     grouping_var = "species",
     type = c("perc", "norm", "basic"),
     conf = 0.95
@@ -628,6 +590,59 @@ test_that("calculate_bootstrap_ci handles a list of boot objects correctly", {
     "ll",
     "ul",
     "conf"
+  ) %in% names(ci_boot_list)))
+
+  # Confidence level propagated
+  expect_true(all(ci_boot_list$conf == 0.95))
+
+  # Interval bounds ordered
+  expect_true(all(ci_boot_list$ll <= ci_boot_list$ul))
+
+  # Interval types restricted to requested ones
+  expect_true(all(ci_boot_list$int_type %in% c("perc", "norm", "basic")))
+
+  # Expect rows from both boot objects (at least doubled)
+  expect_true(nrow(ci_boot_list) == 2 * nrow(ci_boot))
+
+  # Both indicators should be present via species
+  expect_setequal(
+    unique(ci_boot_list$species),
+    c("spec_1", "spec_2")
+  )
+})
+
+test_that("calculate_bootstrap_ci handles list of boot objects with no bias", {
+  # Create a second boot object with a different seed
+  set.seed(456)
+  boot_obj2 <- boot::boot(x, statistic = stat_fun, R = 100)
+
+  # Combine into a list of boot objects
+  boot_list <- list(boot_obj, boot_obj2)
+  names(boot_list) <- paste0("spec_", 1:2)
+
+  # Calculate confidence intervals
+  ci_boot_list <- calculate_bootstrap_ci(
+    bootstrap_results = boot_list,
+    grouping_var = "species",
+    type = c("perc", "norm", "basic"),
+    conf = 0.95,
+    no_bias = TRUE
+  )
+
+  # Output structure
+  expect_s3_class(ci_boot_list, "data.frame")
+
+  # Required columns
+  expect_true(all(c(
+    "species",
+    "est_original",
+    "est_boot",
+    "se_boot",
+    "bias_boot",
+    "int_type",
+    "conf",
+    "ll",
+    "ul"
   ) %in% names(ci_boot_list)))
 
   # Confidence level propagated

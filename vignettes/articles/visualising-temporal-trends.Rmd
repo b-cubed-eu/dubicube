@@ -123,7 +123,7 @@ We get a warning message for BCa calculation because we are using a relatively s
 
 ```{r}
 ci_mean_obs <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results,
+  bootstrap_results = bootstrap_results,
   grouping_var = "year",
   type = c("perc", "bca", "norm", "basic"),
   conf = 0.95
@@ -426,7 +426,7 @@ We therefore calculate the log-transformed normal intervals and compare them wit
 
 ```{r}
 ci_mean_obs_lognorm <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results,
+  bootstrap_results = bootstrap_results,
   grouping_var = "year",
   type = c("norm"),
   conf = 0.95,
@@ -520,7 +520,7 @@ for (i in seq_along(coverages)) {
 
   # Calculate confidence limits for confidence level
   ci_cov <- calculate_bootstrap_ci(
-    bootstrap_samples_df = bootstrap_results,
+    bootstrap_results = bootstrap_results,
     grouping_var = "year",
     type = c("bca", "norm"),
     conf = cov,
@@ -646,7 +646,7 @@ bootstrap_results_ref <- bootstrap_cube(
 
 # Calculate confidence intervals
 ci_mean_obs_ref <- calculate_bootstrap_ci(
-  bootstrap_samples_df = bootstrap_results_ref,
+  bootstrap_results = bootstrap_results_ref,
   grouping_var = "year",
   type = "bca",
   data_cube = processed_cube,   # Required for BCa

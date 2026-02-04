@@ -81,6 +81,7 @@ Other indicator_uncertainty_helper:
 \code{\link{bootstrap_cube_raw}()},
 \code{\link{calculate_boot_ci_from_boot}()},
 \code{\link{derive_bootstrap_method}()},
+\code{\link{process_boot_input}()},
 \code{\link{resolve_bootstrap_method}()}
 }
 \concept{indicator_uncertainty_helper}

@@ -68,14 +68,14 @@ test_that("function handles multiple statistics correctly", {
     R = 200
   )
 
-  res <- calculate_boot_ci_from_boot(
-    boot_obj = boot_obj_multi,
-    type = c("norm", "perc")
+  expect_error(
+    calculate_boot_ci_from_boot(
+      boot_obj = boot_obj_multi,
+      type = c("norm", "perc")
+    ),
+    "Interval calculation only supported for a single statistic.",
+    fixed = TRUE
   )
-
-  # There should be two distinct statistic indices
-  expect_true(all(res$stat_index %in% c(1, 2)))
-  expect_equal(length(unique(res$stat_index)), 2)
 })
 
 

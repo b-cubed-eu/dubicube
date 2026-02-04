@@ -49,7 +49,7 @@
 #' display a progress bar, `FALSE` (default) to suppress it.
 #' @param boot_args Named list of additional arguments passed to `boot::boot()`.
 #'
-#' @returns A dataframe containing the bootstrap results with the following
+#' @return A dataframe containing the bootstrap results with the following
 #' columns:
 #'   - `sample`: Sample ID of the bootstrap replicate
 #'   - `est_original`: The statistic based on the full dataset per group

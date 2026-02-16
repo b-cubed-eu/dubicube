@@ -1,3 +1,7 @@
+# dubicube 0.11.1
+
+* Add grant ID for zenodo integration #94
+
 # dubicube 0.11.0
 
 * Improve figures of whole-cube versus group-specific tutorial #88

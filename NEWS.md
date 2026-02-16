@@ -1,6 +1,6 @@
 # dubicube 0.11.1
 
-* Add grant ID for zenodo integration #94
+* Add grant ID for Zenodo integration #94
 
 # dubicube 0.11.0
 

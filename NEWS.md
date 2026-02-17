@@ -1,6 +1,7 @@
 # dubicube 0.11.1
 
 * Add grant ID for Zenodo integration #94
+* Fix ROR url bug
 
 # dubicube 0.11.0
 

@@ -168,7 +168,7 @@ if (
   b3data_package <- read_package(
     "https://zenodo.org/records/15211029/files/datapackage.json"
   )
-  
+
   # Load bird cube data
   bird_cube_belgium <- read_resource(b3data_package, "bird_cube_belgium_mgrs10")
 
@@ -177,7 +177,7 @@ if (
   # Make dataset smaller
   rows <- sample(nrow(bird_cube_belgium), 2000)
   bird_cube_belgium <- bird_cube_belgium[rows, ]
-  
+
   # Process cube
   processed_cube <- process_cube(
     bird_cube_belgium,

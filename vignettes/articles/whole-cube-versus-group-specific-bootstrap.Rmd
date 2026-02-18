@@ -47,7 +47,7 @@ if (
   b3data_package <- read_package(
     "https://zenodo.org/records/15211029/files/datapackage.json"
   )
-  
+
   # Load bird cube data
   bird_cube_belgium <- read_resource(b3data_package, "bird_cube_belgium_mgrs10")
 
@@ -56,7 +56,7 @@ if (
   # Make dataset smaller
   rows <- sample(nrow(bird_cube_belgium), 2000)
   bird_cube_belgium <- bird_cube_belgium[rows, ]
-  
+
   # Process cube
   processed_cube <- process_cube(
     bird_cube_belgium,
@@ -410,9 +410,9 @@ if (
   ) == ""
 ) {
   library(microbenchmark)
-  
+
   set.seed(123)
-  
+
   # Time bootstrapping
   results_whole <- microbenchmark(
     {
@@ -427,7 +427,7 @@ if (
     },
     times = 20
   )
-  
+
   results_group <- microbenchmark(
     {
       bootstrap_cube(
@@ -441,7 +441,7 @@ if (
     },
     times = 20
   )
-  
+
   results_boot_whole <- microbenchmark(
     {
       bootstrap_cube(
@@ -455,7 +455,7 @@ if (
     },
     times = 20
   )
-  
+
   results_boot_group <- microbenchmark(
     {
       bootstrap_cube(
@@ -469,7 +469,7 @@ if (
     },
     times = 20
   )
-  
+
   # Time confidence interval calculation
   bootstrap_mean_whole <- bootstrap_cube(
     data_cube = iris,
@@ -480,7 +480,7 @@ if (
     method = "whole_cube",
     seed = 123
   )
-  
+
   bootstrap_mean_group <- bootstrap_cube(
     data_cube = iris,
     fun = mean_sepal_length,
@@ -490,7 +490,7 @@ if (
     method = "group_specific",
     seed = 123
   )
-  
+
   bootstrap_mean_boot_whole <- bootstrap_cube(
     data_cube = iris,
     fun = mean_sepal_length,
@@ -500,7 +500,7 @@ if (
     method = "boot_whole_cube",
     seed = 123
   )
-  
+
   bootstrap_mean_boot_group <- bootstrap_cube(
     data_cube = iris,
     fun = mean_sepal_length,
@@ -510,7 +510,7 @@ if (
     method = "boot_group_specific",
     seed = 123
   )
-  
+
   results_ci_whole <- microbenchmark(
     {
       calculate_bootstrap_ci(
@@ -524,7 +524,7 @@ if (
     },
     times = 20
   )
-  
+
   results_ci_group <- microbenchmark(
     {
       calculate_bootstrap_ci(
@@ -538,7 +538,7 @@ if (
     },
     times = 20
   )
-  
+
   results_ci_boot_whole <- microbenchmark(
     {
       calculate_bootstrap_ci(
@@ -550,7 +550,7 @@ if (
     },
     times = 20
   )
-  
+
   results_ci_boot_group <- microbenchmark(
     {
       calculate_bootstrap_ci(
@@ -562,7 +562,7 @@ if (
     },
     times = 20
   )
-  
+
   # Create dataframes
   bench_df <- bind_rows(
     as.data.frame(results_whole) %>%
@@ -589,7 +589,7 @@ if (
     mutate(
       time_ms = time / 1e6  # nanoseconds → milliseconds
     )
-  
+
   bench_ci_df <- bind_rows(
     as.data.frame(results_ci_whole) %>%
       mutate(
@@ -615,13 +615,13 @@ if (
     mutate(
       time_ms = time / 1e6  # nanoseconds → milliseconds
     )
-  
+
   # Combine bootstrapping and CI into one table
   combined_df <- bind_rows(
     bench_df %>% mutate(id = row_number(), cat = "bootstrapping"),
     bench_ci_df %>% mutate(id = row_number(), cat = "ci_calculation")
   )
-  
+
   # Compute total times per run
   total_df <- combined_df %>%
     pivot_wider(

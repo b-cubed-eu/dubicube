@@ -2,6 +2,7 @@
 
 * Add grant ID for Zenodo integration #94
 * Fix ROR url bug
+* Add publisher to metadata
 
 # dubicube 0.11.0
 

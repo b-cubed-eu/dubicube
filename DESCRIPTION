@@ -6,7 +6,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-5900-8109", affiliation = "Research Institute for Nature and Forest (INBO)")),
     person("Toon", "Van Daele", , "toon.vandaele@inbo.be", role = "aut",
            comment = c(ORCID = "0000-0002-1362-853X", affiliation = "Research Institute for Nature and Forest (INBO)")),
-    person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = "cph",
+    person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = c("cph", "pbl"),
            comment = c(ROR = "00j54wy13")),
     person("European Union (ID 101059592)", , , "b-cubedsupport@meisebotanicgarden.be", role = "fnd",
            comment = c(grant_id = "10.3030/101059592::101059592"))

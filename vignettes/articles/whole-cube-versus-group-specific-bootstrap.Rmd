@@ -75,6 +75,15 @@ if (
   )
 }
 
+# Select years
+processed_cube <- process_cube(
+  processed_cube$data,
+  first_year = 2015,
+  last_year = 2018,
+  cols_occurrences = "obs",
+  cols_speciesKey = "taxonKey"
+)
+
 # Function to calculate statistic of interest
 # Mean number of observations per grid cell per year
 mean_obs <- function(data) {

@@ -3,6 +3,7 @@
 * Add grant ID for Zenodo integration #94
 * Fix ROR url bug
 * Add publisher to metadata
+* Make pkgdown lighter #93
 
 # dubicube 0.11.0
 

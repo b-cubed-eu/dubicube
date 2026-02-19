@@ -101,7 +101,7 @@ library(dubicube)     # Analysis of data quality & indicator uncertainty
 We load the bird cube data from the **b3data** data package using **frictionless** (see also [here](https://github.com/b-cubed-eu/b3data-scripts)).
 It is an occurrence cube for birds in Belgium between 2000 en 2024 using the MGRS grid at 10 km scale.
 
-```{r}
+```r
 # Read data package
 b3data_package <- read_package(
   "https://zenodo.org/records/15211029/files/datapackage.json"
@@ -109,7 +109,6 @@ b3data_package <- read_package(
 
 # Load bird cube data
 bird_cube_belgium <- read_resource(b3data_package, "bird_cube_belgium_mgrs10")
-head(bird_cube_belgium)
 ```
 
 We process the cube with **b3gbi**.
@@ -117,7 +116,7 @@ First, we select 2000 random rows to make the dataset smaller.
 This is to reduce the computation time for this tutorial.
 We select the data from 2011 - 2020.
 
-```{r}
+```r
 set.seed(123)
 
 # Make dataset smaller
@@ -134,22 +133,69 @@ processed_cube <- process_cube(
 processed_cube
 ```
 
+```{r, echo=FALSE, message=FALSE, results='hide'}
+if (
+  system.file("bootstrapping", "processed_cube.rds", package = "dubicube") == ""
+) {
+  # Read data package
+  b3data_package <- read_package(
+    "https://zenodo.org/records/15211029/files/datapackage.json"
+  )
+
+  # Load bird cube data
+  bird_cube_belgium <- read_resource(b3data_package, "bird_cube_belgium_mgrs10")
+
+  set.seed(123)
+
+  # Make dataset smaller
+  rows <- sample(nrow(bird_cube_belgium), 2000)
+  bird_cube_belgium <- bird_cube_belgium[rows, ]
+
+  # Process cube
+  processed_cube <- process_cube(
+    bird_cube_belgium,
+    first_year = 2011,
+    last_year = 2020,
+    cols_occurrences = "n"
+  )
+
+  saveRDS(
+    processed_cube,
+    file.path("..", "..", "inst", "inst", "bootstrapping", "processed_cube.rds")
+  )
+} else {
+  processed_cube <- readRDS(
+    system.file("bootstrapping", "processed_cube.rds", package = "dubicube")
+  )
+}
+```
+
+```{r, echo=FALSE}
+processed_cube
+```
+
 ### Analysis of the data
 
 Let's say we are interested in the mean number of observations per grid cell per year.
 We create a function to calculate this.
 
+```{r, echo=FALSE}
+# nolint start: object_usage_linter.
+```
+
 ```{r}
 # Function to calculate the statistic of interest
 # Mean observations per grid cell per year
 mean_obs <- function(data) {
-  obs <- x <- NULL
-
   data %>%
     dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
     dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
     as.data.frame()
 }
+```
+
+```{r, echo=FALSE}
+# nolint end: object_usage_linter.
 ```
 
 We get the following results:
@@ -182,7 +228,7 @@ We use the `bootstrap_cube()` function to do this. It relies on the following ar
 - **`progress`**:  
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
-```{r}
+```r
 bootstrap_results <- bootstrap_cube(
   data_cube = processed_cube,
   fun = mean_obs,
@@ -190,6 +236,35 @@ bootstrap_results <- bootstrap_cube(
   samples = 1000,
   seed = 123
 )
+```
+
+```{r, echo=FALSE, message=FALSE, results='hide'}
+if (
+  system.file(
+    "bootstrapping", "bootstrap_results.rds", package = "dubicube"
+  ) == ""
+) {
+  bootstrap_results <- bootstrap_cube(
+    data_cube = processed_cube,
+    fun = mean_obs,
+    grouping_var = "year",
+    samples = 1000,
+    seed = 123
+  )
+
+  saveRDS(
+    bootstrap_results,
+    file.path("..", "..", "inst", "bootstrapping", "bootstrap_results.rds")
+  )
+} else {
+  bootstrap_results <- readRDS(
+    system.file("bootstrapping", "bootstrap_results.rds", package = "dubicube")
+  )
+}
+```
+
+```{r, echo=FALSE}
+print("Performing whole-cube bootstrap with `boot::boot()`.")
 ```
 
 This returned a list of `"boot"` objects. We can convert this to a dataframe 

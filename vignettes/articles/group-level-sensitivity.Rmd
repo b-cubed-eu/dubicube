@@ -186,13 +186,37 @@ It relies on the following arguments:
     Logical flag to show a progress bar.
     Set to `TRUE` to enable progress reporting; default is `FALSE`.
 
-```{r}
+```r
 cv_results <- cross_validate_cube(
   data_cube = processed_cube,
   fun = mean_obs,
   grouping_var = "year",
   out_var = "taxonKey"
 )
+```
+
+```{r, echo=FALSE, message=FALSE, results='hide'}
+if (
+  system.file(
+    "cross_validation", "cv_results.rds", package = "dubicube"
+  ) == ""
+) {
+  cv_results <- cross_validate_cube(
+    data_cube = processed_cube,
+    fun = mean_obs,
+    grouping_var = "year",
+    out_var = "taxonKey"
+  )
+
+  saveRDS(
+    cv_results,
+    file.path("..", "..", "inst", "cross_validation", "cv_results.rds")
+  )
+} else {
+  cv_results <- readRDS(
+    system.file("cross_validation", "cv_results.rds", package = "dubicube")
+  )
+}
 ```
 
 ```{r}
@@ -269,7 +293,7 @@ As stated in the documentation, it is also possible to cross-validate over a dat
 In this case, set the argument `processed_cube = FALSE`.
 This is implemented allow for flexible use of simple dataframes, while still encouraging the use of `b3gbi::process_cube()` as default functionality.
 
-``` r
+```r
 cv_results_df <- cross_validate_cube(
   data_cube = processed_cube$data,      # data.frame object
   fun = mean_obs,

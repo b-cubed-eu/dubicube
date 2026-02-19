@@ -1,3 +1,10 @@
+# dubicube 0.11.1
+
+* Add grant ID for Zenodo integration #94
+* Fix ROR url bug
+* Add publisher to metadata
+* Make pkgdown lighter #93
+
 # dubicube 0.11.0
 
 * Improve figures of whole-cube versus group-specific tutorial #88

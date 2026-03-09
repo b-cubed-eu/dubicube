@@ -59,7 +59,6 @@ validate_cube_diagnostics <- function(x) {
 
   # Identify missing columns
   missing <- setdiff(required, names(x))
-
   if (length(missing) > 0) {
     stop(
       "Missing diagnostic columns: ",

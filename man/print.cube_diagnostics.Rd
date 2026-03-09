@@ -4,10 +4,17 @@
 \alias{print.cube_diagnostics}
 \title{Print method for cube_diagnostics objects}
 \usage{
-\method{print}{cube_diagnostics}(x, ...)
+\method{print}{cube_diagnostics}(x, filter_summary = "ok", sort_summary = NA, ...)
 }
 \arguments{
 \item{x}{A \code{cube_diagnostics} object returned by \code{diagnose_cube()}.}
+
+\item{filter_summary}{Filter the summary output based on a minimum severity
+level. Default, all levels are shown: \code{filter_summary = "ok"}.}
+
+\item{sort_summary}{Sort the summary output based on severity level. Options
+are descending (\code{"desc"}), ascending (\code{"asc"}) or no sorting (\code{NA}, default).
+Default, all levels are shown: \code{filter_summary = "ok"}.}
 
 \item{...}{Additional arguments passed to other methods (currently unused).}
 }

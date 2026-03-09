@@ -16,6 +16,8 @@
 #' }
 #' @param verbose Logical indicating whether a diagnostic summary should be
 #'   printed.
+#' @param ... Additional arguments passed to `print.cube_diagnostics()` in case
+#'   `verbose = TRUE`.
 #'
 #' @return An object of class `cube_diagnostics`, containing a data frame with
 #'   the following columns:
@@ -48,7 +50,8 @@
 diagnose_cube <- function(
     cube,
     rules = "basic",
-    verbose = TRUE) {
+    verbose = TRUE,
+    ...) {
   # Check input
   stopifnot("`cube` must be of class 'processed_cube'" =
               inherits(cube, "processed_cube"))
@@ -81,8 +84,11 @@ diagnose_cube <- function(
 
   # Print summary if requested
   if (verbose) {
-    print(diagnostics)
+    print(
+      diagnostics,
+      ...
+    )
   }
 
-  return(diagnostics)
+  invisible(diagnostics)
 }

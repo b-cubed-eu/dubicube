@@ -4,7 +4,7 @@
 \alias{diagnose_cube}
 \title{Diagnose data quality of a processed_cube}
 \usage{
-diagnose_cube(cube, rules = "basic", verbose = TRUE)
+diagnose_cube(cube, rules = "basic", verbose = TRUE, ...)
 }
 \arguments{
 \item{cube}{A \code{processed_cube} object as returned by
@@ -20,6 +20,9 @@ diagnose_cube(cube, rules = "basic", verbose = TRUE)
 
 \item{verbose}{Logical indicating whether a diagnostic summary should be
 printed.}
+
+\item{...}{Additional arguments passed to \code{print.cube_diagnostics()} in case
+\code{verbose = TRUE}.}
 }
 \value{
 An object of class \code{cube_diagnostics}, containing a data frame with

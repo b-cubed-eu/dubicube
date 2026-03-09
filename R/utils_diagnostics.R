@@ -104,15 +104,6 @@ get_cube_rule_set <- function(name) {
     # Interaction diagnostic rules
     # interaction = interaction_cube_rules(),
 
-    # Spatial diagnostic rules
-    # spatial = spatial_cube_rules(),
-
-    # Temporal diagnostic rules
-    # temporal = temporal_cube_rules(),
-
-    # Taxonomical diagnostic rules
-    # taxonomical = taxonomical_cube_rules(),
-
     # All available rule sets combined
     # all = c(
     #   basic_cube_rules(),

@@ -41,7 +41,7 @@ basic_cube_rules <- function() {
     # Number of records where coord. uncertainty is larger than grid resolution
     rule_spatial_max_uncertainty(),
     # Number of records with missing coord. uncertainty
-    rule_spatial_miss_uncertainty,
+    rule_spatial_miss_uncertainty(),
     rule_taxon_min_taxa(), # Number of taxa
     rule_obs_min_records(), # Number of records (rows)
     rule_obs_min_total() # Total number of observations (sum)
@@ -337,7 +337,7 @@ rule_taxon_min_taxa <- function() {
     id = "taxon_min_taxa",
 
     # Dimension of the cube being evaluated
-    dimension = "taxonomical",
+    dimension = "taxonomic",
 
     # Minimum recommended number of taxa
     threshold = 5,
@@ -389,7 +389,7 @@ rule_obs_min_records <- function() {
     id = "obs_min_records",
 
     # Dimension of the cube being evaluated
-    dimension = "observations",
+    dimension = "observation",
 
     # Minimum recommended number of observation records
     threshold = 40,
@@ -442,7 +442,7 @@ rule_obs_min_total <- function() {
     id = "obs_min_total",
 
     # Dimension of the cube being evaluated
-    dimension = "observations",
+    dimension = "observation",
 
     # Minimum recommended number of observations
     threshold = 40,
@@ -454,8 +454,8 @@ rule_obs_min_total <- function() {
         data_cube = cube,
         processed_cube = TRUE
       )
-      # Count number of unique taxa
-      length(unique(data$taxonKey))
+      # Count total number of observations
+      sum(data$obs, na.rm = TRUE)
     },
 
     # Function assigning a severity level
@@ -469,9 +469,9 @@ rule_obs_min_total <- function() {
     # Function generating a descriptive message
     message = function(value, threshold) {
       paste(
-        "Cube contains observations across",
+        "Cube contains a total of",
         value,
-        "taxon keys."
+        "observations."
       )
     }
   )

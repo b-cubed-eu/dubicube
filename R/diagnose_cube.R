@@ -7,9 +7,13 @@
 #'
 #' @param cube A `processed_cube` object as returned by
 #'   `b3gbi::process_cube()`.
-#' @param rules A list of diagnostic rules. Each rule must contain elements
-#'   `id`, `dimension`, `threshold`, `compute`, `severity`, and `message`.
-#'   Defaults to `default_cube_rules()`.
+#' @param rules Diagnostic rules to evaluate. Can be:
+#' \itemize{
+#'   \item A character vector referring to built-in rule sets
+#'   (e.g. `"basic"`, `"spatial"`).
+#'   \item A list of rule objects.
+#'   \item A combination of both.
+#' }
 #' @param verbose Logical indicating whether a diagnostic summary should be
 #'   printed.
 #'
@@ -43,16 +47,15 @@
 #' }
 diagnose_cube <- function(
     cube,
-    rules = default_cube_rules(),
+    rules = "basic",
     verbose = TRUE) {
   # Check input
   stopifnot("`cube` must be of class 'processed_cube'" =
               inherits(cube, "processed_cube"))
 
-  results <- lapply(rules, function(rule) {
-    # Validate rule
-    # validate_cube_rule(rule)
+  rules <- resolve_cube_rules(rules)
 
+  results <- lapply(rules, function(rule) {
     # Compute diagnostic values
     value <- rule$compute(cube)
     severity <- rule$severity(value, rule$threshold)
@@ -68,7 +71,6 @@ diagnose_cube <- function(
       message = message,
       stringsAsFactors = FALSE
     )
-
   })
 
   # Combine rule results

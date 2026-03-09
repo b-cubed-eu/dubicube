@@ -1,11 +1,11 @@
 # Helper cube constructor
 make_cube <- function(
-    years,
-    cells,
-    taxa,
-    obs = 1,
-    uncertainty = 50,
-    resolution = "1km"
+  years,
+  cells,
+  taxa,
+  obs = 1,
+  uncertainty = 50,
+  resolution = "1km"
 ) {
   # Create data frame
   df <- expand.grid(
@@ -32,8 +32,8 @@ make_cube <- function(
 test_that("diagnose_cube returns cube_diagnostics object", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = paste0("c",1:5),
-    taxa = paste0("t",1:5)
+    cells = paste0("c", 1:5),
+    taxa = paste0("t", 1:5)
   )
   res <- diagnose_cube(cube, verbose = FALSE)
 
@@ -43,8 +43,8 @@ test_that("diagnose_cube returns cube_diagnostics object", {
 test_that("all basic rules are evaluated", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = paste0("c",1:5),
-    taxa = paste0("t",1:5)
+    cells = paste0("c", 1:5),
+    taxa = paste0("t", 1:5)
   )
   res <- diagnose_cube(cube, verbose = FALSE)
 
@@ -121,7 +121,7 @@ test_that("temporal_missing_years severity levels", {
 
   expect_true(
     res$metric[res$metric == "temporal_missing_years"]
-      == "temporal_missing_years"
+    == "temporal_missing_years"
   )
 
 })
@@ -133,8 +133,8 @@ test_that("temporal_missing_years severity levels", {
 test_that("spatial_min_cells severity levels", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = c("c1","c2"),
-    taxa = paste0("t",1:5)
+    cells = c("c1", "c2"),
+    taxa = paste0("t", 1:5)
   )
   res <- diagnose_cube(cube, verbose = FALSE)
 
@@ -147,8 +147,8 @@ test_that("spatial_min_cells severity levels", {
 test_that("spatial_max_uncertainty works", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = paste0("c",1:5),
-    taxa = paste0("t",1:5),
+    cells = paste0("c", 1:5),
+    taxa = paste0("t", 1:5),
     uncertainty = 2000   # > 1km resolution
   )
   res <- diagnose_cube(cube, verbose = FALSE)
@@ -161,8 +161,8 @@ test_that("spatial_max_uncertainty works", {
 test_that("spatial_miss_uncertainty detects missing values", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = paste0("c",1:5),
-    taxa = paste0("t",1:5),
+    cells = paste0("c", 1:5),
+    taxa = paste0("t", 1:5),
     uncertainty = NA
   )
   res <- diagnose_cube(cube, verbose = FALSE)
@@ -179,8 +179,8 @@ test_that("spatial_miss_uncertainty detects missing values", {
 test_that("taxon_min_taxa severity", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = paste0("c",1:5),
-    taxa = c("t1","t2")
+    cells = paste0("c", 1:5),
+    taxa = c("t1", "t2")
   )
   res <- diagnose_cube(cube, verbose = FALSE)
 
@@ -197,8 +197,8 @@ test_that("taxon_min_taxa severity", {
 test_that("obs_min_records severity", {
   cube <- make_cube(
     years = 2019:2020,
-    cells = c("c1","c2"),
-    taxa = c("t1","t2")
+    cells = c("c1", "c2"),
+    taxa = c("t1", "t2")
   )
   res <- diagnose_cube(cube, verbose = FALSE)
 
@@ -210,8 +210,8 @@ test_that("obs_min_records severity", {
 test_that("obs_min_total works", {
   cube <- make_cube(
     years = 2015:2020,
-    cells = paste0("c",1:5),
-    taxa = paste0("t",1:5),
+    cells = paste0("c", 1:5),
+    taxa = paste0("t", 1:5),
     obs = 1
   )
   res <- diagnose_cube(cube, verbose = FALSE)

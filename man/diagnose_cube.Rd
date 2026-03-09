@@ -4,15 +4,19 @@
 \alias{diagnose_cube}
 \title{Diagnose data quality of a processed_cube}
 \usage{
-diagnose_cube(cube, rules = default_cube_rules(), verbose = TRUE)
+diagnose_cube(cube, rules = "basic", verbose = TRUE)
 }
 \arguments{
 \item{cube}{A \code{processed_cube} object as returned by
 \code{b3gbi::process_cube()}.}
 
-\item{rules}{A list of diagnostic rules. Each rule must contain elements
-\code{id}, \code{dimension}, \code{threshold}, \code{compute}, \code{severity}, and \code{message}.
-Defaults to \code{default_cube_rules()}.}
+\item{rules}{Diagnostic rules to evaluate. Can be:
+\itemize{
+\item A character vector referring to built-in rule sets
+(e.g. \code{"basic"}, \code{"spatial"}).
+\item A list of rule objects.
+\item A combination of both.
+}}
 
 \item{verbose}{Logical indicating whether a diagnostic summary should be
 printed.}

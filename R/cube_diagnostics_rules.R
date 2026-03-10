@@ -262,6 +262,13 @@ rule_spatial_max_uncertainty <- function() {
         "records where the coordinate uncertainty is larger than the",
         "grid cell resolution."
       )
+    },
+
+    # Returns TRUE for rows to drop
+    filter_fn = function(cube) {
+      data <- get_cube_data(cube, processed_cube = TRUE)
+      res_m <- resolution_to_meters(cube$resolutions)
+      data$minCoordinateUncertaintyInMeters > res_m
     }
   )
 
@@ -315,6 +322,12 @@ rule_spatial_miss_uncertainty <- function() {
         value,
         "records with missing coordinate uncertainty."
       )
+    },
+
+    # Returns TRUE for rows to drop
+    filter_fn = function(cube) {
+      data <- get_cube_data(cube, processed_cube = TRUE)
+      is.na(data$minCoordinateUncertaintyInMeters)
     }
   )
 

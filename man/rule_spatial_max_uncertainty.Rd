@@ -4,7 +4,13 @@
 \alias{rule_spatial_max_uncertainty}
 \title{Maximal coordinate uncertainty diagnostic rule}
 \usage{
-rule_spatial_max_uncertainty()
+rule_spatial_max_uncertainty(
+  thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
+)
+}
+\arguments{
+\item{thresholds}{Named numeric vector with severity thresholds:
+ok, note, important, very_important. Defaults are used if not provided.}
 }
 \value{
 An object of class \code{cube_rule}.

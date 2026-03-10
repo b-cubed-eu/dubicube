@@ -4,7 +4,13 @@
 \alias{rule_temporal_missing_years}
 \title{Temporal gaps diagnostic rule}
 \usage{
-rule_temporal_missing_years()
+rule_temporal_missing_years(
+  thresholds = c(ok = 0, note = 1, important = 3, very_important = NULL)
+)
+}
+\arguments{
+\item{thresholds}{Named numeric vector with severity thresholds:
+ok, note, important, very_important. Defaults are used if not provided.}
 }
 \value{
 An object of class \code{cube_rule}.

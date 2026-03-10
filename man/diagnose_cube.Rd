@@ -25,18 +25,19 @@ printed.}
 \code{verbose = TRUE}.}
 }
 \value{
-An object of class \code{cube_diagnostics}, containing a data frame with
-the following columns:
+An object of class \code{cube_diagnostics}, containing one row
+per metric with the following columns:
 \describe{
 \item{dimension}{Dimension of the cube being evaluated
 (e.g. \code{"spatial"}, \code{"temporal"}, \code{"taxonomical"}).}
 \item{metric}{Name of the diagnostic metric.}
 \item{value}{Computed metric value.}
-\item{threshold}{Reference threshold used to determine severity.}
 \item{severity}{Severity level (\code{"ok"}, \code{"note"}, \code{"important"},
 \code{"very_important"}).}
 \item{message}{Human-readable description of the diagnostic result.}
 }
+
+The rule objects are attached as an attribute of the diagnostics object.
 }
 \description{
 Evaluates a set of diagnostic rules describing the data quality of a
@@ -44,16 +45,10 @@ biodiversity occurrence cube. Each rule computes a metric
 on the cube and assigns a severity level indicating potential limitations
 of the data for exploratory analysis or indicator calculation.
 }
-\details{
-Diagnostics are returned as a \code{cube_diagnostics} object containing one row
-per metric with the evaluated value, threshold, severity level and an
-explanatory message.
-}
 \examples{
 \dontrun{
 # After processing a data cube with b3gbi::process_cube()
 diag <- diagnose_cube(processed_cube)
-diag
 }
 }
 \seealso{

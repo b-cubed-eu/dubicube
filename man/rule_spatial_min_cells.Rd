@@ -4,7 +4,13 @@
 \alias{rule_spatial_min_cells}
 \title{Spatial minimum grid cells diagnostic rule}
 \usage{
-rule_spatial_min_cells()
+rule_spatial_min_cells(
+  thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
+)
+}
+\arguments{
+\item{thresholds}{Named numeric vector with severity thresholds:
+ok, note, important, very_important. Defaults are used if not provided.}
 }
 \value{
 An object of class \code{cube_rule}.

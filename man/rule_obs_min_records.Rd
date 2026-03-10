@@ -4,7 +4,9 @@
 \alias{rule_obs_min_records}
 \title{Minimum number of records diagnostic rule}
 \usage{
-rule_obs_min_records()
+rule_obs_min_records(
+  thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
+)
 }
 \value{
 An object of class \code{cube_rule}.

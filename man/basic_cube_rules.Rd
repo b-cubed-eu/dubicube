@@ -19,7 +19,7 @@ Rules are implemented as lists containing:
 \itemize{
 \item \code{id} – name of the diagnostic metric
 \item \code{dimension} – cube dimension being evaluated (e.g. temporal)
-\item \code{threshold} – reference value used to determine severity
+\item \code{thresholds} – reference values used to determine severity
 \item \code{compute()} – function that calculates the metric
 \item \code{severity()} – function assigning a severity level
 \item \code{message()} – function generating a human-readable message
@@ -38,4 +38,6 @@ uncertainty
 \item \code{rule_obs_min_records()}: Number of records (rows)
 \item \code{rule_obs_min_total()}: Total number of observations (sum)
 }
+
+Default thresholds are used.
 }

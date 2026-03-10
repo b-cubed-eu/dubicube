@@ -4,7 +4,13 @@
 \alias{rule_temporal_min_years}
 \title{Temporal minimum years diagnostic rule}
 \usage{
-rule_temporal_min_years()
+rule_temporal_min_years(
+  thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
+)
+}
+\arguments{
+\item{thresholds}{Named numeric vector with severity thresholds:
+ok, note, important, very_important. Defaults are used if not provided.}
 }
 \value{
 An object of class \code{cube_rule}.

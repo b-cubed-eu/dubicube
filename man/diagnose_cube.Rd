@@ -48,11 +48,17 @@ of the data for exploratory analysis or indicator calculation.
 \examples{
 \dontrun{
 # After processing a data cube with b3gbi::process_cube()
+
+# Diagnose based on default rules
 diag <- diagnose_cube(processed_cube)
+
+# Only show at least important diagnoses
+diag <- diagnose_cube(processed_cube, filter_summary = "important")
 }
 }
 \seealso{
 Other data_exploration: 
-\code{\link{cross_validate_cube}()}
+\code{\link{cross_validate_cube}()},
+\code{\link{filter_cube}()}
 }
 \concept{data_exploration}

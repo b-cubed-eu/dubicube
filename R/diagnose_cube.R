@@ -40,7 +40,12 @@
 #' @examples
 #' \dontrun{
 #' # After processing a data cube with b3gbi::process_cube()
+#'
+#' # Diagnose based on default rules
 #' diag <- diagnose_cube(processed_cube)
+#'
+#' # Only show at least important diagnoses
+#' diag <- diagnose_cube(processed_cube, filter_summary = "important")
 #' }
 
 diagnose_cube <- function(

@@ -47,24 +47,30 @@ test_that("all basic rules are evaluated", {
     cells = paste0("c", 1:5),
     taxa = paste0("t", 1:5)
   )
-  res <- diagnose_cube(cube, verbose = FALSE)
+  res <- diagnose_cube(cube, rules = "basic", verbose = FALSE)
+  basic_rules <- basic_cube_rules()
 
+  # Test output
   expect_equal(
-    length(basic_cube_rules()),
+    length(basic_rules),
     nrow(res)
   )
   expect_equal(
-    sapply(basic_cube_rules(), function(rule) rule$dimension),
+    sapply(basic_rules, function(rule) rule$dimension),
     res$dimension
   )
   expect_equal(
-    sapply(basic_cube_rules(), function(rule) rule$id),
+    sapply(basic_rules, function(rule) rule$id),
     res$metric
   )
   expect_equal(
-    rep("ok", length(basic_cube_rules())),
+    rep("ok", length(basic_rules)),
     res$severity
   )
+
+  # Test attributes
+  rules <- attr(res, "rules")
+  expect_identical(rules, basic_rules)
 })
 
 ################################################################################

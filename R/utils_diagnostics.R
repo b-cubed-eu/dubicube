@@ -98,19 +98,6 @@ get_cube_rule_set <- function(name) {
     name,
     basic = basic_cube_rules(),
 
-    # Distribution diagnostic rules
-    # distribution = distribution_cube_rules(),
-
-    # Interaction diagnostic rules
-    # interaction = interaction_cube_rules(),
-
-    # All available rule sets combined
-    # all = c(
-    #   basic_cube_rules(),
-    #   distribution(),
-    #   interaction()
-    # ),
-
     # Error if an unknown rule set is requested
     stop("Unknown rule set: ", name, call. = FALSE)
   )

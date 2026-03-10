@@ -187,6 +187,7 @@ head(cv_mean_obs)
 }
 \seealso{
 Other data_exploration: 
-\code{\link{diagnose_cube}()}
+\code{\link{diagnose_cube}()},
+\code{\link{filter_cube}()}
 }
 \concept{data_exploration}

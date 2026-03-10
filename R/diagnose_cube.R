@@ -5,7 +5,7 @@
 #' on the cube and assigns a severity level indicating potential limitations
 #' of the data for exploratory analysis or indicator calculation.
 #'
-#' @param cube A `processed_cube` object as returned by
+#' @param data_cube A `processed_cube` object as returned by
 #'   `b3gbi::process_cube()`.
 #' @param rules Diagnostic rules to evaluate. Can be:
 #' \itemize{
@@ -49,19 +49,19 @@
 #' }
 
 diagnose_cube <- function(
-    cube,
+    data_cube,
     rules = "basic",
     verbose = TRUE,
     ...) {
   # Check input
-  stopifnot("`cube` must be of class 'processed_cube'" =
-              inherits(cube, "processed_cube"))
+  stopifnot("`data_cube` must be of class 'processed_cube'" =
+              inherits(data_cube, "processed_cube"))
 
   rules <- resolve_cube_rules(rules)
 
   results <- lapply(rules, function(rule) {
     # Compute diagnostic values
-    value <- rule$compute(cube)
+    value <- rule$compute(data_cube)
     severity <- rule$severity(value, rule$thresholds)
     message <- rule$message(value)
 

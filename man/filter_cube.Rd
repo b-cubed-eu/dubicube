@@ -4,10 +4,10 @@
 \alias{filter_cube}
 \title{Filter a processed data cube using diagnostic rules}
 \usage{
-filter_cube(cube, rules = NULL, diagnostics = NULL, ...)
+filter_cube(data_cube, rules = NULL, diagnostics = NULL, ...)
 }
 \arguments{
-\item{cube}{A \code{processed_cube} object.}
+\item{data_cube}{A \code{processed_cube} object.}
 
 \item{rules}{Character vector or list of cube rule objects. Passed to
 \code{\link[=resolve_cube_rules]{resolve_cube_rules()}}. Ignored if \code{diagnostics} is supplied.}
@@ -40,7 +40,7 @@ containing individual observations that fail filtering criteria.
 After filtering, the function attempts to rebuild the cube using
 \code{b3gbi::process_cube()} to ensure cube metadata remains consistent.
 If this function is unavailable or fails, the filtered data replaces
-\code{cube$data} directly and the original cube metadata is retained.
+\code{data_cube$data} directly and the original cube metadata is retained.
 In that case a warning is issued.
 }
 \examples{

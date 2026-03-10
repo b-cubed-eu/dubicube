@@ -5,7 +5,7 @@
 #' applies row-level filtering logic through rule-specific `filter_fn()`
 #' functions.
 #'
-#' @param cube A `processed_cube` object.
+#' @param data_cube A `processed_cube` object.
 #' @param rules Character vector or list of cube rule objects. Passed to
 #' [resolve_cube_rules()]. Ignored if `diagnostics` is supplied.
 #' @param diagnostics Optional `cube_diagnostics` object returned by
@@ -28,7 +28,7 @@
 #' After filtering, the function attempts to rebuild the cube using
 #' `b3gbi::process_cube()` to ensure cube metadata remains consistent.
 #' If this function is unavailable or fails, the filtered data replaces
-#' `cube$data` directly and the original cube metadata is retained.
+#' `data_cube$data` directly and the original cube metadata is retained.
 #' In that case a warning is issued.
 #'
 #' @export
@@ -64,13 +64,13 @@
 #' }
 
 filter_cube <- function(
-    cube,
+    data_cube,
     rules = NULL,
     diagnostics = NULL,
     ...) {
   stopifnot(
-    "`cube` must be of class 'processed_cube'" =
-      inherits(cube, "processed_cube")
+    "`data_cube` must be of class 'processed_cube'" =
+      inherits(data_cube, "processed_cube")
   )
 
   # Extract rules
@@ -87,7 +87,7 @@ filter_cube <- function(
 
   # Extract cube data
   data <- get_cube_data(
-    data_cube = cube,
+    data_cube = data_cube,
     processed_cube = TRUE
   )
 
@@ -98,7 +98,7 @@ filter_cube <- function(
   for (rule in rules) {
     if (!is.null(rule$filter_fn)) {
       flags <- rule$filter_fn(
-        cube,
+        data_cube,
         ...
       )
 
@@ -127,7 +127,7 @@ filter_cube <- function(
   # Return cubes
   if (!is.null(cube_new)) return(cube_new)
 
-  cube$data <- data_filtered
+  data_cube$data <- data_filtered
 
   warning(
     paste(
@@ -138,5 +138,5 @@ filter_cube <- function(
     call. = FALSE
   )
 
-  return(cube)
+  return(data_cube)
 }

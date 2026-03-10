@@ -4,10 +4,10 @@
 \alias{diagnose_cube}
 \title{Diagnose data quality of a processed_cube}
 \usage{
-diagnose_cube(cube, rules = "basic", verbose = TRUE, ...)
+diagnose_cube(data_cube, rules = "basic", verbose = TRUE, ...)
 }
 \arguments{
-\item{cube}{A \code{processed_cube} object as returned by
+\item{data_cube}{A \code{processed_cube} object as returned by
 \code{b3gbi::process_cube()}.}
 
 \item{rules}{Diagnostic rules to evaluate. Can be:

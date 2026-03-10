@@ -22,3 +22,4 @@ records (rows) in the cube where the minimal coordinate uncertainty is larger
 than the resolution of the grid, and compares it to a threshold to determine
 the severity level.
 }
+\keyword{internal}

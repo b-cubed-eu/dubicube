@@ -30,3 +30,4 @@ Three visualisations are supported:
 \item \code{"heatmap"}: Severity levels per diagnostic rule and dimension.
 }
 }
+\keyword{internal}

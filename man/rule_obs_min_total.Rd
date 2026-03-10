@@ -20,3 +20,4 @@ Creates a diagnostic rule that evaluates whether a data cube contains a
 sufficient number of total observations, using a named vector of thresholds
 for severity classification.
 }
+\keyword{internal}

@@ -21,3 +21,4 @@ sufficient number of taxonomical observations (taxa). The rule counts
 the number of unique taxa present in the cube and compares it to a
 threshold to determine the severity level.
 }
+\keyword{internal}

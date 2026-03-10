@@ -21,3 +21,4 @@ sufficient number of observation records (rows). The rule counts
 the number of records present in the cube and compares it to a
 threshold to determine the severity level.
 }
+\keyword{internal}

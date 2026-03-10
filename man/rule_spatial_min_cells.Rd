@@ -21,3 +21,4 @@ sufficient number of spatial observations (grid cells). The rule counts
 the number of unique grid cells present in the cube and compares it to a
 threshold to determine the severity level.
 }
+\keyword{internal}

@@ -15,3 +15,4 @@
 \description{
 Displays a human-readable summary of data cube diagnostics.
 }
+\keyword{internal}

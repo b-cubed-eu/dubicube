@@ -36,6 +36,7 @@
 #' Default thresholds are used.
 #'
 #' @export
+#' @keywords internal
 
 basic_cube_rules <- function() {
   list(
@@ -70,6 +71,7 @@ basic_cube_rules <- function() {
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_temporal_min_years <- function(
   thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
@@ -128,6 +130,7 @@ rule_temporal_min_years <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_temporal_missing_years <- function(
   thresholds = c(ok = 0, note = 1, important = 3, very_important = NULL)
@@ -189,6 +192,7 @@ rule_temporal_missing_years <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_spatial_min_cells <- function(
   thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
@@ -249,6 +253,7 @@ rule_spatial_min_cells <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_spatial_max_uncertainty <- function(
   thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
@@ -325,6 +330,7 @@ rule_spatial_max_uncertainty <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_spatial_miss_uncertainty <- function(
   thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
@@ -392,6 +398,7 @@ rule_spatial_miss_uncertainty <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_taxon_min_taxa <- function(
   thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
@@ -452,6 +459,7 @@ rule_taxon_min_taxa <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_obs_min_records <- function(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
@@ -512,6 +520,7 @@ rule_obs_min_records <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
+#' @keywords internal
 
 rule_obs_min_total <- function(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)

@@ -21,3 +21,4 @@ records with missing coordinate uncertainty. The rule counts the number of
 records (rows) with missing coordinate uncertainty and compares it to a
 threshold to determine the severity level.
 }
+\keyword{internal}

@@ -23,6 +23,7 @@
 #' }
 #'
 #' @method print cube_diagnostics
+#' @keywords internal
 #' @export
 
 print.cube_diagnostics <- function(
@@ -94,6 +95,7 @@ print.cube_diagnostics <- function(
 #' aggregated diagnostic information.
 #'
 #' @method summary cube_diagnostics
+#' @keywords internal
 #' @export
 
 summary.cube_diagnostics <- function(object, ...) {
@@ -126,6 +128,7 @@ summary.cube_diagnostics <- function(object, ...) {
 #' `summary(diagnose_cube(...))`.
 #' @param ... Additional arguments passed to other methods (currently unused).
 #'
+#' @keywords internal
 #' @export
 
 print.summary_cube_diagnostics <- function(x, ...) {
@@ -173,6 +176,7 @@ print.summary_cube_diagnostics <- function(x, ...) {
 #' }
 #'
 #' @method plot cube_diagnostics
+#' @keywords internal
 #' @export
 #' @import ggplot2
 #' @importFrom rlang .data

@@ -21,3 +21,4 @@ Provides a summary of diagnostic results returned by
 rules, counts per severity level, and the number of diagnostics
 per cube dimension.
 }
+\keyword{internal}

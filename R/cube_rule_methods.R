@@ -10,6 +10,7 @@
 #' @return The input object, invisibly.
 #'
 #' @export
+#' @keywords internal
 
 print.cube_rule <- function(x, ...) {
   cat("<cube_rule>\n")

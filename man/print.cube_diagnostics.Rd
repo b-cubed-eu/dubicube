@@ -34,3 +34,4 @@ Severity levels are indicated using coloured symbols:
 \item 🔴 very important
 }
 }
+\keyword{internal}

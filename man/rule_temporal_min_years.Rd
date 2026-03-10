@@ -21,3 +21,4 @@ sufficient number of temporal observations (years). The rule counts
 the number of unique years present in the cube and compares it to a
 threshold to determine the severity level.
 }
+\keyword{internal}

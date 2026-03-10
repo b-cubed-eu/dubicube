@@ -19,3 +19,4 @@ Prints a concise summary of a diagnostic rule used by
 \code{\link[=diagnose_cube]{diagnose_cube()}}. The output shows the rule identifier,
 cube dimension, and threshold used to determine severity.
 }
+\keyword{internal}

@@ -38,6 +38,7 @@ test_that("diagnose_cube returns cube_diagnostics object", {
   res <- diagnose_cube(cube, verbose = FALSE)
 
   expect_s3_class(res, "cube_diagnostics")
+  expect_output(diagnose_cube(cube))
 })
 
 test_that("all basic rules are evaluated", {

@@ -1,6 +1,7 @@
 # dubicube 0.12.0
 
 * Implement data quality diagnostics for `processed_cube` objects #90
+* Implement data filtering for `processed_cube` objects based on diagnostics #90
 
 # dubicube 0.11.1
 

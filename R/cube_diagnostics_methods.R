@@ -16,10 +16,10 @@
 #' @details
 #' Severity levels are indicated using coloured symbols:
 #' \itemize{
-#'   \item 🟢 ok
-#'   \item 🟡 note
-#'   \item 🟠 important
-#'   \item 🔴 very important
+#'   \item green ball: ok
+#'   \item yellow ball: note
+#'   \item orange ball: important
+#'   \item red ball: very important
 #' }
 #'
 #' @method print cube_diagnostics
@@ -33,10 +33,10 @@ print.cube_diagnostics <- function(
     ...) {
   # Mapping between severity levels and visual symbols
   sev_symbols <- c(
-    ok = "🟢",
-    note = "🟡",
-    important = "🟠",
-    very_important = "🔴"
+    ok = "\U0001f7e2",            # green
+    note = "\U0001f7e1",          # yellow
+    important = "\U0001f7e0",     # orange
+    very_important = "\U0001f534" # red
   )
 
   # Filter output

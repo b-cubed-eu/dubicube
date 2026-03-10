@@ -2,16 +2,6 @@ description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
   warnings:
-  - motivation: Will be fixed later
-    value: |-
-      checking code files for non-ASCII characters ... WARNING
-      Found the following file with non-ASCII characters:
-        R/cube_diagnostics_methods.R
-      Portable packages must use only ASCII characters in their R code and
-      NAMESPACE directives, except perhaps in comments.
-      Use \uxxxx escapes for other characters.
-      Function 'tools::showNonASCIIfile' can help in finding non-ASCII
-      characters in files.
   - motivation: Packages only available via R-universe repos
     value: "checking CRAN incoming feasibility ... WARNING\nMaintainer: 'Ward Langeraert
       <ward.langeraert@inbo.be>'\n\nNew submission\n\nUnknown, possibly misspelled,

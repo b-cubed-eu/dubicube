@@ -28,10 +28,10 @@ the metric name, and a short explanatory message.
 \details{
 Severity levels are indicated using coloured symbols:
 \itemize{
-\item 🟢 ok
-\item 🟡 note
-\item 🟠 important
-\item 🔴 very important
+\item green ball: ok
+\item yellow ball: note
+\item orange ball: important
+\item red ball: very important
 }
 }
 \keyword{internal}

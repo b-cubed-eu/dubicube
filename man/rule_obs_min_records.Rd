@@ -8,6 +8,10 @@ rule_obs_min_records(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
 )
 }
+\arguments{
+\item{thresholds}{Named numeric vector with severity thresholds:
+ok, note, important, very_important. Defaults are used if not provided.}
+}
 \value{
 An object of class \code{cube_rule}.
 }

@@ -446,6 +446,9 @@ rule_taxon_min_taxa <- function(
 #' the number of records present in the cube and compares it to a
 #' threshold to determine the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
 #'
 #' @export

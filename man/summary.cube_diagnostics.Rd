@@ -4,10 +4,10 @@
 \alias{summary.cube_diagnostics}
 \title{Summarise cube diagnostics}
 \usage{
-\method{summary}{cube_diagnostics}(x, ...)
+\method{summary}{cube_diagnostics}(object, ...)
 }
 \arguments{
-\item{x}{A \code{cube_diagnostics} object returned by \code{diagnose_cube()}.}
+\item{object}{A \code{cube_diagnostics} object returned by \code{diagnose_cube()}.}
 
 \item{...}{Additional arguments passed to other methods (currently unused).}
 }

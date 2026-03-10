@@ -87,7 +87,7 @@ print.cube_diagnostics <- function(
 #' rules, counts per severity level, and the number of diagnostics
 #' per cube dimension.
 #'
-#' @param x A `cube_diagnostics` object returned by `diagnose_cube()`.
+#' @param object A `cube_diagnostics` object returned by `diagnose_cube()`.
 #' @param ... Additional arguments passed to other methods (currently unused).
 #'
 #' @return An object of class `summary_cube_diagnostics`, containing
@@ -96,18 +96,18 @@ print.cube_diagnostics <- function(
 #' @method summary cube_diagnostics
 #' @export
 
-summary.cube_diagnostics <- function(x, ...) {
+summary.cube_diagnostics <- function(object, ...) {
   # Count diagnostics by severity
-  severity_counts <- table(x$severity)
+  severity_counts <- table(object$severity)
 
   # Count diagnostics by dimension
-  dimension_counts <- table(x$dimension)
+  dimension_counts <- table(object$dimension)
 
   # Diagnostics that are not ok
-  flagged <- x[x$severity != "ok", , drop = FALSE]
+  flagged <- object[object$severity != "ok", , drop = FALSE]
 
   out <- list(
-    n_rules = nrow(x),
+    n_rules = nrow(object),
     severity = severity_counts,
     dimensions = dimension_counts,
     flagged = flagged
@@ -121,6 +121,10 @@ summary.cube_diagnostics <- function(x, ...) {
 #' Print summary diagnostics
 #'
 #' Displays a human-readable summary of data cube diagnostics.
+#'
+#' @param x A `summary_cube_diagnostics` object returned by
+#' `summary(diagnose_cube(...))`.
+#' @param ... Additional arguments passed to other methods (currently unused).
 #'
 #' @export
 

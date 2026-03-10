@@ -12,7 +12,7 @@
 #' \itemize{
 #'   \item `id` – name of the diagnostic metric
 #'   \item `dimension` – cube dimension being evaluated (e.g. temporal)
-#'   \item `threshold` – reference value used to determine severity
+#'   \item `thresholds` – reference values used to determine severity
 #'   \item `compute()` – function that calculates the metric
 #'   \item `severity()` – function assigning a severity level
 #'   \item `message()` – function generating a human-readable message
@@ -71,7 +71,9 @@ basic_cube_rules <- function() {
 #'
 #' @export
 
-rule_temporal_min_years <- function() {
+rule_temporal_min_years <- function(
+  thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "temporal_min_points",
@@ -80,7 +82,7 @@ rule_temporal_min_years <- function() {
     dimension = "temporal",
 
     # Minimum recommended number of years
-    threshold = 5,
+    thresholds = thresholds ,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -93,10 +95,10 @@ rule_temporal_min_years <- function() {
       length(unique(data$year))
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "ok"
-      else if (value >= 3) "note"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["ok"]) "ok"
+      else if (value >= thresholds["note"]) "note"
       else "important"
     },
 
@@ -127,7 +129,9 @@ rule_temporal_min_years <- function() {
 #'
 #' @export
 
-rule_temporal_missing_years <- function() {
+rule_temporal_missing_years <- function(
+  thresholds = c(ok = 0, note = 1, important = 3, very_important = NULL)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "temporal_missing_years",
@@ -136,7 +140,7 @@ rule_temporal_missing_years <- function() {
     dimension = "temporal",
 
     # Threshold number of missing years
-    threshold = 3,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -150,10 +154,10 @@ rule_temporal_missing_years <- function() {
       length(control_years) - length(unique(data$year))
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "important"
-      else if (value >= 1) "note"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["important"]) "important"
+      else if (value >= thresholds["note"]) "note"
       else "ok"
     },
 
@@ -186,7 +190,9 @@ rule_temporal_missing_years <- function() {
 #'
 #' @export
 
-rule_spatial_min_cells <- function() {
+rule_spatial_min_cells <- function(
+  thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "spatial_min_cells",
@@ -195,7 +201,7 @@ rule_spatial_min_cells <- function() {
     dimension = "spatial",
 
     # Minimum recommended number of grid cells
-    threshold = 5,
+    thresholds = thresholds ,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -208,10 +214,10 @@ rule_spatial_min_cells <- function() {
       length(unique(data$cellCode))
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "ok"
-      else if (value >= 3) "note"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["ok"]) "ok"
+      else if (value >= thresholds["note"]) "note"
       else "important"
     },
 
@@ -244,7 +250,9 @@ rule_spatial_min_cells <- function() {
 #'
 #' @export
 
-rule_spatial_max_uncertainty <- function() {
+rule_spatial_max_uncertainty <- function(
+  thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "spatial_max_uncertainty",
@@ -253,7 +261,7 @@ rule_spatial_max_uncertainty <- function() {
     dimension = "spatial",
 
     # Threshold number of records with high coordinate uncertainty
-    threshold = 5,
+    thresholds = thresholds ,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -273,11 +281,11 @@ rule_spatial_max_uncertainty <- function() {
       )
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "very_important"
-      else if (value >= 3) "important"
-      else if (value >= 1) "note"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["very_important"]) "very_important"
+      else if (value >= thresholds["important"]) "important"
+      else if (value >= thresholds["note"]) "note"
       else "ok"
     },
 
@@ -318,7 +326,9 @@ rule_spatial_max_uncertainty <- function() {
 #'
 #' @export
 
-rule_spatial_miss_uncertainty <- function() {
+rule_spatial_miss_uncertainty <- function(
+  thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "spatial_miss_uncertainty",
@@ -327,7 +337,7 @@ rule_spatial_miss_uncertainty <- function() {
     dimension = "spatial",
 
     # Threshold number of records with missing coordinate uncertainty
-    threshold = 5,
+    thresholds = thresholds ,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -340,11 +350,11 @@ rule_spatial_miss_uncertainty <- function() {
       sum(is.na(data$minCoordinateUncertaintyInMeters))
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "very_important"
-      else if (value >= 3) "important"
-      else if (value >= 1) "note"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["very_important"]) "very_important"
+      else if (value >= thresholds["important"]) "important"
+      else if (value >= thresholds["note"]) "note"
       else "ok"
     },
 
@@ -383,7 +393,9 @@ rule_spatial_miss_uncertainty <- function() {
 #'
 #' @export
 
-rule_taxon_min_taxa <- function() {
+rule_taxon_min_taxa <- function(
+  thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "taxon_min_taxa",
@@ -392,7 +404,7 @@ rule_taxon_min_taxa <- function() {
     dimension = "taxonomic",
 
     # Minimum recommended number of taxa
-    threshold = 5,
+    thresholds = thresholds ,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -405,10 +417,10 @@ rule_taxon_min_taxa <- function() {
       length(unique(data$taxonKey))
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "ok"
-      else if (value >= 3) "note"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["ok"]) "ok"
+      else if (value >= thresholds["note"]) "note"
       else "important"
     },
 
@@ -438,7 +450,9 @@ rule_taxon_min_taxa <- function() {
 #'
 #' @export
 
-rule_obs_min_records <- function() {
+rule_obs_min_records <- function(
+  thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "obs_min_records",
@@ -447,7 +461,7 @@ rule_obs_min_records <- function() {
     dimension = "observation",
 
     # Minimum recommended number of observation records
-    threshold = 40,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -460,11 +474,11 @@ rule_obs_min_records <- function() {
       nrow(data)
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "ok"
-      else if (value >= 30) "note"
-      else if (value >= 20) "important"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["ok"]) "ok"
+      else if (value >= thresholds["note"]) "note"
+      else if (value >= thresholds["important"]) "important"
       else "very_important"
     },
 

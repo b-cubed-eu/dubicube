@@ -16,6 +16,7 @@ test_that("print.cube_diagnostics runs and produces output", {
   expect_output(print(x), "Data cube diagnostics")
   expect_output(print(x, filter_summary = "note"), "Data cube diagnostics")
   expect_output(print(x, sort_summary = "asc"), "Data cube diagnostics")
+  expect_output(print(x, sort_summary = "desc"), "Data cube diagnostics")
   expect_error(print(x, sort_summary = "invalid"), "`sort_summary` must be")
 })
 
@@ -38,7 +39,20 @@ test_that("summary.cube_diagnostics returns correct structure", {
 # ------------------------------
 test_that("print.summary_cube_diagnostics runs and produces output", {
   s <- summary(x)
+
   expect_output(print(s), "<cube_diagnostics_summary>")
+
+  # All ok
+  x <- data.frame(
+    metric = c("m1", "m2", "m3", "m4"),
+    dimension = c("temporal", "temporal", "spatial", "taxonomical"),
+    severity = rep("ok", 4),
+    message = c("msg1", "msg2", "msg3", "msg4")
+  )
+  class(x) <- c("cube_diagnostics", class(x))
+  s <- summary(x)
+
+  expect_output(print(s), "All diagnostics are OK.")
 })
 
 # ------------------------------

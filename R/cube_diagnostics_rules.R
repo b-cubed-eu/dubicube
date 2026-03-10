@@ -32,6 +32,10 @@
 #' - `rule_taxon_min_taxa()`: Number of taxa
 #' - `rule_obs_min_records()`: Number of records (rows)
 #' - `rule_obs_min_total()`: Total number of observations (sum)
+#'
+#' Default thresholds are used.
+#'
+#' @export
 
 basic_cube_rules <- function() {
   list(
@@ -60,7 +64,12 @@ basic_cube_rules <- function() {
 #' the number of unique years present in the cube and compares it to a
 #' threshold to determine the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_temporal_min_years <- function() {
   rule <- list(
@@ -111,7 +120,12 @@ rule_temporal_min_years <- function() {
 #' missing years. The rule counts the number of missing years present in the
 #' cube and compares it to a threshold to determine the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_temporal_missing_years <- function() {
   rule <- list(
@@ -165,7 +179,12 @@ rule_temporal_missing_years <- function() {
 #' the number of unique grid cells present in the cube and compares it to a
 #' threshold to determine the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_spatial_min_cells <- function() {
   rule <- list(
@@ -218,7 +237,12 @@ rule_spatial_min_cells <- function() {
 #' than the resolution of the grid, and compares it to a threshold to determine
 #' the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_spatial_max_uncertainty <- function() {
   rule <- list(
@@ -287,7 +311,12 @@ rule_spatial_max_uncertainty <- function() {
 #' records (rows) with missing coordinate uncertainty and compares it to a
 #' threshold to determine the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_spatial_miss_uncertainty <- function() {
   rule <- list(
@@ -347,7 +376,12 @@ rule_spatial_miss_uncertainty <- function() {
 #' the number of unique taxa present in the cube and compares it to a
 #' threshold to determine the severity level.
 #'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
+#'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_taxon_min_taxa <- function() {
   rule <- list(
@@ -401,6 +435,8 @@ rule_taxon_min_taxa <- function() {
 #' threshold to determine the severity level.
 #'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_obs_min_records <- function() {
   rule <- list(
@@ -457,6 +493,8 @@ rule_obs_min_records <- function() {
 #' ok, note, important, very_important. Defaults are used if not provided.
 #'
 #' @return An object of class `cube_rule`.
+#'
+#' @export
 
 rule_obs_min_total <- function(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)

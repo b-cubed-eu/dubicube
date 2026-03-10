@@ -2,7 +2,7 @@
 % Please edit documentation in R/cube_diagnostics_methods.R
 \name{print.cube_diagnostics}
 \alias{print.cube_diagnostics}
-\title{Print method for cube_diagnostics objects}
+\title{Print cube diagnostics}
 \usage{
 \method{print}{cube_diagnostics}(x, filter_summary = "ok", sort_summary = NA, ...)
 }
@@ -13,8 +13,7 @@
 level. Default, all levels are shown: \code{filter_summary = "ok"}.}
 
 \item{sort_summary}{Sort the summary output based on severity level. Options
-are descending (\code{"desc"}), ascending (\code{"asc"}) or no sorting (\code{NA}, default).
-Default, all levels are shown: \code{filter_summary = "ok"}.}
+are descending (\code{"desc"}), ascending (\code{"asc"}) or no sorting (\code{NA}, default).}
 
 \item{...}{Additional arguments passed to other methods (currently unused).}
 }

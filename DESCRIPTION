@@ -28,6 +28,7 @@ Imports:
     data.table,
     dplyr,
     effectclass,
+    ggplot2,
     modelr,
     purrr,
     rlang,
@@ -35,7 +36,6 @@ Imports:
 Suggests:
     b3gbi,
     frictionless,
-    ggplot2,
     testthat (>= 3.0.0),
     tidyr
 Remotes: 

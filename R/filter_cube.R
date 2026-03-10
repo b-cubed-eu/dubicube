@@ -6,8 +6,8 @@
 #' functions.
 #'
 #' @param data_cube A `processed_cube` object.
-#' @param rules Character vector or list of cube rule objects. Passed to
-#' [resolve_cube_rules()]. Ignored if `diagnostics` is supplied.
+#' @param rules Character vector or list of cube rule objects.
+#' Ignored if `diagnostics` is supplied.
 #' @param diagnostics Optional `cube_diagnostics` object returned by
 #' [diagnose_cube()]. If provided, rules are extracted from this object.
 #' @param ... Additional arguments passed to rule-specific `filter_fn()`

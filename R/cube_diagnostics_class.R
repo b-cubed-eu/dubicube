@@ -24,6 +24,8 @@
 #' }
 #'
 #' This function is intended for internal use in \code{diagnose_cube()}.
+#'
+#' @noRd
 
 new_cube_diagnostics <- function(x) {
   # Validate structure of diagnostics table
@@ -46,6 +48,8 @@ new_cube_diagnostics <- function(x) {
 #'
 #' @return The validated object `x`. An error is thrown if required columns are
 #' missing.
+#'
+#' @noRd
 
 validate_cube_diagnostics <- function(x) {
   # Required columns describing each diagnostic metric

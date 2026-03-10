@@ -21,6 +21,8 @@
 #'   \item{severity}{Function assigning a severity level.}
 #'   \item{message}{Function generating a human-readable message.}
 #' }
+#'
+#' @noRd
 
 new_cube_rule <- function(x) {
   # Validate rule structure
@@ -42,6 +44,8 @@ new_cube_rule <- function(x) {
 #' @param x A list describing a diagnostic rule.
 #'
 #' @return The validated rule object `x`.
+#'
+#' @noRd
 
 validate_cube_rule <- function(x) {
   # Required columns describing the rule

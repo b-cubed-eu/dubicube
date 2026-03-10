@@ -20,6 +20,8 @@
 #' The conversion from degrees to meters assumes an approximate value at the
 #' equator (1 degree ≈ 111,320 meters). This approximation is sufficient for
 #' diagnostic purposes but may vary with latitude.
+#'
+#' @noRd
 
 resolution_to_meters <- function(res) {
   # km resolution
@@ -54,6 +56,8 @@ resolution_to_meters <- function(res) {
 #' }
 #'
 #' @return A flat list of rule objects ready for evaluation.
+#'
+#' @noRd
 
 resolve_cube_rules <- function(rules) {
   # If rules are provided as character names of rule sets,
@@ -91,6 +95,8 @@ resolve_cube_rules <- function(rules) {
 #' @param name Character string identifying the rule set.
 #'
 #' @return A list of diagnostic rule objects.
+#'
+#' @noRd
 
 get_cube_rule_set <- function(name) {
   switch(

@@ -9,8 +9,8 @@ filter_cube(data_cube, rules = NULL, diagnostics = NULL, ...)
 \arguments{
 \item{data_cube}{A \code{processed_cube} object.}
 
-\item{rules}{Character vector or list of cube rule objects. Passed to
-\code{\link[=resolve_cube_rules]{resolve_cube_rules()}}. Ignored if \code{diagnostics} is supplied.}
+\item{rules}{Character vector or list of cube rule objects.
+Ignored if \code{diagnostics} is supplied.}
 
 \item{diagnostics}{Optional \code{cube_diagnostics} object returned by
 \code{\link[=diagnose_cube]{diagnose_cube()}}. If provided, rules are extracted from this object.}

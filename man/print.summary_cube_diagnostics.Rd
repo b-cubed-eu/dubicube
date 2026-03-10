@@ -6,6 +6,12 @@
 \usage{
 \method{print}{summary_cube_diagnostics}(x, ...)
 }
+\arguments{
+\item{x}{A \code{summary_cube_diagnostics} object returned by
+\code{summary(diagnose_cube(...))}.}
+
+\item{...}{Additional arguments passed to other methods (currently unused).}
+}
 \description{
 Displays a human-readable summary of data cube diagnostics.
 }

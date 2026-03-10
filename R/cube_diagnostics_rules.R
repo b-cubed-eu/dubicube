@@ -82,7 +82,7 @@ rule_temporal_min_years <- function(
     dimension = "temporal",
 
     # Minimum recommended number of years
-    thresholds = thresholds ,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -201,7 +201,7 @@ rule_spatial_min_cells <- function(
     dimension = "spatial",
 
     # Minimum recommended number of grid cells
-    thresholds = thresholds ,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -261,7 +261,7 @@ rule_spatial_max_uncertainty <- function(
     dimension = "spatial",
 
     # Threshold number of records with high coordinate uncertainty
-    thresholds = thresholds ,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -337,7 +337,7 @@ rule_spatial_miss_uncertainty <- function(
     dimension = "spatial",
 
     # Threshold number of records with missing coordinate uncertainty
-    thresholds = thresholds ,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -404,7 +404,7 @@ rule_taxon_min_taxa <- function(
     dimension = "taxonomic",
 
     # Minimum recommended number of taxa
-    thresholds = thresholds ,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {

@@ -48,7 +48,7 @@ validate_cube_rule <- function(x) {
   required <- c(
     "id",
     "dimension",
-    "threshold",
+    "thresholds",
     "compute",
     "severity",
     "message"

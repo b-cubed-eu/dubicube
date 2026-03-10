@@ -19,23 +19,19 @@
 #' @param ... Additional arguments passed to `print.cube_diagnostics()` in case
 #'   `verbose = TRUE`.
 #'
-#' @return An object of class `cube_diagnostics`, containing a data frame with
-#'   the following columns:
+#' @return An object of class `cube_diagnostics`, containing one row
+#' per metric with the following columns:
 #'   \describe{
 #'   \item{dimension}{Dimension of the cube being evaluated
 #'   (e.g. `"spatial"`, `"temporal"`, `"taxonomical"`).}
 #'   \item{metric}{Name of the diagnostic metric.}
 #'   \item{value}{Computed metric value.}
-#'   \item{threshold}{Reference threshold used to determine severity.}
 #'   \item{severity}{Severity level (`"ok"`, `"note"`, `"important"`,
 #'   `"very_important"`).}
 #'   \item{message}{Human-readable description of the diagnostic result.}
-#'   }
+#' }
 #'
-#' @details
-#' Diagnostics are returned as a `cube_diagnostics` object containing one row
-#' per metric with the evaluated value, threshold, severity level and an
-#' explanatory message.
+#' The rule objects are attached as an attribute of the diagnostics object.
 #'
 #' @export
 #'
@@ -45,8 +41,8 @@
 #' \dontrun{
 #' # After processing a data cube with b3gbi::process_cube()
 #' diag <- diagnose_cube(processed_cube)
-#' diag
 #' }
+
 diagnose_cube <- function(
     cube,
     rules = "basic",
@@ -61,15 +57,14 @@ diagnose_cube <- function(
   results <- lapply(rules, function(rule) {
     # Compute diagnostic values
     value <- rule$compute(cube)
-    severity <- rule$severity(value, rule$threshold)
-    message <- rule$message(value, rule$threshold)
+    severity <- rule$severity(value, rule$thresholds)
+    message <- rule$message(value)
 
     # Return diagnostic row
     data.frame(
       dimension = rule$dimension,
       metric = rule$id,
       value = value,
-      threshold = rule$threshold,
       severity = severity,
       message = message,
       stringsAsFactors = FALSE
@@ -81,6 +76,8 @@ diagnose_cube <- function(
 
   # Create cube_diagnostics object
   diagnostics <- new_cube_diagnostics(diagnostics)
+  # Attach rule definitions
+  attr(diagnostics, "rules") <- rules
 
   # Print summary if requested
   if (verbose) {

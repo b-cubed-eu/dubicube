@@ -92,7 +92,7 @@ rule_temporal_min_years <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains observations across",
         value,
@@ -101,6 +101,7 @@ rule_temporal_min_years <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
@@ -143,7 +144,7 @@ rule_temporal_missing_years <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains",
         value,
@@ -152,6 +153,7 @@ rule_temporal_missing_years <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
@@ -195,7 +197,7 @@ rule_spatial_min_cells <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains observations across",
         value,
@@ -204,6 +206,7 @@ rule_spatial_min_cells <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
@@ -255,7 +258,7 @@ rule_spatial_max_uncertainty <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains",
         value,
@@ -272,6 +275,7 @@ rule_spatial_max_uncertainty <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
@@ -316,7 +320,7 @@ rule_spatial_miss_uncertainty <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains",
         value,
@@ -331,6 +335,7 @@ rule_spatial_miss_uncertainty <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
@@ -374,7 +379,7 @@ rule_taxon_min_taxa <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains observations across",
         value,
@@ -383,6 +388,7 @@ rule_taxon_min_taxa <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
@@ -427,7 +433,7 @@ rule_obs_min_records <- function() {
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains",
         value,
@@ -436,20 +442,25 @@ rule_obs_min_records <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }
 
 
-#' Minimum total number of observations diagnostic rule
+#' Minimum total number of observations diagnostic rule (multi-threshold)
 #'
 #' Creates a diagnostic rule that evaluates whether a data cube contains a
-#' sufficient number of total observations. The rule sums
-#' the number of observations present in the cube and compares it to a
-#' threshold to determine the severity level.
+#' sufficient number of total observations, using a named vector of thresholds
+#' for severity classification.
+#'
+#' @param thresholds Named numeric vector with severity thresholds:
+#' ok, note, important, very_important. Defaults are used if not provided.
 #'
 #' @return An object of class `cube_rule`.
 
-rule_obs_min_total <- function() {
+rule_obs_min_total <- function(
+  thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
+) {
   rule <- list(
     # Unique identifier for the diagnostic metric
     id = "obs_min_total",
@@ -458,7 +469,7 @@ rule_obs_min_total <- function() {
     dimension = "observation",
 
     # Minimum recommended number of observations
-    threshold = 40,
+    thresholds = thresholds,
 
     # Function computing the diagnostic metric
     compute = function(cube) {
@@ -471,16 +482,16 @@ rule_obs_min_total <- function() {
       sum(data$obs, na.rm = TRUE)
     },
 
-    # Function assigning a severity level
-    severity = function(value, threshold) {
-      if (value >= threshold) "ok"
-      else if (value >= 30) "note"
-      else if (value >= 20) "important"
+    # Function assigning severity based on named thresholds
+    severity = function(value, thresholds) {
+      if (value >= thresholds["ok"]) "ok"
+      else if (value >= thresholds["note"]) "note"
+      else if (value >= thresholds["important"]) "important"
       else "very_important"
     },
 
     # Function generating a descriptive message
-    message = function(value, threshold) {
+    message = function(value) {
       paste(
         "Cube contains a total of",
         value,
@@ -489,5 +500,6 @@ rule_obs_min_total <- function() {
     }
   )
 
+  # Return a cube_rule object
   return(new_cube_rule(rule))
 }

@@ -10,7 +10,6 @@ cube <- list(
 class(cube) <- "processed_cube"
 
 # Filtering based on a rule
-
 filtered_cube1 <- suppressWarnings(
   filter_cube(
     cube,
@@ -19,7 +18,6 @@ filtered_cube1 <- suppressWarnings(
 )
 
 # Diagnostics object used for filtering
-
 diag <- diagnose_cube(
   cube,
   rules = list(

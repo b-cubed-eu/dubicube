@@ -26,9 +26,9 @@ make_cube <- function(
   cube
 }
 
-################################################################################
-## Structural tests
-################################################################################
+# ------------------------------
+# Structural rules
+# ------------------------------
 test_that("diagnose_cube returns cube_diagnostics object", {
   cube <- make_cube(
     years = 2015:2020,
@@ -73,10 +73,9 @@ test_that("all basic rules are evaluated", {
   expect_identical(rules, basic_rules)
 })
 
-################################################################################
-## Temporal rules
-################################################################################
-
+# ------------------------------
+# Temporal rules
+# ------------------------------
 test_that("temporal_min_years severity levels", {
   # very few years -> important
   cube <- make_cube(
@@ -133,10 +132,9 @@ test_that("temporal_missing_years severity levels", {
 
 })
 
-################################################################################
-## Spatial rules
-################################################################################
-
+# ------------------------------
+# Spatial rules
+# ------------------------------
 test_that("spatial_min_cells severity levels", {
   cube <- make_cube(
     years = 2015:2020,
@@ -179,10 +177,9 @@ test_that("spatial_miss_uncertainty detects missing values", {
   )
 })
 
-################################################################################
-## Taxonomic rules
-################################################################################
-
+# ------------------------------
+# Taxonomic rules
+# ------------------------------
 test_that("taxon_min_taxa severity", {
   cube <- make_cube(
     years = 2015:2020,
@@ -197,10 +194,9 @@ test_that("taxon_min_taxa severity", {
   )
 })
 
-################################################################################
-## Observation rules
-################################################################################
-
+# ------------------------------
+# Observation rules
+# ------------------------------
 test_that("obs_min_records severity", {
   cube <- make_cube(
     years = 2019:2020,

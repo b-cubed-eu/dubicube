@@ -80,10 +80,4 @@ add_effect_classification(
 Onkelinx, T. (2023). effectclass: Classification and visualisation of effects
 [Computer software]. \url{https://inbo.github.io/effectclass/}
 }
-\seealso{
-Other indicator_uncertainty: 
-\code{\link{bootstrap_cube}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{calculate_bootstrap_ci}()}
-}
-\concept{indicator_uncertainty}
+\concept{indicator_interpretation}

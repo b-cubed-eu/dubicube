@@ -45,18 +45,40 @@ articles:
     - articles/visualising-spatial-trends
 
 reference:
-  - title: "Data variability and exploration"
+  - title: "1 Data variability and exploration"
+  - title: "&nbsp;&nbsp;Diagnostics and filtering"
     contents:
       - has_concept("data_exploration")
-  - title: "Indicator uncertainty and interpretation"
+  - title: "&nbsp;&nbsp;Sensitivity analysis"
+    contents:
+      - has_concept("data_sensitivity")
+
+  - title: "2 Indicator uncertainty and interpretation"
+  - title: "&nbsp;&nbsp;Bootstrapping and confidence interval calculation"
     contents:
       - has_concept("indicator_uncertainty")
-  - title: "Bootstrap interval helper functions"
+  - title: "&nbsp;&nbsp;Effect classification"
     contents:
-      - has_concept("interval_calculation")
-  - title: "Bootstrap helper functions"
+      - has_concept("indicator_interpretation")
+
+  - title: "3 Diagnostic utilities"
+  - title: "&nbsp;&nbsp;Diagnostic rule groups"
+    contents:
+      - has_concept("diagnostic_rule_group")
+  - title: "&nbsp;&nbsp;Diagnostic rules"
+    contents:
+      - has_concept("diagnostic_rules")
+  - title: "&nbsp;&nbsp;Diagnostic methods"
+    contents:
+      - has_concept("diagnostic_methods")
+
+  - title: "4 Bootstrap utilities"
+  - title: "&nbsp;&nbsp;Bootstrap helpers"
     contents:
       - has_concept("indicator_uncertainty_helper")
+  - title: "&nbsp;&nbsp;Bootstrap interval types"
+    contents:
+      - has_concept("interval_calculation")
 
 authors:
   European Union (ID 101059592):

@@ -22,9 +22,11 @@
 #'   \item red ball: very important
 #' }
 #'
-#' @method print cube_diagnostics
-#' @keywords internal
 #' @export
+#'
+#' @method print cube_diagnostics
+#' @family diagnostic_methods
+
 
 print.cube_diagnostics <- function(
     x,
@@ -94,9 +96,10 @@ print.cube_diagnostics <- function(
 #' @return An object of class `summary_cube_diagnostics`, containing
 #' aggregated diagnostic information.
 #'
-#' @method summary cube_diagnostics
-#' @keywords internal
 #' @export
+#'
+#' @method summary cube_diagnostics
+#' @family diagnostic_methods
 
 summary.cube_diagnostics <- function(object, ...) {
   # Count diagnostics by severity
@@ -128,8 +131,12 @@ summary.cube_diagnostics <- function(object, ...) {
 #' `summary(diagnose_cube(...))`.
 #' @param ... Additional arguments passed to other methods (currently unused).
 #'
-#' @keywords internal
+#' @return The input object `x`, returned invisibly.
+#'
 #' @export
+#'
+#' @method print cube_diagnostics
+#' @keywords internal
 
 print.summary_cube_diagnostics <- function(x, ...) {
   cat("<cube_diagnostics_summary>\n\n")
@@ -175,9 +182,11 @@ print.summary_cube_diagnostics <- function(x, ...) {
 #' \item `"heatmap"`: Severity levels per diagnostic rule and dimension.
 #' }
 #'
-#' @method plot cube_diagnostics
-#' @keywords internal
 #' @export
+#'
+#' @method plot cube_diagnostics
+#' @family diagnostic_methods
+#'
 #' @import ggplot2
 #' @importFrom rlang .data
 

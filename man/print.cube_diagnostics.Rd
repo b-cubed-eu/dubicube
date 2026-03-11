@@ -34,4 +34,9 @@ Severity levels are indicated using coloured symbols:
 \item red ball: very important
 }
 }
-\keyword{internal}
+\seealso{
+Other diagnostic_methods: 
+\code{\link{plot.cube_diagnostics}()},
+\code{\link{summary.cube_diagnostics}()}
+}
+\concept{diagnostic_methods}

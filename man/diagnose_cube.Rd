@@ -2,7 +2,7 @@
 % Please edit documentation in R/diagnose_cube.R
 \name{diagnose_cube}
 \alias{diagnose_cube}
-\title{Diagnose data quality of a processed_cube}
+\title{Diagnose data quality of a processed data cube}
 \usage{
 diagnose_cube(data_cube, rules = "basic", verbose = TRUE, ...)
 }
@@ -69,7 +69,6 @@ diag <- diagnose_cube(processed_cube, filter_summary = "important")
 }
 \seealso{
 Other data_exploration: 
-\code{\link{cross_validate_cube}()},
 \code{\link{filter_cube}()}
 }
 \concept{data_exploration}

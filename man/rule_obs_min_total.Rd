@@ -2,7 +2,7 @@
 % Please edit documentation in R/cube_diagnostics_rules.R
 \name{rule_obs_min_total}
 \alias{rule_obs_min_total}
-\title{Minimum total number of observations diagnostic rule (multi-threshold)}
+\title{Minimum total number of observations diagnostic rule}
 \usage{
 rule_obs_min_total(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
@@ -20,4 +20,14 @@ Creates a diagnostic rule that evaluates whether a data cube contains a
 sufficient number of total observations, using a named vector of thresholds
 for severity classification.
 }
-\keyword{internal}
+\seealso{
+Other diagnostic_rules: 
+\code{\link{rule_obs_min_records}()},
+\code{\link{rule_spatial_max_uncertainty}()},
+\code{\link{rule_spatial_min_cells}()},
+\code{\link{rule_spatial_miss_uncertainty}()},
+\code{\link{rule_taxon_min_taxa}()},
+\code{\link{rule_temporal_min_years}()},
+\code{\link{rule_temporal_missing_years}()}
+}
+\concept{diagnostic_rules}

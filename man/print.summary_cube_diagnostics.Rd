@@ -4,13 +4,16 @@
 \alias{print.summary_cube_diagnostics}
 \title{Print summary diagnostics}
 \usage{
-\method{print}{summary_cube_diagnostics}(x, ...)
+\method{print}{cube_diagnostics}(x, ...)
 }
 \arguments{
 \item{x}{A \code{summary_cube_diagnostics} object returned by
 \code{summary(diagnose_cube(...))}.}
 
 \item{...}{Additional arguments passed to other methods (currently unused).}
+}
+\value{
+The input object \code{x}, returned invisibly.
 }
 \description{
 Displays a human-readable summary of data cube diagnostics.

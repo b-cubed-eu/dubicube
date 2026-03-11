@@ -30,4 +30,9 @@ Three visualisations are supported:
 \item \code{"heatmap"}: Severity levels per diagnostic rule and dimension.
 }
 }
-\keyword{internal}
+\seealso{
+Other diagnostic_methods: 
+\code{\link{print.cube_diagnostics}()},
+\code{\link{summary.cube_diagnostics}()}
+}
+\concept{diagnostic_methods}

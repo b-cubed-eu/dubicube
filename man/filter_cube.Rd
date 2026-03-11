@@ -82,7 +82,6 @@ identical(filtered_cube1$data, filtered_cube2$data)
 }
 \seealso{
 Other data_exploration: 
-\code{\link{cross_validate_cube}()},
 \code{\link{diagnose_cube}()}
 }
 \concept{data_exploration}

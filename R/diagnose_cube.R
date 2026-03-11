@@ -1,4 +1,4 @@
-#' Diagnose data quality of a processed_cube
+#' Diagnose data quality of a processed data cube
 #'
 #' Evaluates a set of diagnostic rules describing the data quality of a
 #' biodiversity occurrence cube. Each rule computes a metric

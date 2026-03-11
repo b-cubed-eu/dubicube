@@ -2,7 +2,7 @@
 % Please edit documentation in R/cube_diagnostics_rules.R
 \name{basic_cube_rules}
 \alias{basic_cube_rules}
-\title{Basic diagnostic rules for diagnose_cube}
+\title{Basic diagnostic rules for data cubes}
 \usage{
 basic_cube_rules()
 }
@@ -41,4 +41,4 @@ uncertainty
 
 Default thresholds are used.
 }
-\keyword{internal}
+\concept{diagnostic_rule_group}

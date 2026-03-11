@@ -185,9 +185,4 @@ cv_mean_obs <- cross_validate_cube(
 head(cv_mean_obs)
 }
 }
-\seealso{
-Other data_exploration: 
-\code{\link{diagnose_cube}()},
-\code{\link{filter_cube}()}
-}
-\concept{data_exploration}
+\concept{data_sensitivity}

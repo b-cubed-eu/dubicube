@@ -2,7 +2,7 @@
 ## Group rules
 ################################################################################
 
-#' Basic diagnostic rules for diagnose_cube
+#' Basic diagnostic rules for data cubes
 #'
 #' Returns basic diagnostic rules used by `diagnose_cube()`.
 #' Each rule defines how a specific data quality metric is computed and
@@ -36,7 +36,7 @@
 #' Default thresholds are used.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rule_group
 
 basic_cube_rules <- function() {
   structure(
@@ -74,7 +74,7 @@ basic_cube_rules <- function() {
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_temporal_min_years <- function(
   thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
@@ -133,7 +133,7 @@ rule_temporal_min_years <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_temporal_missing_years <- function(
   thresholds = c(ok = 0, note = 1, important = 3, very_important = NULL)
@@ -195,7 +195,7 @@ rule_temporal_missing_years <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_spatial_min_cells <- function(
   thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
@@ -256,7 +256,7 @@ rule_spatial_min_cells <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_spatial_max_uncertainty <- function(
   thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
@@ -333,7 +333,7 @@ rule_spatial_max_uncertainty <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_spatial_miss_uncertainty <- function(
   thresholds = c(ok = 0, note = 1, important = 3, very_important = 5)
@@ -401,7 +401,7 @@ rule_spatial_miss_uncertainty <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_taxon_min_taxa <- function(
   thresholds = c(ok = 5, note = 3, important = 0, very_important = NULL)
@@ -462,7 +462,7 @@ rule_taxon_min_taxa <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_obs_min_records <- function(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)
@@ -511,7 +511,7 @@ rule_obs_min_records <- function(
 }
 
 
-#' Minimum total number of observations diagnostic rule (multi-threshold)
+#' Minimum total number of observations diagnostic rule
 #'
 #' Creates a diagnostic rule that evaluates whether a data cube contains a
 #' sufficient number of total observations, using a named vector of thresholds
@@ -523,7 +523,7 @@ rule_obs_min_records <- function(
 #' @return An object of class `cube_rule`.
 #'
 #' @export
-#' @keywords internal
+#' @family diagnostic_rules
 
 rule_obs_min_total <- function(
   thresholds = c(ok = 40, note = 30, important = 20, very_important = 0)

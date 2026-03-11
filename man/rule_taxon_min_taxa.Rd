@@ -21,4 +21,14 @@ sufficient number of taxonomical observations (taxa). The rule counts
 the number of unique taxa present in the cube and compares it to a
 threshold to determine the severity level.
 }
-\keyword{internal}
+\seealso{
+Other diagnostic_rules: 
+\code{\link{rule_obs_min_records}()},
+\code{\link{rule_obs_min_total}()},
+\code{\link{rule_spatial_max_uncertainty}()},
+\code{\link{rule_spatial_min_cells}()},
+\code{\link{rule_spatial_miss_uncertainty}()},
+\code{\link{rule_temporal_min_years}()},
+\code{\link{rule_temporal_missing_years}()}
+}
+\concept{diagnostic_rules}

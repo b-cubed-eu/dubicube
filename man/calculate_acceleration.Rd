@@ -149,9 +149,10 @@ bootstrap acceleration constant. Computational Statistics & Data Analysis,
 9(3), 271–281. \doi{10.1016/0167-9473(90)90109-U}
 }
 \seealso{
-Other indicator_uncertainty: 
-\code{\link{add_effect_classification}()},
-\code{\link{bootstrap_cube}()},
-\code{\link{calculate_bootstrap_ci}()}
+Other indicator_uncertainty_helper: 
+\code{\link{boot_list_to_dataframe}()},
+\code{\link{bootstrap_cube_raw}()},
+\code{\link{calculate_boot_ci_from_boot}()},
+\code{\link{resolve_bootstrap_method}()}
 }
-\concept{indicator_uncertainty}
+\concept{indicator_uncertainty_helper}

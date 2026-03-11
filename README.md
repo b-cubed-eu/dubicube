@@ -52,14 +52,21 @@ The **dubicube** package offers:
 Gain insights into the structure and sensitivity of biodiversity data
 cubes.
 
+- `diagnose_cube()`  
+  Evaluate the quality of a processed data cube by applying a
+  set of diagnostic rules. 
+- `filter_cube()`  
+  Remove observations from a processed cube that do not meet
+  defined quality criteria.
+
+> 🛠 Tutorial coming soon
+
 - `cross_validate_cube()`  
   Perform cross-validation (leave-one-out or k-fold) to assess
   group-level sensitivity of indicators and evaluate how individual
   categories influence results.  
   📘 [Read the tutorial
   →](https://b-cubed-eu.github.io/dubicube/articles/group-level-sensitivity.html)
-
-> 🛠️ Additional data quality diagnostics are on the way!
 
 ### 📈 2. Estimating Indicator Uncertainty
 

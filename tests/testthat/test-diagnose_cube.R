@@ -69,7 +69,7 @@ test_that("all basic rules are evaluated", {
   )
 
   # Test attributes
-  rules <- attr(res, "rules")
+  rules <- structure(attr(res, "rules"), class = "cube_rule_list")
   expect_identical(rules, basic_rules)
 })
 

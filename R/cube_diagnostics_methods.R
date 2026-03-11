@@ -135,7 +135,7 @@ summary.cube_diagnostics <- function(object, ...) {
 #'
 #' @export
 #'
-#' @method print cube_diagnostics
+#' @method print summary_cube_diagnostics
 #' @keywords internal
 
 print.summary_cube_diagnostics <- function(x, ...) {

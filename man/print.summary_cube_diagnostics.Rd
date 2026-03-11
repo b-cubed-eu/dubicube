@@ -4,7 +4,7 @@
 \alias{print.summary_cube_diagnostics}
 \title{Print summary diagnostics}
 \usage{
-\method{print}{cube_diagnostics}(x, ...)
+\method{print}{summary_cube_diagnostics}(x, ...)
 }
 \arguments{
 \item{x}{A \code{summary_cube_diagnostics} object returned by

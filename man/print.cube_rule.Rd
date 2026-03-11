@@ -12,7 +12,7 @@
 \item{...}{Additional arguments passed to other methods (currently unused).}
 }
 \value{
-The input object, invisibly.
+The input object \code{x}, returned invisibly.
 }
 \description{
 Prints a concise summary of a diagnostic rule used by

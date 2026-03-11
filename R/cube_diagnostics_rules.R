@@ -39,17 +39,20 @@
 #' @keywords internal
 
 basic_cube_rules <- function() {
-  list(
-    rule_temporal_min_years(), # Number of years
-    rule_temporal_missing_years(), # Missing years
-    rule_spatial_min_cells(), # Number of grid cells
-    # Number of records where coord. uncertainty is larger than grid resolution
-    rule_spatial_max_uncertainty(),
-    # Number of records with missing coord. uncertainty
-    rule_spatial_miss_uncertainty(),
-    rule_taxon_min_taxa(), # Number of taxa
-    rule_obs_min_records(), # Number of records (rows)
-    rule_obs_min_total() # Total number of observations (sum)
+  structure(
+    list(
+      rule_temporal_min_years(), # Number of years
+      rule_temporal_missing_years(), # Missing years
+      rule_spatial_min_cells(), # Number of grid cells
+      # Number of records where coord. uncertainty > grid resolution
+      rule_spatial_max_uncertainty(),
+      # Number of records with missing coord. uncertainty
+      rule_spatial_miss_uncertainty(),
+      rule_taxon_min_taxa(), # Number of taxa
+      rule_obs_min_records(), # Number of records (rows)
+      rule_obs_min_total() # Total number of observations (sum)
+    ),
+    class = "cube_rule_list"
   )
 }
 

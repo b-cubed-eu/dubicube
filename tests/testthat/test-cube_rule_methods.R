@@ -4,10 +4,11 @@
 rule <- list(
   id = "obs_min_total",
   dimension = "observation",
-  threshold = 40,
+  thresholds = c(ok = 40),
   compute = function(x) NULL,
   severity = function(x, y) NULL,
-  message = function(x, y) NULL
+  message = function(x, y) NULL,
+  function_fn = function(x, y) NULL
 )
 class(rule) <- c("cube_rule", class(rule))
 
@@ -18,7 +19,7 @@ test_that("print.cube_rule runs and produces output", {
   expect_output(print(rule), "<cube_rule>")
   expect_output(print(rule), "id:")
   expect_output(print(rule), "dimension:")
-  expect_output(print(rule), "threshold:")
+  expect_output(print(rule), "thresholds:")
   expect_output(print(rule), "Functions:")
 })
 

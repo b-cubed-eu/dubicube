@@ -23,15 +23,20 @@ print.cube_rule <- function(x, ...) {
     cat("  dimension: ", x$dimension, "\n", sep = "")
   }
 
-  if (!is.null(x$threshold)) {
-    cat("  threshold: ", x$threshold, "\n", sep = "")
+  if (!is.null(x$thresholds)) {
+    thr <- paste(names(x$thresholds), x$thresholds, sep = " = ")
+    cat("  thresholds: ", paste(thr, collapse = ", "), "\n", sep = "")
   }
 
   cat("\n")
   cat("Functions:\n")
-  cat("  compute()   metric calculation\n")
-  cat("  severity()  severity assignment\n")
-  cat("  message()   diagnostic message\n")
+  cat("  compute()     metric calculation\n")
+  cat("  severity()    severity assignment\n")
+  cat("  message()     diagnostic message\n")
+
+  if (!is.null(x$filter_fn)) {
+    cat("  filter_fn()   filter rows\n")
+  }
 
   invisible(x)
 }

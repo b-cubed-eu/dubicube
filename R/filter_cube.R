@@ -5,7 +5,8 @@
 #' applies row-level filtering logic through rule-specific `filter_fn()`
 #' functions.
 #'
-#' @param data_cube A `processed_cube` object.
+#' @param data_cube A `processed_cube` object as returned by
+#' `b3gbi::process_cube()`.
 #' @param rules Character vector or list of cube rule objects.
 #' Ignored if `diagnostics` is supplied.
 #' @param diagnostics Optional `cube_diagnostics` object returned by
@@ -36,8 +37,17 @@
 #' @family data_exploration
 #'
 #' @examples
-#' \dontrun{
-#' # After processing a data cube with b3gbi::process_cube()
+#' # Example cube
+#' # ! Real cubes should be processed with b3gbi::process_cube()
+#' processed_cube <- list(
+#'   data = data.frame(
+#'     obs = c(5, 2, 10, 1),
+#'     year = c(2001, 2001, 2002, 2003),
+#'     minCoordinateUncertaintyInMeters = c(50, 2000, NA, 10)
+#'   ),
+#'   resolutions = "10km"
+#' )
+#' class(processed_cube) <- "processed_cube"
 #'
 #' # Filter cube based on rule
 #' filtered_cube1 <- filter_cube(
@@ -50,7 +60,7 @@
 #'   processed_cube,
 #'   rules = list(
 #'     rule_spatial_miss_uncertainty(),
-#'     rule_temporal_min_years()
+#'     rule_temporal_missing_years()
 #'   )
 #' )
 #'
@@ -61,7 +71,6 @@
 #'
 #' # The results are identical
 #' identical(filtered_cube1$data, filtered_cube2$data)
-#' }
 
 filter_cube <- function(
     data_cube,
@@ -79,7 +88,6 @@ filter_cube <- function(
       "`diagnostics` must be of class 'cube_diagnostics'" =
         inherits(diagnostics, "cube_diagnostics")
     )
-
     rules <- attr(diagnostics, "rules")
   } else {
     rules <- resolve_cube_rules(rules)
@@ -124,9 +132,10 @@ filter_cube <- function(
     warning = function(w) NULL
   )
 
-  # Return cubes
+  # Return cube
   if (!is.null(cube_new)) return(cube_new)
 
+  # Overwrite original data if b3gbi fails
   data_cube$data <- data_filtered
 
   warning(

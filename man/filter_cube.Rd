@@ -7,7 +7,8 @@
 filter_cube(data_cube, rules = NULL, diagnostics = NULL, ...)
 }
 \arguments{
-\item{data_cube}{A \code{processed_cube} object.}
+\item{data_cube}{A \code{processed_cube} object as returned by
+\code{b3gbi::process_cube()}.}
 
 \item{rules}{Character vector or list of cube rule objects.
 Ignored if \code{diagnostics} is supplied.}
@@ -44,8 +45,17 @@ If this function is unavailable or fails, the filtered data replaces
 In that case a warning is issued.
 }
 \examples{
-\dontrun{
-# After processing a data cube with b3gbi::process_cube()
+# Example cube
+# ! Real cubes should be processed with b3gbi::process_cube()
+processed_cube <- list(
+  data = data.frame(
+    obs = c(5, 2, 10, 1),
+    year = c(2001, 2001, 2002, 2003),
+    minCoordinateUncertaintyInMeters = c(50, 2000, NA, 10)
+  ),
+  resolutions = "10km"
+)
+class(processed_cube) <- "processed_cube"
 
 # Filter cube based on rule
 filtered_cube1 <- filter_cube(
@@ -58,7 +68,7 @@ diag <- diagnose_cube(
   processed_cube,
   rules = list(
     rule_spatial_miss_uncertainty(),
-    rule_temporal_min_years()
+    rule_temporal_missing_years()
   )
 )
 
@@ -69,7 +79,6 @@ filtered_cube2 <- filter_cube(
 
 # The results are identical
 identical(filtered_cube1$data, filtered_cube2$data)
-}
 }
 \seealso{
 Other data_exploration: 

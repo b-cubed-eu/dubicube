@@ -27,14 +27,14 @@ printed.}
 \value{
 An object of class \code{cube_diagnostics}, containing one row
 per metric with the following columns:
-\describe{
-\item{dimension}{Dimension of the cube being evaluated
-(e.g. \code{"spatial"}, \code{"temporal"}, \code{"taxonomical"}).}
-\item{metric}{Name of the diagnostic metric.}
-\item{value}{Computed metric value.}
-\item{severity}{Severity level (\code{"ok"}, \code{"note"}, \code{"important"},
-\code{"very_important"}).}
-\item{message}{Human-readable description of the diagnostic result.}
+\itemize{
+\item \code{dimension}: Dimension of the cube being evaluated
+(e.g. \code{"spatial"}, \code{"temporal"}, \code{"taxonomical"}).
+\item \code{metric}: Name of the diagnostic metric.
+\item \code{value}: Computed metric value.
+\item \code{severity}: Severity level (\code{"ok"}, \code{"note"}, \code{"important"},
+\code{"very_important"}).
+\item \code{message}: Human-readable description of the diagnostic result.
 }
 
 The rule objects are attached as an attribute of the diagnostics object.
@@ -46,15 +46,26 @@ on the cube and assigns a severity level indicating potential limitations
 of the data for exploratory analysis or indicator calculation.
 }
 \examples{
-\dontrun{
-# After processing a data cube with b3gbi::process_cube()
+# Example cube
+# ! Real cubes should be processed with b3gbi::process_cube()
+processed_cube <- list(
+  data = data.frame(
+    obs = c(5, 2, 10, 1),
+    year = c(2001, 2001, 2002, 2003),
+    minCoordinateUncertaintyInMeters = c(50, 2000, NA, 10)
+  ),
+  resolutions = "10km"
+)
+class(processed_cube) <- "processed_cube"
 
 # Diagnose based on default rules
 diag <- diagnose_cube(processed_cube)
 
+# Sort diagnoses
+diag <- diagnose_cube(processed_cube, sort_summary = "asc")
+
 # Only show at least important diagnoses
 diag <- diagnose_cube(processed_cube, filter_summary = "important")
-}
 }
 \seealso{
 Other data_exploration: 

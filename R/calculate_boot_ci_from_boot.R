@@ -117,6 +117,15 @@ calculate_boot_ci_from_boot <- function(
       )
     )
 
+    if (is.null(res)) {
+      return(
+        data.frame(
+          stat_index = idx, est_original = boot_obj$t0[idx],
+          int_type = ci_types, ll = NA_real_, ul = NA_real_, conf = conf
+        )
+      )
+    }
+
     # Convert results to tidy dataframe
     data.frame(
       stat_index = idx,

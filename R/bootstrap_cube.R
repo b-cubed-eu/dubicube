@@ -352,9 +352,10 @@ bootstrap_cube <- function(
 
           res <- fun(sampled_data, ...)
 
-          res %>%
+          val <- res %>%
             dplyr::filter(.data[[grouping_var]] == group_value) %>%
             dplyr::pull("diversity_val")
+          if (length(val) == 0) return(NA_real_) else return(val)
         }
       }
 
@@ -394,7 +395,9 @@ bootstrap_cube <- function(
       # Wrapper for boot::boot() to match expected output
       boot_stat_wrapper <- function(data, indices) {
         sampled_data <- data[indices, , drop = FALSE]
-        fun(sampled_data, ...) %>% dplyr::pull("diversity_val")
+        val <- fun(sampled_data, ...) %>%
+          dplyr::pull("diversity_val")
+        if (length(val) == 0) return(NA_real_) else return(val)
       }
 
       # Split data per group

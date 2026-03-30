@@ -1,3 +1,7 @@
+# dubicube 0.11.2
+
+* Fix code to ensure compatibility with **b3gbi** package
+
 # dubicube 0.11.1
 
 * Add grant ID for Zenodo integration #94

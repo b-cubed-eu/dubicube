@@ -1,0 +1,35 @@
+---
+title: "Data Quality Diagnostics and Filtering for Data Cubes"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+...
+
+## Data quality checks with `diagnose_cube()`
+### Running diagnostics
+
+### Understanding the output
+
+### Summariseing diagnostics
+
+## Filtering based on diagnostics with `filter_cube()`
+### Applying filtering rules
+
+### Using diagnostics as input
+
+### Inspecting the result
+
+## Create your own rules (coming soon)
+
+Custom diagnostic and filtering rules will be supported in a future release of **dubicube**.
+This will allow users to define their own diagnostic metrics.

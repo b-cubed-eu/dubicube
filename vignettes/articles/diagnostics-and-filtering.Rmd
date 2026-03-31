@@ -26,11 +26,91 @@ Together, diagnostics and filtering form a structured and reproducible workflow 
 <img src="figures/diagnostics-flow.png" alt="Cube diagnostics workflow." width="90%">
 
 ## Data quality checks with `diagnose_cube()`
+
+```{r}
+library(dubicube)
+```
+
 ### Running diagnostics
+
+We start by creating a small example data cube that contains a range of common data quality issues, including limited temporal coverage, large coordinate uncertainty, and low sample size.
+Note that this is for illustrative purposes only, real cubes should be processed with `b3gbi::process_cube()`.
+
+```{r}
+cube <- list(
+  data = data.frame(
+    year = c(2000, 2000, 2001, 2001, 2002, 2002, 2003, 2003, 2003),
+    cellCode = c("A", "A", "B", "B", "C", "C", "D", "D", "E"),
+    taxonKey = c(1, 1, 1, 2, 2, 3, 3, 3, 3),
+    obs = c(10, 5, 1, 2, 0, 1, 2, 1, 0),
+    minCoordinateUncertaintyInMeters = c(50, 100, 2000, 70, 5000, 2000, 10, 20, 300)
+  ),
+  resolutions = "1km"
+)
+class(cube) <- "processed_cube"
+```
+
+We can now evaluate the data quality of this cube using `diagnose_cube()`.
+
+```{r}
+diag <- diagnose_cube(cube)
+```
+
+By default `verbose = TRUE`, so we get a summary of diagnostic results directly in the console and the function returns a structured `cube_diagnostics` object for further inspection.
+
+We can sort the summary with `print`-arguments.
+
+```{r}
+print(diag, sort_summary = "asc")
+```
+
+We can also filter the summary output based on a minimum severity level.
+
+```{r}
+print(diag, sort_summary = "asc", filter_summary = "note")
+```
 
 ### Understanding the output
 
+
+The output object of is an object of class `cube_diagnostics`, containing one row per metric with the following columns:
+
+- dimension: Dimension of the cube being evaluated (e.g. `"spatial"`, `"temporal"`, `"taxonomical"`).
+- metric: The diagnostic rule that was evaluated.
+- value: Computed metric value.
+- severity: Severity level ("ok", "note", "important", "very_important").
+- message: Human-readable description of the diagnostic result.
+
+The rule objects are attached as an attribute of the diagnostics object.
+
+The severity levels provide a quick way to assess potential data limitations:
+
+* **ok**: No issues detected
+* **note**: Minor limitations
+* **important**: Issues that may influence analysis
+* **very important**: Serious limitations that may affect reliability
+
 ### Summarising diagnostics
+
+To obtain a concise overview of the results, you can use the `summary()` method:
+
+```{r}
+summary(diag)
+```
+
+This helps to quickly identify which aspects of the data cube may require attention before proceeding with analysis.
+
+Optionally, diagnostics can also be visualised:
+
+```{r}
+plot(diag)
+```
+
+This provides a graphical summary of diagnostic results across severity levels and cube dimensions.
+
+### Selecting diagnostic rules to evaluate
+
+
 
 ## Filtering based on diagnostics with `filter_cube()`
 ### Applying filtering rules

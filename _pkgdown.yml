@@ -32,6 +32,7 @@ navbar:
 articles:
   - title: "Data variability and exploration"
     contents:
+    - articles/diagnostics-and-filtering
     - articles/group-level-sensitivity
   - title: "Indicator uncertainty calculation"
     contents:

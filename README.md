@@ -43,6 +43,19 @@ You can install the development version from
 remotes::install_github("b-cubed-eu/dubicube")
 ```
 
+## The role of dubicube in the indicator calculation workflow
+
+The functionality of the **dubicube** package is useful throughout the occurrence cube indicator calculation workflow.
+Occurrence cubes can be created from GBIF data using the [**rgbif**](https://github.com/ropensci/rgbif/) package.
+They are processed using the process_cube() function from the [**b3gbi**](https://github.com/b-cubed-eu/b3gbi) package.
+This ensures data standardisation and verifies that the cube's format is correct.
+**dubicube** facilitates data exploration and filtering (1) which is an iterative process with cube generation and processing.
+After a number of iterations, data evaluation is successful and the final datacube can be used for indicator calculation.
+Indicator calculation packages can use **dubicube** as a dependency for uncertainty interval calculation via bootstrapping (2) but the package can also be used on its own.
+Finally, the package provides tools and tutorials to help with indicator visualisation and interpretation (3).
+
+<img src="man/figures/dubicube-flow.png" alt="dubicube indicator calculation workflow." width="80%">
+
 ## Key Features
 
 The **dubicube** package offers:
@@ -57,9 +70,9 @@ cubes.
   set of diagnostic rules. 
 - `filter_cube()`  
   Remove observations from a processed cube that do not meet
-  defined quality criteria.
-
-> 🛠 Tutorial coming soon
+  defined quality criteria.  
+  📘 [Read the tutorial
+  →](https://b-cubed-eu.github.io/dubicube/articles/diagnostics-and-filtering.html)
 
 - `cross_validate_cube()`  
   Perform cross-validation (leave-one-out or k-fold) to assess
@@ -106,6 +119,4 @@ thresholds.
 
 ---
 
-🔗 Learn more at our [website](https://b-cubed-eu.github.io/dubicube/)
-or explore the
-[documentation](https://b-cubed-eu.github.io/dubicube/reference/).
+🔗 Learn more at our [website](https://b-cubed-eu.github.io/dubicube/) or explore the [documentation](https://b-cubed-eu.github.io/dubicube/reference/).

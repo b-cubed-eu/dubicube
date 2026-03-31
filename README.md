@@ -50,7 +50,7 @@ Occurrence cubes can be created from GBIF data using the [**rgbif**](https://git
 They are processed using the process_cube() function from the [**b3gbi**](https://github.com/b-cubed-eu/b3gbi) package.
 This ensures data standardisation and verifies that the cube's format is correct.
 **dubicube** facilitates data exploration and filtering (1) which is an iterative process with cube generation and processing.
-After a number of iterations, data evaluation is successful and the final datacube can be used for indicator calculation.
+After a number of iterations, data evaluation is successful and the final data cube can be used for indicator calculation.
 Indicator calculation packages can use **dubicube** as a dependency for uncertainty interval calculation via bootstrapping (2) but the package can also be used on its own.
 Finally, the package provides tools and tutorials to help with indicator visualisation and interpretation (3).
 

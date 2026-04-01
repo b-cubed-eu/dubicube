@@ -140,6 +140,8 @@ You can refer to built-in rule sets with a string, you can provide a list of `cu
 diagnose_cube(cube, rules = "basic")
 ```
 
+> More built-in rule sets will be available soon
+
 If you provide a list of rule objects, you can also change the thresholds for the severity values.
 
 ```{r}

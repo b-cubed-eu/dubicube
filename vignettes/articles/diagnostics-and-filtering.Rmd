@@ -74,7 +74,6 @@ print(diag, sort_summary = "asc", filter_summary = "note")
 
 ### Understanding the output
 
-
 The output object of is an object of class `cube_diagnostics`, containing one row per metric with the following columns:
 
 - dimension: Dimension of the cube being evaluated (e.g. `"spatial"`, `"temporal"`, `"taxonomical"`).
@@ -82,6 +81,14 @@ The output object of is an object of class `cube_diagnostics`, containing one ro
 - value: Computed metric value.
 - severity: Severity level ("ok", "note", "important", "very_important").
 - message: Human-readable description of the diagnostic result.
+
+```{r}
+diag$dimension
+```
+
+```{r}
+diag$metric
+```
 
 The rule objects are attached as an attribute of the diagnostics object.
 
@@ -109,10 +116,41 @@ plot(diag)
 ```
 
 This provides a graphical summary of diagnostic results across severity levels and cube dimensions.
+The diagnostics can also be plotted by dimension or as a heat map:
+
+```{r}
+plot(diag, type = "dimension")
+```
+
+```{r}
+plot(diag, type = "heatmap")
+```
 
 ### Selecting diagnostic rules to evaluate
 
+By default, `diagnose_cube()` uses the basic rules to evaluate.
 
+```{r}
+basic_cube_rules()
+```
+
+You can refer to built-in rule sets with a string, you can provide a list of rule object or combine both.
+
+```{r}
+diagnose_cube(cube, rules = "basic")
+```
+
+```{r}
+diagnose_cube(
+  cube,
+  rules = list(
+    rule_temporal_missing_years(),
+    rule_spatial_max_uncertainty(),
+    rule_taxon_min_taxa()
+  ),
+  sort_summary = "asc"
+)
+```
 
 ## Filtering based on diagnostics with `filter_cube()`
 ### Applying filtering rules

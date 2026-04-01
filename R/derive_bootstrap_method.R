@@ -44,7 +44,7 @@
 #'
 #' @export
 #'
-#' @family indicator_uncertainty_helper
+#' @keywords internal
 #'
 #' @import dplyr
 #' @import assertthat

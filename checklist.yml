@@ -9,6 +9,15 @@ allowed:
       repositories:\n  effectclass\nSuggests or Enhances not in mainstream repositories:\n
       \ b3gbi\nAvailability using Additional_repositories specification:\n  effectclass
       \  yes   https://inbo.r-universe.dev       \n  b3gbi         yes   https://b-cubed-eu.r-universe.dev/"
+  - motivation: URL will come available soon
+    value: "checking CRAN incoming feasibility ... WARNING\nMaintainer: 'Ward Langeraert
+      <ward.langeraert@inbo.be>'\n\nNew submission\n\nUnknown, possibly misspelled,
+      fields in DESCRIPTION:\n  'Remotes'\n\nStrong dependencies not in mainstream
+      repositories:\n  effectclass\nSuggests or Enhances not in mainstream repositories:\n
+      \ b3gbi\nAvailability using Additional_repositories specification:\n  effectclass
+      \  yes   https://inbo.r-universe.dev       \n  b3gbi         yes   https://b-cubed-eu.r-universe.dev/\n\nFound
+      the following (possibly) invalid URLs:\n  URL: https://b-cubed-eu.github.io/dubicube/articles/diagnostics-and-filtering.html\n
+      \   From: README.md\n    Status: 404\n    Message: Not Found"
   notes:
   - motivation: This is just a note that reminds CRAN maintainers to check that the
       submission comes actually from his maintainer and not anybody else.
@@ -28,6 +37,7 @@ required:
 - folder conventions
 - license
 - lintr
+- organisation
 - repository secret
 - spelling
 spelling:
@@ -36,3 +46,4 @@ spelling:
   - .github
   - LICENSE.md
   - docs
+pak: []

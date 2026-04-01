@@ -1,0 +1,204 @@
+---
+title: "Data Quality Diagnostics and Filtering for Data Cubes"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The **dubicube** package implements a rule-based diagnostic framework to assess the quality and structural properties of biodiversity data cubes. Diagnostics are applied across key dimensions of the cube, including spatial coverage, temporal coverage, taxonomic representation, and overall observation volume. Each diagnostic is defined as a modular rule that specifies how a metric is calculated and how its value should be interpreted.
+
+Diagnostic rules combine three components: a function to compute a metric from the data cube, a set of threshold values that define reference ranges, and functions that translate the resulting value into a qualitative severity level and a human-readable message. This design ensures that diagnostics are transparent, reproducible, and easily extendable.
+
+Diagnostics are evaluated using the `diagnose_cube()` function, which returns a structured overview of data quality. Each metric is assigned one of four severity levels: **ok**, **note**, **important**, and **very important**, providing an intuitive summary of potential data limitations.
+
+In addition to evaluation, **dubicube** supports filtering of observations based on diagnostic rules. The `filter_cube()` function applies rule-specific filtering logic to remove or flag records that do not meet predefined quality criteria. This filtering step is optional and allows users to tailor the data cube to their specific analytical needs.
+
+Together, diagnostics and filtering form a structured and reproducible workflow for assessing and improving biodiversity data cubes prior to analysis. Data evaluation and filtering are iterative steps until a satisfactory cube evaluation is obtained. This final data cube can then be used for further analysis.
+
+<img src="figures/diagnostics-flow.png" alt="Cube diagnostics workflow." width="90%">
+
+## Data quality checks with `diagnose_cube()`
+
+```{r}
+library(dubicube)
+```
+
+### Running diagnostics
+
+We start by creating a small example data cube that contains a range of common data quality issues, including limited temporal coverage, large coordinate uncertainty, and low sample size.
+Note that this is for illustrative purposes only, real cubes should be processed with `b3gbi::process_cube()`.
+
+```{r}
+cube <- list(
+  data = data.frame(
+    year = c(2000, 2000, 2001, 2001, 2002, 2002, 2003, 2003, 2003),
+    cellCode = c("A", "A", "B", "B", "C", "C", "D", "D", "E"),
+    taxonKey = c(1, 1, 1, 2, 2, 3, 3, 3, 3),
+    obs = c(10, 5, 1, 2, 0, 1, 2, 1, 0),
+    minCoordinateUncertaintyInMeters = c(
+      50, 100, 2000, 70, 5000, 2000, 10, 20, 300
+    )
+  ),
+  resolutions = "1km"
+)
+class(cube) <- "processed_cube"
+```
+
+We can now evaluate the data quality of this cube using `diagnose_cube()`.
+
+```{r}
+diag <- diagnose_cube(cube)
+```
+
+By default `verbose = TRUE`, so we get a summary of diagnostic results directly in the console and the function returns a structured `cube_diagnostics` object for further inspection.
+
+We can sort the summary with `print`-arguments.
+
+```{r}
+print(diag, sort_summary = "asc")
+```
+
+We can also filter the summary output based on a minimum severity level.
+
+```{r}
+print(diag, sort_summary = "asc", filter_summary = "note")
+```
+
+### Understanding the output
+
+The output object of is an object of class `cube_diagnostics`, containing one row per metric with the following columns:
+
+- dimension: Dimension of the cube being evaluated (e.g. `"spatial"`, `"temporal"`, `"taxonomical"`).
+- metric: The diagnostic rule that was evaluated.
+- value: Computed metric value.
+- severity: Severity level ("ok", "note", "important", "very_important").
+- message: Human-readable description of the diagnostic result.
+
+```{r}
+diag$dimension
+```
+
+```{r}
+diag$metric
+```
+
+The rule objects are attached as an attribute of the diagnostics object.
+
+The severity levels provide a quick way to assess potential data limitations:
+
+* **ok**: No issues detected
+* **note**: Minor limitations
+* **important**: Issues that may influence analysis
+* **very important**: Serious limitations that may affect reliability
+
+### Summarising diagnostics
+
+To obtain a concise overview of the results, you can use the `summary()` method:
+
+```{r}
+summary(diag)
+```
+
+This helps to quickly identify which aspects of the data cube may require attention before proceeding with analysis.
+
+Optionally, diagnostics can also be visualised:
+
+```{r}
+plot(diag)
+```
+
+This provides a graphical summary of diagnostic results across severity levels and cube dimensions.
+The diagnostics can also be plotted by dimension or as a heat map:
+
+```{r}
+plot(diag, type = "dimension")
+```
+
+```{r}
+plot(diag, type = "heatmap")
+```
+
+### Selecting diagnostic rules to evaluate
+
+By default, `diagnose_cube()` uses the basic rules to evaluate.
+
+```{r}
+basic_cube_rules()
+```
+
+You can refer to built-in rule sets with a string, you can provide a list of `cube_rule` object or combine both.
+
+```{r}
+diagnose_cube(cube, rules = "basic")
+```
+
+> More built-in rule sets will be available soon
+
+If you provide a list of rule objects, you can also change the thresholds for the severity values.
+
+```{r}
+diagnose_cube(
+  cube,
+  rules = list(
+    rule_temporal_missing_years(),
+    rule_spatial_max_uncertainty(
+      thresholds = c(ok = 0, note = 1, important = 2, very_important = 3)
+    ),
+    rule_taxon_min_taxa()
+  ),
+  sort_summary = "asc"
+)
+```
+
+## Filtering based on diagnostics with `filter_cube()`
+
+After the diagnostic evaluation we might want to generate a new data cube, or we might want to filter the data.
+Some `cube_rule` objects have `filter_fn()` functions that return a logical vector indicating which rows should be removed.
+For the basic rule set, `rule_spatial_max_uncertainty()` and `rule_spatial_miss_uncertainty()`.
+They will filter out respectively rows with minimal coordinate uncertainty larger than the grid cell resolution, and rows with missing minimal coordinate uncertainty.
+
+We can pass the `"cube_diagnostics"` object.
+Only rules that implement a `filter_fn()` will be applied.
+Rules without a filtering function are ignored.
+**dubicube** will try to process the cube again with **b3gbi**.
+This will not work in our case since we never started with a processed cube to begin with (for illustrative reasons only).
+
+```{r}
+filtered_cube <- filter_cube(cube, diagnostics = diag)
+```
+
+We see that the data with minimal coordinate uncertainty larger than the grid cell resolution (= 1000 m) are removed.
+
+```{r}
+cube$data
+```
+
+```{r}
+filtered_cube$data
+```
+
+You can also use the rules directly for filtering.
+
+```{r}
+filtered_cube2 <- filter_cube(
+  cube,
+  rules = list(rule_spatial_max_uncertainty())
+)
+```
+
+```{r}
+identical(filtered_cube, filtered_cube2)
+```
+
+## Create your own rules (coming soon)
+
+Custom diagnostic and filtering rules will be supported in a future release of **dubicube**.
+This will allow users to define their own diagnostic metrics.

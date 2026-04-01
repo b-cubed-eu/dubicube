@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/b-cubed-eu/dubicube",
   "issueTracker": "https://github.com/b-cubed-eu/dubicube/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -75,18 +75,6 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "ggplot2",
-      "name": "ggplot2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=ggplot2"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "testthat",
       "name": "testthat",
       "version": ">= 3.0.0",
@@ -114,6 +102,12 @@
   "softwareRequirements": {
     "1": {
       "@type": "SoftwareApplication",
+      "identifier": "R",
+      "name": "R",
+      "version": ">= 3.5.0"
+    },
+    "2": {
+      "@type": "SoftwareApplication",
       "identifier": "assertthat",
       "name": "assertthat",
       "provider": {
@@ -124,7 +118,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=assertthat"
     },
-    "2": {
+    "3": {
       "@type": "SoftwareApplication",
       "identifier": "boot",
       "name": "boot",
@@ -136,7 +130,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=boot"
     },
-    "3": {
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "data.table",
       "name": "data.table",
@@ -148,7 +142,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=data.table"
     },
-    "4": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "dplyr",
       "name": "dplyr",
@@ -160,13 +154,25 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=dplyr"
     },
-    "5": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "effectclass",
       "name": "effectclass",
       "sameAs": "https://github.com/inbo/effectclass"
     },
-    "6": {
+    "7": {
+      "@type": "SoftwareApplication",
+      "identifier": "ggplot2",
+      "name": "ggplot2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=ggplot2"
+    },
+    "8": {
       "@type": "SoftwareApplication",
       "identifier": "modelr",
       "name": "modelr",
@@ -178,7 +184,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=modelr"
     },
-    "7": {
+    "9": {
       "@type": "SoftwareApplication",
       "identifier": "purrr",
       "name": "purrr",
@@ -190,7 +196,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=purrr"
     },
-    "8": {
+    "10": {
       "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
@@ -202,7 +208,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "9": {
+    "11": {
       "@type": "SoftwareApplication",
       "identifier": "tibble",
       "name": "tibble",
@@ -216,7 +222,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "1846.596KB",
+  "fileSize": "2841.055KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -233,7 +239,7 @@
           "familyName": "Van Daele"
         }
       ],
-      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.11.1",
+      "name": "dubicube: Calculation and Interpretation of Data Cube Indicator Uncertainty. Version 0.12.0",
       "identifier": "10.5281/zenodo.14850237",
       "url": "https://b-cubed-eu.github.io/dubicube/",
       "@id": "https://doi.org/10.5281/zenodo.14850237",

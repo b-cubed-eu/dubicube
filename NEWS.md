@@ -1,3 +1,7 @@
+# dubicube 0.12.0
+
+* Implement data quality diagnostics and data filtering #90
+
 # dubicube 0.11.1
 
 * Add grant ID for Zenodo integration #94

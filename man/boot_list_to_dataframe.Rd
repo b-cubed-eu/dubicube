@@ -2,7 +2,7 @@
 % Please edit documentation in R/boot_list_to_dataframe.R
 \name{boot_list_to_dataframe}
 \alias{boot_list_to_dataframe}
-\title{Convert a list of \code{boot} objects to a tidy dataframe}
+\title{Convert a list of 'boot' objects to a tidy dataframe}
 \usage{
 boot_list_to_dataframe(boot_list, grouping_var)
 }
@@ -79,9 +79,8 @@ head(bootstrap_df)
 \seealso{
 Other indicator_uncertainty_helper: 
 \code{\link{bootstrap_cube_raw}()},
+\code{\link{calculate_acceleration}()},
 \code{\link{calculate_boot_ci_from_boot}()},
-\code{\link{derive_bootstrap_method}()},
-\code{\link{process_boot_input}()},
 \code{\link{resolve_bootstrap_method}()}
 }
 \concept{indicator_uncertainty_helper}

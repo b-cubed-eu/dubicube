@@ -1,3 +1,8 @@
+# dubicube 0.12.1
+
+* Implement more advanced diagnostic rules
+* Create rule constructor function for users to create own rules 
+
 # dubicube 0.12.0
 
 * Implement data quality diagnostics and data filtering #90

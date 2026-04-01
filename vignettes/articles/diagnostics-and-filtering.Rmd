@@ -76,11 +76,11 @@ print(diag, sort_summary = "asc", filter_summary = "note")
 
 The output object of is an object of class `cube_diagnostics`, containing one row per metric with the following columns:
 
-- dimension: Dimension of the cube being evaluated (e.g. `"spatial"`, `"temporal"`, `"taxonomical"`).
-- metric: The diagnostic rule that was evaluated.
-- value: Computed metric value.
-- severity: Severity level ("ok", "note", "important", "very_important").
-- message: Human-readable description of the diagnostic result.
+- **dimension**: Dimension of the cube being evaluated (e.g. "spatial", "temporal", "taxonomical").
+- **metric**: The diagnostic rule that was evaluated.
+- **value**: Computed metric value.
+- **severity**: Severity level ("ok", "note", "important", "very_important").
+- **message**: Human-readable description of the diagnostic result.
 
 ```{r}
 diag$dimension

@@ -134,18 +134,22 @@ By default, `diagnose_cube()` uses the basic rules to evaluate.
 basic_cube_rules()
 ```
 
-You can refer to built-in rule sets with a string, you can provide a list of rule object or combine both.
+You can refer to built-in rule sets with a string, you can provide a list of `cube_rule` object or combine both.
 
 ```{r}
 diagnose_cube(cube, rules = "basic")
 ```
+
+If you provide a list of rule objects, you can also change the thresholds for the severity values.
 
 ```{r}
 diagnose_cube(
   cube,
   rules = list(
     rule_temporal_missing_years(),
-    rule_spatial_max_uncertainty(),
+    rule_spatial_max_uncertainty(
+      thresholds = c(ok = 0, note = 1, important = 2, very_important = 3)
+    ),
     rule_taxon_min_taxa()
   ),
   sort_summary = "asc"
@@ -153,11 +157,44 @@ diagnose_cube(
 ```
 
 ## Filtering based on diagnostics with `filter_cube()`
-### Applying filtering rules
 
-### Using diagnostics as input
+After the diagnostic evaluation we might want to generate a new data cube, or we might want to filter the data.
+Some `cube_rule` objects have `filter_fn()` functions that return a logical vector indicating which rows should be removed.
+For the basic rule set, `rule_spatial_max_uncertainty()` and `rule_spatial_miss_uncertainty()`.
+They will filter out respectively rows with minimal coordinate uncertainty larger than the grid cell resolution, and rows with missing minimal coordinate uncertainty.
 
-### Inspecting the result
+We can pass the `"cube_diagnostics"` object.
+Only rules that implement a `filter_fn()` will be applied.
+Rules without a filtering function are ignored.
+**dubicube** will try to process the cube again with **b3gbi**.
+This will not work in our case since we never started with a processed cube to begin with (for illustrative reasons only).
+
+```{r}
+filtered_cube <- filter_cube(cube, diagnostics = diag)
+```
+
+We see that the data with minimal coordinate uncertainty larger than the grid cell resolution (= 1000 m) are removed.
+
+```{r}
+cube$data
+```
+
+```{r}
+filtered_cube$data
+```
+
+You can also use the rules directly for filtering.
+
+```{r}
+filtered_cube2 <- filter_cube(
+  cube,
+  rules = list(rule_spatial_max_uncertainty())
+)
+```
+
+```{r}
+identical(filtered_cube, filtered_cube2)
+```
 
 ## Create your own rules (coming soon)
 

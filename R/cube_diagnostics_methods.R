@@ -141,19 +141,15 @@ summary.cube_diagnostics <- function(object, ...) {
 print.summary_cube_diagnostics <- function(x, ...) {
   cat("<cube_diagnostics_summary>\n\n")
   cat("Rules evaluated:", x$n_rules, "\n\n")
-  cat("Severity levels:\n")
+  cat("Severity levels:")
   print(x$severity)
 
-  cat("\nDimensions:\n")
+  cat("\nDimensions:")
   print(x$dimensions)
 
   if (nrow(x$flagged) > 0) {
     cat("\nFlagged diagnostics:\n")
-
-    flagged <- x$flagged[, c("metric", "dimension", "severity")]
-    rownames(flagged) <- NULL
-
-    print(flagged, sort_summary = "asc")
+    print(x$flagged, sort_summary = "asc")
   } else {
     cat("\nAll diagnostics are OK.\n")
   }

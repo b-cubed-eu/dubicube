@@ -134,6 +134,12 @@ By default, `diagnose_cube()` uses the basic rules to evaluate.
 basic_cube_rules()
 ```
 
+You can consult the default rule thresholds by printing the rule functions.
+
+```{r}
+rule_spatial_max_uncertainty()
+```
+
 You can refer to built-in rule sets using a string, you can provide a list of `cube_rule` object or combine both.
 
 ```{r}

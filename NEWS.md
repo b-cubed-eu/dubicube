@@ -1,3 +1,7 @@
+# dubicube 0.12.1
+
+* Update tutorials based on internal review
+
 # dubicube 0.12.0
 
 * Implement data quality diagnostics and data filtering #90

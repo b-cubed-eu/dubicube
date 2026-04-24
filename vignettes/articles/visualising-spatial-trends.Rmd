@@ -84,7 +84,7 @@ We create a function to calculate this.
 # Mean observations per grid cell
 mean_obs_grid <- function(data) {
   data %>%
-    dplyr::summarise(diversity_val = mean(obs), .by = "cellCode") %>%
+    summarise(diversity_val = mean(obs), .by = "cellCode") %>%
     as.data.frame()
 }
 ```

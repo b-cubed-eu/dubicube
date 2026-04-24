@@ -215,8 +215,8 @@ We create a function to calculate this.
 # Mean observations per grid cell per year
 mean_obs <- function(data) {
   data %>%
-    dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
-    dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
+    mutate(x = mean(obs), .by = "cellCode") %>%
+    summarise(diversity_val = mean(x), .by = "year") %>%
     as.data.frame()
 }
 ```
@@ -538,19 +538,19 @@ We create a custom function to calculate evenness:
 calc_evenness <- function(data) {
   data %>%
     # Calculate number of observations
-    dplyr::group_by(year, scientificName) %>%
-    dplyr::summarise(obs = sum(obs), .groups = "drop_last") %>%
+    group_by(year, scientificName) %>%
+    summarise(obs = sum(obs), .groups = "drop_last") %>%
     # Calculate evenness by year
-    dplyr::mutate(
+    mutate(
       tot = sum(obs),
       p = obs / tot,
       p_ln_p = p * log(p),
-      ln_S = log(dplyr::n_distinct(scientificName)),
+      ln_S = log(n_distinct(scientificName)),
       diversity_val = (-sum(p_ln_p)) / ln_S
     ) %>%
-    dplyr::ungroup() %>%
+    ungroup() %>%
     # Get distinct values
-    dplyr::distinct(year, diversity_val)
+    distinct(year, diversity_val)
 }
 ```
 
@@ -717,8 +717,8 @@ We create a custom function to calculate richness:
 ```{r}
 calc_richness <- function(data) {
   data %>%
-    dplyr::group_by(year) %>%
-    dplyr::summarise(diversity_val = n_distinct(scientificName),
+    group_by(year) %>%
+    summarise(diversity_val = n_distinct(scientificName),
                      .groups = "drop")
 }
 ```

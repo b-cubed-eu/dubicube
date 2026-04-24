@@ -86,7 +86,7 @@ test_that("temporal_min_years severity levels", {
   res <- diagnose_cube(cube, verbose = FALSE)
 
   expect_equal(
-    res$severity[res$metric == "temporal_min_points"],
+    res$severity[res$metric == "temporal_min_years"],
     "important"
   )
 
@@ -99,7 +99,7 @@ test_that("temporal_min_years severity levels", {
   res <- diagnose_cube(cube, verbose = FALSE)
 
   expect_equal(
-    res$severity[res$metric == "temporal_min_points"],
+    res$severity[res$metric == "temporal_min_years"],
     "note"
   )
 
@@ -112,7 +112,7 @@ test_that("temporal_min_years severity levels", {
   res <- diagnose_cube(cube, verbose = FALSE)
 
   expect_equal(
-    res$severity[res$metric == "temporal_min_points"],
+    res$severity[res$metric == "temporal_min_years"],
     "ok"
   )
 })

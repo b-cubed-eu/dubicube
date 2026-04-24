@@ -81,7 +81,7 @@ rule_temporal_min_years <- function(
 ) {
   rule <- list(
     # Unique identifier for the diagnostic metric
-    id = "temporal_min_points",
+    id = "temporal_min_years",
 
     # Dimension of the cube being evaluated
     dimension = "temporal",

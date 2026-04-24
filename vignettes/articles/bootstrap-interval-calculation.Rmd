@@ -65,7 +65,7 @@ $$
 
 ### 3. **Normal**
 
-Assumes the bootstrap distribution of the statistic is approximately normal:
+Assumes the bootstrap replications are normally distributed:
 
 $$
 CI_{\text{norm}} = \left[\hat{\theta} - \text{Bias}_{\text{boot}} - \text{SE}_{\text{boot}} \cdot z_{1-\alpha/2},
@@ -304,7 +304,7 @@ Now we can use the `calculate_bootstrap_ci()` function to calculate confidence l
   Only used when `type = "bca"` and no boot method is used. The input data as a processed data cube (from `b3gbi::process_cube()`).
 
 - **`fun`**:
-  Only used when `type = "bca"` and no boot method is used. A user-defined function that computes the statistic(s) of interest from `data_cube$data`. This function should return a dataframe that includes a column named `diversity_val`, containing the statistic to evaluate.
+  Only used when `type = "bca"` and no boot method is used. A user-defined function that computes the statistic(s) of interest from `data_cube$data`. This function should return a dataframe containing a column named `diversity_val` with the statistic to be evaluated.
 
 - **`progress`**:
   Logical flag to show a progress bar. Set to `TRUE` to enable progress reporting; default is `FALSE`.
@@ -385,7 +385,7 @@ See the [visualising temporal trends tutorial](https://b-cubed-eu.github.io/dubi
 ## Advanced usage of `calculate_bootstrap_ci()`
 ### Comparison with a reference group
 
-As discussed in the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html), we can also  compare indicator values to a reference group. In time series analyses, this often means comparing each year’s indicator to a baseline year (e.g., the first or last year in the series).
+As discussed in the [bootstrap tutorial](https://b-cubed-eu.github.io/dubicube/articles/bootstrap-method-cubes.html), we can also compare indicator values to a reference group. In time series analyses, this often means comparing each year’s indicator to a baseline year (e.g., the first or last year in the series).
 To do this, we perform bootstrapping over the difference between indicator values.
 This process yields bootstrap replicate distributions of differences in indicator values.
 
@@ -455,7 +455,7 @@ ci_mean_obs_ref <- ci_mean_obs_ref %>%
 ```{r}
 #| fig.alt: >
 #|   Confidence intervals for mean number of occurrences over time (ref).
-# Get bias vales
+# Get bias values
 bias_mean_obs <- bootstrap_results_ref %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
@@ -602,7 +602,7 @@ bootstrap_results_evenness_df <- boot_list_to_dataframe(
 ) %>%
   mutate(year = as.numeric(year))
 
-# Get bias vales
+# Get bias values
 bias_mean_obs <- bootstrap_results_evenness_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
@@ -769,7 +769,7 @@ ci_richness <- ci_richness %>%
 ```{r}
 #| fig.alt: >
 #|   Confidence intervals for richness over time.
-# Get bias vales
+# Get bias values
 bias_mean_obs <- bootstrap_results_richness %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 
@@ -802,7 +802,7 @@ bootstrap_results_richness %>%
 ```
 
 This issue arises because bootstrap resampling cannot introduce new species that were not present in the original sample (Dixon, [2001, p. 287](https://doi.org/10.1093/oso/9780195131871.003.0014)).
-As a result, the observed species richness — which is simply the count of unique species — tends to be negatively biased in bootstrap replicates.
+As a result, the observed species richness, which is simply the count of unique species, is negatively biased in bootstrap replicates.
 This leads to an extreme mismatch between the original estimate and the distribution of bootstrap replicates.
 In such cases, the BCa intervals may fail altogether (e.g., due to infinite bias correction factors), and other bootstrap intervals (normal, basic) may overcorrect.
 

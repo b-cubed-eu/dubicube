@@ -74,7 +74,7 @@ print(diag, sort_summary = "asc", filter_summary = "note")
 
 ### Understanding the output
 
-The output object of is an object of class `cube_diagnostics`, containing one row per metric with the following columns:
+The output object is an object of class `cube_diagnostics`, containing one row per metric with the following columns:
 
 - dimension: Dimension of the cube being evaluated (e.g. `"spatial"`, `"temporal"`, `"taxonomical"`).
 - metric: The diagnostic rule that was evaluated.
@@ -134,7 +134,7 @@ By default, `diagnose_cube()` uses the basic rules to evaluate.
 basic_cube_rules()
 ```
 
-You can refer to built-in rule sets with a string, you can provide a list of `cube_rule` object or combine both.
+You can refer to built-in rule sets using a string, you can provide a list of `cube_rule` object or combine both.
 
 ```{r}
 diagnose_cube(cube, rules = "basic")
@@ -162,11 +162,10 @@ diagnose_cube(
 
 After the diagnostic evaluation we might want to generate a new data cube, or we might want to filter the data.
 Some `cube_rule` objects have `filter_fn()` functions that return a logical vector indicating which rows should be removed.
-For the basic rule set, `rule_spatial_max_uncertainty()` and `rule_spatial_miss_uncertainty()`.
-They will filter out respectively rows with minimal coordinate uncertainty larger than the grid cell resolution, and rows with missing minimal coordinate uncertainty.
+For the basic rule set, `rule_spatial_max_uncertainty()` and `rule_spatial_miss_uncertainty()` will filter out respectively rows with minimal coordinate uncertainty larger than the grid cell resolution, and rows with missing minimal coordinate uncertainty.
 
-We can pass the `"cube_diagnostics"` object.
-Only rules that implement a `filter_fn()` will be applied.
+We can pass the full `"cube_diagnostics"` object.
+Only rules with a `filter_fn()` function will be applied.
 Rules without a filtering function are ignored.
 **dubicube** will try to process the cube again with **b3gbi**.
 This will not work in our case since we never started with a processed cube to begin with (for illustrative reasons only).

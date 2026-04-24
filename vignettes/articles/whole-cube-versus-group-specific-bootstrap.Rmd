@@ -165,7 +165,7 @@ head(bootstrap_mean_whole)
 
 **Advantages:**
 
-* Guarantees each replicate has rows for the group → stable CIs.
+* Guarantees each replicate has rows for each group → stable CIs.
 * Reflects within-group variability only.
 
 **Disadvantages:**
@@ -197,12 +197,9 @@ head(bootstrap_mean_group)
 
 ### Bootstrapping with the **boot** package
 
-For most use cases, **dubicube** delegates the resampling procedure to the well-established **boot** package (Canty et al., [2025](https://doi.org/10.32614/CRAN.package.boot)). This happens when:
+**dubicube** can delegate the bootstrap resampling procedure to the well-established **boot** package (Canty et al., [2025](https://doi.org/10.32614/CRAN.package.boot)). By default (`method = "smart"`), dubicube will automatically choose the bootstrapping method which is best for the given configuration. However the user can specify a specific method manually with `method = "boot_whole_cube"`, or `method = "boot_group_specific"`. In these cases, `bootstrap_cube()` returns the native objects produced by `boot::boot()`, rather than a summarised dataframe.
 
-* Automatically with `method = "smart"` (default), one grouping variable, and no reference group is specified (default)
-* Manually with `method = "boot_whole_cube"` or `method = "boot_group_specific"`
-
-In these cases, `bootstrap_cube()` returns the native objects produced by `boot::boot()`, rather than a summarised dataframe.
+The differences in performance and the smart selection of the appropriate method are discussed below.
 
 #### Whole-cube bootstrap with **boot**
 
@@ -239,7 +236,7 @@ sapply(bootstrap_mean_boot_group, class)
 ## Comparison between methods
 ### Comparing results
 
-We perform bootstrapping and confidence interval calculation for the period 2015–2018, following the same procedure as in other tutorials. The results show that the bootstrap distributions and confidence intervals are very similar, regardless of whether the **boot** package is used.
+We perform bootstrapping and confidence interval calculation for the period 2015–2018, following the same procedure as in other tutorials. The results show that the bootstrap distributions and confidence intervals are very similar, regardless of whether the **boot** package is used or the **dubicube** internal code. The label "boot" indicates that **dubicube** relies on the **boot** package for resampling and interval calculation, whereas “no boot” denotes that the same task is performed using **dubicube**'s internal code paths.
 
 ```{r, echo=FALSE}
 # Whole-cube to dataframe

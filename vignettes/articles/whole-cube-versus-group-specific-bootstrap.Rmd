@@ -653,14 +653,14 @@ if (
 # Visualisation
 total_df %>%
   mutate(
-    boot = factor(boot, levels = c("no boot", "boot"))
+      boot = factor(boot, levels = c("no boot", "boot"))
   ) %>%
-  ggplot(aes(x = cat, y = time_ms)) +
+  ggplot(aes(x = cat, y = time_ms, colour = boot)) +
   geom_boxplot(position = "dodge", outlier.alpha = 0.6) +
   labs(x = "", y = "Execution time (ms)") +
-  facet_grid(method ~ boot, scales = "free") +
+  facet_wrap(~method, ncol = 1, scales = "fixed") +
   theme_minimal(base_size = 13) +
   theme(
-    strip.text = element_text(face = "bold", size = 14)
+      strip.text = element_text(face = "bold", size = 14)
   )
 ```

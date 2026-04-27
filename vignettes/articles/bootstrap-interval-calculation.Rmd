@@ -719,7 +719,7 @@ calc_richness <- function(data) {
   data %>%
     group_by(year) %>%
     summarise(diversity_val = n_distinct(scientificName),
-                     .groups = "drop")
+              .groups = "drop")
 }
 ```
 

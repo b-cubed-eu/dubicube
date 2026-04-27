@@ -61,7 +61,7 @@ test_that("print.summary_cube_diagnostics runs and produces output", {
 test_that("plot.cube_diagnostics produces ggplot objects", {
   p1 <- plot(x, type = "severity")
   p2 <- plot(x, type = "dimension")
-  p3 <- plot(x, type = "heatmap")
+  p3 <- plot(x, type = "rule")
 
   expect_s3_class(p1, "gg")
   expect_s3_class(p2, "gg")

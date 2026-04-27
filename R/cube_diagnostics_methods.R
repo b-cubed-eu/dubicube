@@ -164,7 +164,7 @@ print.summary_cube_diagnostics <- function(x, ...) {
 #'
 #' @param x A `cube_diagnostics` object returned by `diagnose_cube()`.
 #' @param type Type of plot. Options are `"severity"` (default),
-#' `"dimension"`, or `"heatmap"`.
+#' `"dimension"`, or `"rule"`.
 #' @param ... Additional arguments passed to other methods (currently unused).
 #'
 #' @return A `ggplot` object.
@@ -175,7 +175,7 @@ print.summary_cube_diagnostics <- function(x, ...) {
 #' \itemize{
 #' \item `"severity"`: Number of diagnostics per severity level.
 #' \item `"dimension"`: Diagnostics grouped by cube dimension.
-#' \item `"heatmap"`: Severity levels per diagnostic rule and dimension.
+#' \item `"rule"`: Severity levels per diagnostic rule and dimension.
 #' }
 #'
 #' @export
@@ -234,14 +234,14 @@ plot.cube_diagnostics <- function(x, type = "severity", ...) {
       ggplot2::theme_minimal()
 
     # Create plot by rule
-  } else if (type == "heatmap") {
+  } else if (type == "rule") {
     p <- ggplot2::ggplot(
       x,
       ggplot2::aes(.data$metric, .data$dimension, fill = .data$severity)
     ) +
       ggplot2::geom_tile(color = "white", show.legend = TRUE) +
       ggplot2::labs(
-        title = "Cube diagnostics heatmap",
+        title = "Cube diagnostics rule",
         x = "Diagnostic rule",
         y = "Cube dimension"
       ) +
@@ -251,7 +251,7 @@ plot.cube_diagnostics <- function(x, type = "severity", ...) {
       )
   } else {
     stop(
-      "`type` must be one of 'severity', 'dimension', or 'heatmap'.",
+      "`type` must be one of 'severity', 'dimension', or 'rule'.",
       call. = FALSE
     )
   }

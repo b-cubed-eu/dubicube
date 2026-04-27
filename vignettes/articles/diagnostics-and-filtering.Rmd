@@ -123,7 +123,7 @@ plot(diag, type = "dimension")
 ```
 
 ```{r}
-plot(diag, type = "heatmap")
+plot(diag, type = "rule")
 ```
 
 ### Selecting diagnostic rules to evaluate

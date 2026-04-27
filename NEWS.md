@@ -1,4 +1,4 @@
-# dubicube 0.12.1
+# dubicube 0.12.2
 
 * Update tutorials based on internal review
 

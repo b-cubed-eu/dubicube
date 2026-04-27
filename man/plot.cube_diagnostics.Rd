@@ -10,7 +10,7 @@
 \item{x}{A \code{cube_diagnostics} object returned by \code{diagnose_cube()}.}
 
 \item{type}{Type of plot. Options are \code{"severity"} (default),
-\code{"dimension"}, or \code{"heatmap"}.}
+\code{"dimension"}, or \code{"rule"}.}
 
 \item{...}{Additional arguments passed to other methods (currently unused).}
 }
@@ -27,7 +27,7 @@ Three visualisations are supported:
 \itemize{
 \item \code{"severity"}: Number of diagnostics per severity level.
 \item \code{"dimension"}: Diagnostics grouped by cube dimension.
-\item \code{"heatmap"}: Severity levels per diagnostic rule and dimension.
+\item \code{"rule"}: Severity levels per diagnostic rule and dimension.
 }
 }
 \seealso{

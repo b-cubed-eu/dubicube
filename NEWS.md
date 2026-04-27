@@ -1,6 +1,8 @@
-# dubicube 0.12.1
+# dubicube 0.12.2
 
-* Update tutorials based on internal review
+* Update tutorials content based on internal review
+* Add `process_cube_args` argument in `filter_cube()`
+* Change `"heatmap"` to `"rule"` option in `plot.cube_diagnostics()`
 
 # dubicube 0.12.0
 

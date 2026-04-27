@@ -13,6 +13,10 @@
 #' [diagnose_cube()]. If provided, rules are extracted from this object.
 #' @param ... Additional arguments passed to rule-specific `filter_fn()`
 #' functions.
+#' @param process_cube_args Named list of additional arguments passed to
+#' `b3gbi::process_cube()` when rebuilding the filtered cube. For example,
+#' `list(cols_occurrences = "n")`. The argument `cube_name` is automatically
+#' supplied and must not be included.
 #'
 #' @return A filtered `processed_cube`.
 #'
@@ -76,7 +80,8 @@ filter_cube <- function(
     data_cube,
     rules = NULL,
     diagnostics = NULL,
-    ...) {
+    ...,
+    process_cube_args = list()) {
   stopifnot(
     "`data_cube` must be of class 'processed_cube'" =
       inherits(data_cube, "processed_cube")
@@ -127,9 +132,13 @@ filter_cube <- function(
 
   # Try rebuilding cube using b3gbi
   cube_new <- tryCatch(
-    b3gbi::process_cube(data_filtered),
+    do.call(b3gbi::process_cube,
+            c(list(cube_name = data_filtered), process_cube_args)),
     error = function(e) NULL,
-    warning = function(w) NULL
+    warning = function(w) {
+      message("process_cube warning: ", conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
   )
 
   # Return cube

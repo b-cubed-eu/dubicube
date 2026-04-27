@@ -4,7 +4,13 @@
 \alias{filter_cube}
 \title{Filter a processed data cube using diagnostic rules}
 \usage{
-filter_cube(data_cube, rules = NULL, diagnostics = NULL, ...)
+filter_cube(
+  data_cube,
+  rules = NULL,
+  diagnostics = NULL,
+  ...,
+  process_cube_args = list()
+)
 }
 \arguments{
 \item{data_cube}{A \code{processed_cube} object as returned by
@@ -18,6 +24,11 @@ Ignored if \code{diagnostics} is supplied.}
 
 \item{...}{Additional arguments passed to rule-specific \code{filter_fn()}
 functions.}
+
+\item{process_cube_args}{Named list of additional arguments passed to
+\code{b3gbi::process_cube()} when rebuilding the filtered cube. For example,
+\code{list(cols_occurrences = "n")}. The argument \code{cube_name} is automatically
+supplied and must not be included.}
 }
 \value{
 A filtered \code{processed_cube}.

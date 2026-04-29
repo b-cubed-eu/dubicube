@@ -201,7 +201,8 @@ You can also use the rules directly for filtering.
 ```{r}
 filtered_cube2 <- filter_cube(
   cube,
-  rules = list(rule_spatial_max_uncertainty())
+  rules = list(rule_spatial_max_uncertainty()),
+  process_cube_args = list(grid_type = "none")
 )
 ```
 

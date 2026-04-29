@@ -11,9 +11,9 @@ make_cube <- function(
   df <- expand.grid(
     year = years,
     cellCode = cells,
-    taxonKey = taxa
+    speciesKey = taxa
   )
-  df$obs <- obs
+  df$occurrences <- obs
   df$minCoordinateUncertaintyInMeters <- uncertainty
   # Create processed cube
   cube <- list(

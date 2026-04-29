@@ -424,7 +424,8 @@ rule_taxon_min_taxa <- function(
         processed_cube = TRUE
       )
       # Count number of unique taxa
-      length(unique(data$taxonKey))
+      if ("taxonKey" %in% names(data)) return(length(unique(data$taxonKey)))
+      length(unique(data$speciesKey))
     },
 
     # Function assigning severity based on named thresholds
@@ -546,7 +547,8 @@ rule_obs_min_total <- function(
         processed_cube = TRUE
       )
       # Count total number of observations
-      sum(data$obs, na.rm = TRUE)
+      if ("obs" %in% names(data)) return(sum(data$obs, na.rm = TRUE))
+      sum(data$occurrences, na.rm = TRUE)
     },
 
     # Function assigning severity based on named thresholds

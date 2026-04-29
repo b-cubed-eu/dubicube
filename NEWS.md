@@ -1,3 +1,8 @@
+# dubicube 0.12.3
+
+* Add `process_cube_args` in filter function vignette #111
+* Fix bug in rule functions after update example cube in vignette #112
+
 # dubicube 0.12.2
 
 * Update tutorials content based on internal review

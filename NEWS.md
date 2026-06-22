@@ -1,4 +1,4 @@
-# dubicube 0.11.2
+# dubicube 0.12.4
 
 * Fix code to ensure compatibility with **b3gbi** package
 

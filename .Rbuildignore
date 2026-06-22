@@ -4,8 +4,10 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.Rproj\.user$
+^\.claude$
 ^\.github$
 ^\.httr-oauth$
+^\.positai$
 ^\.zenodo\.json$
 ^_pkgdown.yml$
 ^_pkgdown\.yml$

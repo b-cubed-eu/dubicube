@@ -21,3 +21,4 @@ libs
 output
 renv/library
 vignettes/articles/cache
+.positai

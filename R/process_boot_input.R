@@ -39,7 +39,7 @@
 #'
 #' @export
 #'
-#' @family indicator_uncertainty_helper
+#' @keywords internal
 #'
 #' @importFrom dplyr bind_rows
 #' @importFrom assertthat is.flag

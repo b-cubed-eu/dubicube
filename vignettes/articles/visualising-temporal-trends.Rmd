@@ -124,8 +124,8 @@ We create a function to calculate this.
 # Mean observations per grid cell per year
 mean_obs <- function(data) {
   data %>%
-    dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
-    dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
+    mutate(x = mean(obs), .by = "cellCode") %>%
+    summarise(diversity_val = mean(x), .by = "year") %>%
     as.data.frame()
 }
 ```
@@ -248,7 +248,7 @@ bootstrap_results_df <- boot_list_to_dataframe(
 ) %>%
   mutate(year = as.numeric(year))
 
-# Get bias vales
+# Get bias values
 bias_mean_obs <- bootstrap_results_df %>%
   distinct(year, estimate = est_original, `bootstrap estimate` = est_boot)
 

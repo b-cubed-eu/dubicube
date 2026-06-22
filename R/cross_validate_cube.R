@@ -122,7 +122,7 @@
 #'
 #' @export
 #'
-#' @family data_exploration
+#' @family data_sensitivity
 #'
 #' @import dplyr
 #' @import assertthat

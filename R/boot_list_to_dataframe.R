@@ -1,4 +1,4 @@
-#' Convert a list of `boot` objects to a tidy dataframe
+#' Convert a list of 'boot' objects to a tidy dataframe
 #'
 #' This function converts a named list of `"boot"` objects
 #' (typically produced by [bootstrap_cube()] into a single

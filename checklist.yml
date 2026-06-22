@@ -28,6 +28,7 @@ required:
 - folder conventions
 - license
 - lintr
+- organisation
 - repository secret
 - spelling
 spelling:
@@ -36,3 +37,4 @@ spelling:
   - .github
   - LICENSE.md
   - docs
+pak: []

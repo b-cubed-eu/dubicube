@@ -165,9 +165,8 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 \seealso{
 Other indicator_uncertainty_helper: 
 \code{\link{boot_list_to_dataframe}()},
+\code{\link{calculate_acceleration}()},
 \code{\link{calculate_boot_ci_from_boot}()},
-\code{\link{derive_bootstrap_method}()},
-\code{\link{process_boot_input}()},
 \code{\link{resolve_bootstrap_method}()}
 }
 \concept{indicator_uncertainty_helper}

@@ -163,10 +163,10 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 }
 \seealso{
-Other indicator_uncertainty_helper: 
-\code{\link{boot_list_to_dataframe}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{calculate_boot_ci_from_boot}()},
-\code{\link{resolve_bootstrap_method}()}
+Other indicator_uncertainty_helper:
+\code{\link[=boot_list_to_dataframe]{boot_list_to_dataframe()}},
+\code{\link[=calculate_acceleration]{calculate_acceleration()}},
+\code{\link[=calculate_boot_ci_from_boot]{calculate_boot_ci_from_boot()}},
+\code{\link[=resolve_bootstrap_method]{resolve_bootstrap_method()}}
 }
 \concept{indicator_uncertainty_helper}

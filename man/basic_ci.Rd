@@ -68,9 +68,9 @@ Application (1st ed.). Cambridge University Press.
 \doi{10.1017/CBO9780511802843}
 }
 \seealso{
-Other interval_calculation: 
-\code{\link{bca_ci}()},
-\code{\link{norm_ci}()},
-\code{\link{perc_ci}()}
+Other interval_calculation:
+\code{\link[=bca_ci]{bca_ci()}},
+\code{\link[=norm_ci]{norm_ci()}},
+\code{\link[=perc_ci]{perc_ci()}}
 }
 \concept{interval_calculation}

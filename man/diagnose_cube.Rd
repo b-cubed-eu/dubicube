@@ -68,7 +68,7 @@ diag <- diagnose_cube(processed_cube, sort_summary = "asc")
 diag <- diagnose_cube(processed_cube, filter_summary = "important")
 }
 \seealso{
-Other data_exploration: 
-\code{\link{filter_cube}()}
+Other data_exploration:
+\code{\link[=filter_cube]{filter_cube()}}
 }
 \concept{data_exploration}

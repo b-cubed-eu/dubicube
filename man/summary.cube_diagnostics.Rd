@@ -22,8 +22,8 @@ rules, counts per severity level, and the number of diagnostics
 per cube dimension.
 }
 \seealso{
-Other diagnostic_methods: 
-\code{\link{plot.cube_diagnostics}()},
-\code{\link{print.cube_diagnostics}()}
+Other diagnostic_methods:
+\code{\link[=plot.cube_diagnostics]{plot.cube_diagnostics()}},
+\code{\link[=print.cube_diagnostics]{print.cube_diagnostics()}}
 }
 \concept{diagnostic_methods}

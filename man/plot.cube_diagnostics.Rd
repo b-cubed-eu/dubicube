@@ -31,8 +31,8 @@ Three visualisations are supported:
 }
 }
 \seealso{
-Other diagnostic_methods: 
-\code{\link{print.cube_diagnostics}()},
-\code{\link{summary.cube_diagnostics}()}
+Other diagnostic_methods:
+\code{\link[=print.cube_diagnostics]{print.cube_diagnostics()}},
+\code{\link[=summary.cube_diagnostics]{summary.cube_diagnostics()}}
 }
 \concept{diagnostic_methods}

@@ -92,7 +92,7 @@ filtered_cube2 <- filter_cube(
 identical(filtered_cube1$data, filtered_cube2$data)
 }
 \seealso{
-Other data_exploration: 
-\code{\link{diagnose_cube}()}
+Other data_exploration:
+\code{\link[=diagnose_cube]{diagnose_cube()}}
 }
 \concept{data_exploration}

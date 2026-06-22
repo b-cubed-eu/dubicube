@@ -249,7 +249,7 @@ Efron, B., & Tibshirani, R. J. (1994). An Introduction to the Bootstrap
 (1st ed.). Chapman and Hall/CRC. \doi{10.1201/9780429246593}
 }
 \seealso{
-Other indicator_uncertainty: 
-\code{\link{bootstrap_cube}()}
+Other indicator_uncertainty:
+\code{\link[=bootstrap_cube]{bootstrap_cube()}}
 }
 \concept{indicator_uncertainty}

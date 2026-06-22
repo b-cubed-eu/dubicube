@@ -115,10 +115,10 @@ resolve_bootstrap_method(
 )
 }
 \seealso{
-Other indicator_uncertainty_helper: 
-\code{\link{boot_list_to_dataframe}()},
-\code{\link{bootstrap_cube_raw}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{calculate_boot_ci_from_boot}()}
+Other indicator_uncertainty_helper:
+\code{\link[=boot_list_to_dataframe]{boot_list_to_dataframe()}},
+\code{\link[=bootstrap_cube_raw]{bootstrap_cube_raw()}},
+\code{\link[=calculate_acceleration]{calculate_acceleration()}},
+\code{\link[=calculate_boot_ci_from_boot]{calculate_boot_ci_from_boot()}}
 }
 \concept{indicator_uncertainty_helper}

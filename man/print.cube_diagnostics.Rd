@@ -35,8 +35,8 @@ Severity levels are indicated using coloured symbols:
 }
 }
 \seealso{
-Other diagnostic_methods: 
-\code{\link{plot.cube_diagnostics}()},
-\code{\link{summary.cube_diagnostics}()}
+Other diagnostic_methods:
+\code{\link[=plot.cube_diagnostics]{plot.cube_diagnostics()}},
+\code{\link[=summary.cube_diagnostics]{summary.cube_diagnostics()}}
 }
 \concept{diagnostic_methods}

@@ -48,7 +48,7 @@
 #'
 #' @export
 #'
-#' @family indicator_uncertainty
+#' @family indicator_interpretation
 #'
 #' @import dplyr
 #' @importFrom rlang .data

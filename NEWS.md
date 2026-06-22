@@ -1,6 +1,21 @@
-# dubicube 0.11.2
+# dubicube 0.12.4
 
 * Fix code to ensure compatibility with **b3gbi** package
+
+# dubicube 0.12.3
+
+* Add `process_cube_args` in filter function vignette #111
+* Fix bug in rule functions after update example cube in vignette #112
+
+# dubicube 0.12.2
+
+* Update tutorials content based on internal review
+* Add `process_cube_args` argument in `filter_cube()`
+* Change `"heatmap"` to `"rule"` option in `plot.cube_diagnostics()`
+
+# dubicube 0.12.0
+
+* Implement data quality diagnostics and data filtering #90
 
 # dubicube 0.11.1
 

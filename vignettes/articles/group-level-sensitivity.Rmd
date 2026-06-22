@@ -140,16 +140,22 @@ processed_cube
 Suppose we are interested in the average number of observations per grid cell per year.
 We create the function `mean_obs()` to calculate this.
 
+```{r, echo=FALSE}
+# nolint start: object_usage_linter.
+```
+
 ```{r}
 # Function to calculate the mean of observations per grid cell per year
 mean_obs <- function(data) {
-  obs <- x <- NULL
-
   data %>%
-    dplyr::mutate(x = mean(obs), .by = "cellCode") %>%
-    dplyr::summarise(diversity_val = mean(x), .by = "year") %>%
+    mutate(x = mean(obs), .by = "cellCode") %>%
+    summarise(diversity_val = mean(x), .by = "year") %>%
     as.data.frame()
 }
+```
+
+```{r, echo=FALSE}
+# nolint end: object_usage_linter.
 ```
 
 We get the following results:

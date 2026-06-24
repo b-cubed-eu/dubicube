@@ -19,4 +19,4 @@ jobs:
     steps:
       - uses: inbo/actions/check_pkg@main
         with:
-          - aptget: libgit2-dev
+          aptget: libgit2-dev

@@ -17,6 +17,8 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudunits2-dev gdal-bin libgdal-dev libproj-dev
       - uses: inbo/actions/check_pkg@main
-        with:
-          aptget: libgit2-dev

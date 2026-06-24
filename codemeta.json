@@ -57,12 +57,6 @@
   "softwareSuggestions": [
     {
       "@type": "SoftwareApplication",
-      "identifier": "b3gbi",
-      "name": "b3gbi",
-      "sameAs": "https://github.com/b-cubed-eu/b3gbi"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "frictionless",
       "name": "frictionless",
       "provider": {
@@ -222,7 +216,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "2845.782KB",
+  "fileSize": "2845.684KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

@@ -77,10 +77,10 @@ head(bootstrap_df)
 }
 }
 \seealso{
-Other indicator_uncertainty_helper: 
-\code{\link{bootstrap_cube_raw}()},
-\code{\link{calculate_acceleration}()},
-\code{\link{calculate_boot_ci_from_boot}()},
-\code{\link{resolve_bootstrap_method}()}
+Other indicator_uncertainty_helper:
+\code{\link[=bootstrap_cube_raw]{bootstrap_cube_raw()}},
+\code{\link[=calculate_acceleration]{calculate_acceleration()}},
+\code{\link[=calculate_boot_ci_from_boot]{calculate_boot_ci_from_boot()}},
+\code{\link[=resolve_bootstrap_method]{resolve_bootstrap_method()}}
 }
 \concept{indicator_uncertainty_helper}

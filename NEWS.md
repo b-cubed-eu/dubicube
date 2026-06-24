@@ -1,3 +1,7 @@
+# dubicube 0.12.4
+
+* Fix code to ensure compatibility with **b3gbi** package
+
 # dubicube 0.12.3
 
 * Add `process_cube_args` in filter function vignette #111

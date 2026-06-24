@@ -20,5 +20,5 @@ jobs:
       - name: Install spatial dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libudunits2-dev gdal-bin libgdal-dev libproj-dev
+          sudo apt-get install -y libgit2-dev
       - uses: inbo/actions/check_pkg@main
